@@ -39,3 +39,4 @@ out/
 
 my-debug-key.keystore
 .env
+.application.yml

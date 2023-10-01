@@ -5,5 +5,6 @@ import com.blackshoe.moongklheremobileapi.dto.UserDto;
 import org.springframework.http.ResponseEntity;
 
 public interface UserService {
-    public void signIn(UserDto.SignInRequestDto signInRequestDto);
+    void signIn(UserDto.SignInRequestDto signInRequestDto);
+    boolean userExistsByEmail(String email);
 }

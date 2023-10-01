@@ -21,7 +21,6 @@ public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
 
     public void signIn(UserDto.SignInRequestDto signInRequestDto) {
-
         //이미 존재하는 회원
         Optional<User> resultUser = userRepository.findByEmail(signInRequestDto.getEmail());
         if (resultUser.isPresent()){
@@ -30,7 +29,6 @@ public class UserServiceImpl implements UserService{
         }
 
         //TODO: 검증 안된 회원
-
         userRepository.save(User.builder()
                 .email(signInRequestDto.getEmail())
                 .password(signInRequestDto.getPassword())
@@ -40,4 +38,9 @@ public class UserServiceImpl implements UserService{
 
         log.info("회원가입 성공");
     }
+
+    public boolean userExistsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
 }

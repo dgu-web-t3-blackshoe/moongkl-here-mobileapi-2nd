@@ -11,4 +11,5 @@ import java.security.NoSuchAlgorithmException;
 
 public interface SmsService {
     public SmsDto.SmsResponseDto sendSms(SmsDto.MessageDto messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException;
+    public String makeVerificationCode();
 }

@@ -93,16 +93,16 @@ public class PostRepositoryTest {
         final Post savedPost = postRepository.save(post);
 
         //when
-        Post findedPost = postRepository.findById(post.getId()).orElse(null);
+        Post foundPost = postRepository.findById(post.getId()).orElse(null);
 
         //then
-        assertThat(findedPost).isNotNull();
-        assertThat(findedPost.getId()).isEqualTo(post.getId());
-        assertThat(findedPost.getSkinUrl()).isEqualTo(skinUrl);
-        assertThat(findedPost.getLikeCount()).isEqualTo(10);
-        assertThat(findedPost.getFavoriteCount()).isEqualTo(100);
-        assertThat(findedPost.getViewCount()).isEqualTo(20);
-        assertThat(findedPost.isPublic()).isEqualTo(true);
-        assertThat(findedPost.getCreatedAt()).isNotNull();
+        assertThat(foundPost).isNotNull();
+        assertThat(foundPost.getId()).isEqualTo(post.getId());
+        assertThat(foundPost.getSkinUrl()).isEqualTo(skinUrl);
+        assertThat(foundPost.getLikeCount()).isEqualTo(10);
+        assertThat(foundPost.getFavoriteCount()).isEqualTo(100);
+        assertThat(foundPost.getViewCount()).isEqualTo(20);
+        assertThat(foundPost.isPublic()).isEqualTo(true);
+        assertThat(foundPost.getCreatedAt()).isNotNull();
     }
 }

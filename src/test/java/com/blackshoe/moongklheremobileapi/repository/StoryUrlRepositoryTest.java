@@ -46,12 +46,12 @@ public class StoryUrlRepositoryTest {
         final StoryUrl savedStoryUrl = storyUrlRepository.save(storyUrl);
 
         //when
-        final StoryUrl findedStoryUrl = storyUrlRepository.findById(storyUrl.getId()).orElse(null);
+        final StoryUrl foundStoryUrl = storyUrlRepository.findById(storyUrl.getId()).orElse(null);
 
         //then
-        assertThat(findedStoryUrl).isNotNull();
-        assertThat(findedStoryUrl.getId()).isNotNull();
-        assertThat(findedStoryUrl.getS3Url()).isEqualTo("s3Url");
-        assertThat(findedStoryUrl.getCloudfrontUrl()).isEqualTo("cloudfrontUrl");
+        assertThat(foundStoryUrl).isNotNull();
+        assertThat(foundStoryUrl.getId()).isNotNull();
+        assertThat(foundStoryUrl.getS3Url()).isEqualTo("s3Url");
+        assertThat(foundStoryUrl.getCloudfrontUrl()).isEqualTo("cloudfrontUrl");
     }
 }

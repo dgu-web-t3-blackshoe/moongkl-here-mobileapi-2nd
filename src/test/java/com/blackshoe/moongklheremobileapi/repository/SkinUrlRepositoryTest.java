@@ -47,12 +47,12 @@ public class SkinUrlRepositoryTest {
         final SkinUrl savedSkinUrl = skinUrlRepository.save(skinUrl);
 
         //when
-        final SkinUrl findSkinUrl = skinUrlRepository.findById(savedSkinUrl.getId()).orElse(null);
+        final SkinUrl foundSkinUrl = skinUrlRepository.findById(savedSkinUrl.getId()).orElse(null);
 
         //then
-        assertThat(findSkinUrl).isNotNull();
-        assertThat(findSkinUrl.getId()).isNotNull();
-        assertThat(findSkinUrl.getS3Url()).isEqualTo("s3Url");
-        assertThat(findSkinUrl.getCloudfrontUrl()).isEqualTo("cloudfrontUrl");
+        assertThat(foundSkinUrl).isNotNull();
+        assertThat(foundSkinUrl.getId()).isNotNull();
+        assertThat(foundSkinUrl.getS3Url()).isEqualTo("s3Url");
+        assertThat(foundSkinUrl.getCloudfrontUrl()).isEqualTo("cloudfrontUrl");
     }
 }

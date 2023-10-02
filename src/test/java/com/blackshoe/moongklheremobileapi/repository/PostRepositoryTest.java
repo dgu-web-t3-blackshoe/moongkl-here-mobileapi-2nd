@@ -1,9 +1,6 @@
 package com.blackshoe.moongklheremobileapi.repository;
 
-import com.blackshoe.moongklheremobileapi.entity.Post;
-import com.blackshoe.moongklheremobileapi.entity.SkinTime;
-import com.blackshoe.moongklheremobileapi.entity.SkinUrl;
-import com.blackshoe.moongklheremobileapi.entity.StoryUrl;
+import com.blackshoe.moongklheremobileapi.entity.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +33,8 @@ public class PostRepositoryTest {
         final SkinTime skinTime = SkinTime.builder()
                 .build();
 
-//        SkinLocation skinLocation = SkinLocation.builder()
-//                .build();
+        final SkinLocation skinLocation = SkinLocation.builder()
+                .build();
 //
 //        User user = User.builder()
 //                .build();
@@ -47,7 +44,7 @@ public class PostRepositoryTest {
                 .storyUrl(storyUrl)
                 .storyUrl(storyUrl)
                 .skinTime(skinTime)
-//                .skinLocation(skinLocation)
+                .skinLocation(skinLocation)
 //                .user(user)
                 .likeCount(10)
                 .favoriteCount(100)
@@ -64,7 +61,7 @@ public class PostRepositoryTest {
         assertThat(savedPost.getSkinUrl()).isEqualTo(skinUrl);
         assertThat(savedPost.getStoryUrl()).isEqualTo(storyUrl);
         assertThat(savedPost.getSkinTime()).isEqualTo(skinTime);
-//        assertThat(savedPost.getSkinLocation()).isEqualTo(skinLocation);
+        assertThat(savedPost.getSkinLocation()).isEqualTo(skinLocation);
 //        assertThat(savedPost.getUser()).isEqualTo(user);
         assertThat(savedPost.getLikeCount()).isEqualTo(10);
         assertThat(savedPost.getFavoriteCount()).isEqualTo(100);
@@ -85,10 +82,14 @@ public class PostRepositoryTest {
         final SkinTime skinTime = SkinTime.builder()
                 .build();
 
+        final SkinLocation skinLocation = SkinLocation.builder()
+                .build();
+
         final Post post = Post.builder()
                 .skinUrl(skinUrl)
                 .storyUrl(storyUrl)
                 .skinTime(skinTime)
+                .skinLocation(skinLocation)
                 .likeCount(10)
                 .favoriteCount(100)
                 .viewCount(20)
@@ -106,6 +107,7 @@ public class PostRepositoryTest {
         assertThat(foundPost.getSkinUrl()).isEqualTo(skinUrl);
         assertThat(foundPost.getStoryUrl()).isEqualTo(storyUrl);
         assertThat(foundPost.getSkinTime()).isEqualTo(skinTime);
+        assertThat(foundPost.getSkinLocation()).isEqualTo(skinLocation);
         assertThat(foundPost.getLikeCount()).isEqualTo(10);
         assertThat(foundPost.getFavoriteCount()).isEqualTo(100);
         assertThat(foundPost.getViewCount()).isEqualTo(20);

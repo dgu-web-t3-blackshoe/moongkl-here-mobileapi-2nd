@@ -3,6 +3,8 @@ package com.blackshoe.moongklheremobileapi.service;
 import com.blackshoe.moongklheremobileapi.dto.SmsDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +27,9 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class SmsServiceImpl {
     @Value("${naver-cloud-sms.accessKey}")
     private String accessKey;
@@ -37,7 +41,7 @@ public class SmsServiceImpl {
     private String serviceId;
 
     @Value("${naver-cloud-sms.senderPhone}")
-    private String phone;
+    private String senderPhone;
 
     public String makeSignature(Long time) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
         String space = " ";
@@ -85,7 +89,7 @@ public class SmsServiceImpl {
                 .type("SMS")
                 .contentType("COMM")
                 .countryCode("82")
-                .from(phone)
+                .from(senderPhone)
                 //TODO:이게 아니라 네자릿수 인증코드 들어가야함
                 .content(messageDto.getContent())
                 .messages(messages)
@@ -97,8 +101,16 @@ public class SmsServiceImpl {
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        SmsDto.SmsResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"), httpBody, SmsResponseDto.class);
+        SmsDto.SmsResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"), httpBody, SmsDto.SmsResponseDto.class);
 
         return response;
+    }
+
+    public String makeVerificationCode() {
+        String verificationCode = "";
+        for (int i = 0; i < 4; i++) {
+            verificationCode += (int)(Math.random() * 10);
+        }
+        return verificationCode;
     }
 }

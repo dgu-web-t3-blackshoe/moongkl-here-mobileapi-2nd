@@ -23,6 +23,10 @@ public class UserServiceImpl implements UserService{
     public void signIn(UserDto.SignInRequestDto signInRequestDto) {
         //이미 존재하는 회원
         Optional<User> resultUser = userRepository.findByEmail(signInRequestDto.getEmail());
+        if (resultUser.isPresent()){
+            log.info("이미 존재하는 회원");
+            throw new UserException(UserErrorResult.DUPLICATED_EMAIL);
+        }
 
         //TODO: 검증 안된 회원
         userRepository.save(User.builder()

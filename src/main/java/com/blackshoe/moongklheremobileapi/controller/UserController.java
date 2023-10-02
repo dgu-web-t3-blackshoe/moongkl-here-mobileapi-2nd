@@ -8,10 +8,8 @@ import com.blackshoe.moongklheremobileapi.exception.UserException;
 import com.blackshoe.moongklheremobileapi.service.SmsService;
 import com.blackshoe.moongklheremobileapi.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,10 +28,11 @@ import java.security.NoSuchAlgorithmException;
 @RequestMapping("/users")
 @Controller @RequiredArgsConstructor
 public class UserController {
+
     private final UserService userService;
+
     private final SmsService smsService;
 
-    //모든 userException : 400
     @PostMapping
     public void signIn(@RequestBody UserDto.SignInRequestDto signInRequestDto) throws Exception{
         //필수값 누락
@@ -62,30 +61,18 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
     }
-/*
-    //TODO:action에 따라 분기 나누기, messageDto에서 to만 받고 content는 랜덤 문자열 4자릿수 만들어서 redis에 저장, 검증할 때는 redis로 성공 실패여부 파악하기.
-    @PostMapping("/sign-in/phone?action={action}")
-    public ResponseEntity<ResponseDto> verification(SmsDto.MessageDto messageDto, @RequestParam String action) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
-        switch (action) {
-            case "validation":
 
-                break;
-            case "verification":
-                break;
+    //TODO:messageDto에서 to만 받고 content는 랜덤 문자열 4자릿수 만들어서 redis에 저장, 검증할 때는 redis로 성공 실패여부 파악하기.
+    @PostMapping("/sign-in/phone/validation")
+    public ResponseEntity<ResponseDto> verification(@RequestBody String phone) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-            default:
-                break;
-        }
+        SmsDto.MessageDto messageDto = new SmsDto.MessageDto();
+        messageDto.setTo(phone);
+        String content = "[뭉클히어] 인증번호는 [" + smsService.makeVerificationCode() + "] 입니다.";
+        messageDto.setContent(content);
+
         SmsDto.SmsResponseDto smsResponseDto = smsService.sendSms(messageDto);
 
-        return "result";
-    }
-*/
-    public String makeVerificationCode() {
-        String verificationCode = "";
-        for (int i = 0; i < 4; i++) {
-            verificationCode += (int)(Math.random() * 10);
-        }
-        return verificationCode;
+        return null;
     }
 }

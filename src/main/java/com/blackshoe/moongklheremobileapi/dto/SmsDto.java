@@ -12,7 +12,7 @@ public class SmsDto {
     @Setter
     @Getter
     @Builder
-    public class MessageDto {
+    public static class MessageDto {
         String to;
         String content;
     }
@@ -22,7 +22,7 @@ public class SmsDto {
     @Setter
     @Getter
     @Builder
-    public class SmsRequestDto {
+    public static class SmsRequestDto {
         String type;
         String contentType;
         String countryCode;
@@ -37,7 +37,7 @@ public class SmsDto {
     @Setter
     @Getter
     @Builder
-    public class SmsResponseDto {
+    public static class SmsResponseDto {
         String requestId;
         LocalDateTime requestTime;
         String statusCode;

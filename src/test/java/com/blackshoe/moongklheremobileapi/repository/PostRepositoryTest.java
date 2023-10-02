@@ -2,6 +2,7 @@ package com.blackshoe.moongklheremobileapi.repository;
 
 import com.blackshoe.moongklheremobileapi.entity.Post;
 import com.blackshoe.moongklheremobileapi.entity.SkinUrl;
+import com.blackshoe.moongklheremobileapi.entity.StoryUrl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +26,12 @@ public class PostRepositoryTest {
     @Test
     public void PostSave() {
         //given
-        SkinUrl skinUrl = SkinUrl.builder()
+        final SkinUrl skinUrl = SkinUrl.builder()
                 .build();
 
-//        StoryUrl storyUrl = StoryUrl.builder()
-//                .build();
-//
+        final StoryUrl storyUrl = StoryUrl.builder()
+                .build();
+
 //        SkinTime skinTime = SkinTime.builder()
 //                .build();
 //
@@ -42,7 +43,8 @@ public class PostRepositoryTest {
 
         final Post post = Post.builder()
                 .skinUrl(skinUrl)
-//                .storyUrl(storyUrl)
+                .storyUrl(storyUrl)
+                .storyUrl(storyUrl)
 //                .skinTime(skinTime)
 //                .skinLocation(skinLocation)
 //                .user(user)
@@ -59,7 +61,7 @@ public class PostRepositoryTest {
         assertThat(savedPost).isNotNull();
         assertThat(savedPost.getId()).isNotNull();
         assertThat(savedPost.getSkinUrl()).isEqualTo(skinUrl);
-//        assertThat(savedPost.getStoryUrl()).isEqualTo(storyUrl);
+        assertThat(savedPost.getStoryUrl()).isEqualTo(storyUrl);
 //        assertThat(savedPost.getSkinTime()).isEqualTo(skinTime);
 //        assertThat(savedPost.getSkinLocation()).isEqualTo(skinLocation);
 //        assertThat(savedPost.getUser()).isEqualTo(user);
@@ -73,18 +75,22 @@ public class PostRepositoryTest {
     @Test
     public void PostFindById() {
         //given
-        SkinUrl skinUrl = SkinUrl.builder()
+        final SkinUrl skinUrl = SkinUrl.builder()
                 .build();
 
-        Post post = Post.builder()
+        final StoryUrl storyUrl = StoryUrl.builder()
+                .build();
+
+        final Post post = Post.builder()
                 .skinUrl(skinUrl)
+                .storyUrl(StoryUrl.builder().build())
                 .likeCount(10)
                 .favoriteCount(100)
                 .viewCount(20)
                 .isPublic(true)
                 .build();
 
-        postRepository.save(post);
+        final Post savedPost = postRepository.save(post);
 
         //when
         Post findedPost = postRepository.findById(post.getId()).orElse(null);

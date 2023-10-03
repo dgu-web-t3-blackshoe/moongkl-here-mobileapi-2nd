@@ -1,6 +1,6 @@
 package com.blackshoe.moongklheremobileapi.dto;
 
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -12,5 +12,26 @@ public class UserDto {
         private String password;
         private String nickname;
         private String phoneNumber;
+    }
+
+    @Getter
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    public static class SignInResponseDto{
+        private String userId;
+        private LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    public static class UpdatePasswordRequestDto{
+        private String email;
+        private String newPassword;
+    }
+
+    @Getter
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    public static class UpdatePasswordResponseDto{
+        private String userId;
+        private LocalDateTime updatedAt;
     }
 }

@@ -1,12 +1,15 @@
 package com.blackshoe.moongklheremobileapi.controller;
 
+import com.blackshoe.moongklheremobileapi.dto.MailDto;
 import com.blackshoe.moongklheremobileapi.dto.ResponseDto;
 import com.blackshoe.moongklheremobileapi.dto.SmsDto;
 import com.blackshoe.moongklheremobileapi.dto.UserDto;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.UserException;
+import com.blackshoe.moongklheremobileapi.service.MailService;
 import com.blackshoe.moongklheremobileapi.service.SmsService;
 import com.blackshoe.moongklheremobileapi.service.UserService;
+import com.blackshoe.moongklheremobileapi.service.VerificationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +18,7 @@ import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 
 import java.io.UnsupportedEncodingException;
@@ -26,6 +26,7 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @RequestMapping("/users")
@@ -35,8 +36,9 @@ public class UserController {
 
     private final UserService userService;
     private final SmsService smsService;
+    private final VerificationService verificationService;
+    private final MailService mailService;
     private final ObjectMapper objectMapper;
-
     private String phoneNumberRegex = "^01(?:0|1|[6-9])(?:\\d{3}|\\d{4})\\d{4}$";
     private String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
     private String passwordRegex = "^(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,20}$";
@@ -83,7 +85,7 @@ public class UserController {
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
-            if(smsService.isNotVerified(signInRequestDto.getPhoneNumber())) {
+            if(verificationService.isExistsValidationCode(signInRequestDto.getPhoneNumber())) {
                 log.info("인증되지 않은 전화번호");
                 UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_PHONE_NUMBER;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -102,9 +104,13 @@ public class UserController {
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
-            userService.signIn(signInRequestDto);
+            UserDto.SignInResponseDto signInResponseDto = userService.signIn(signInRequestDto);
 
-            return ResponseEntity.status(HttpStatus.CREATED).build(); //201
+            ResponseDto responseDto = ResponseDto.builder()
+                    .payload(objectMapper.convertValue(signInResponseDto, Map.class))
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDto); //201
         }catch (Exception e) {
             log.info("회원가입 실패");
             ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
@@ -113,6 +119,7 @@ public class UserController {
         }
     }
 
+    /*
     @PostMapping("/sign-in/email/validation")
     public ResponseEntity<ResponseDto> validationEmail(@RequestBody String email) {
         try {
@@ -140,11 +147,131 @@ public class UserController {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
         }
+    }*/
+    @PostMapping("/sign-in/email/validation")
+    public ResponseEntity<ResponseDto> validationEmail(@RequestBody MailDto.MailRequestDto mailRequestDto) {
+        try {
+            String email = mailRequestDto.getEmail();
+
+            if(!email.matches(emailRegex)) {
+                log.info("유효하지 않은 이메일");
+                UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+
+            if(!userService.userExistsByEmail(email)) {
+                log.info("존재하지 않는 회원");
+                UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
+
+                ResponseDto responseDto = ResponseDto.builder()
+                        .error(userErrorResult.getMessage())
+                        .build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+
+            String verificationCode = verificationService.makeVerificationCode();
+
+            MailDto.MailSendDto mailSendDto = MailDto.MailSendDto.builder()
+                    .email(email)
+                    .title("뭉클히어 이메일 인증코드입니다.")
+                    .content("인증번호는 [" + verificationCode + "]입니다.")
+                    .build();
+            mailService.sendMail(mailSendDto);
+
+            verificationService.saveVerificationCode(email, verificationCode);
+
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
+        }catch(Exception e){
+            log.info("이메일 인증코드 발송 실패");
+            ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        }
     }
 
-    //TODO:messageDto에서 to만 받고 content는 랜덤 문자열 4자릿수 만들어서 redis에 저장(Service단에서 저장), 검증할 때는 redis로 성공 실패여부 파악하기. countrycode 받아서 넣기
+    @PostMapping("/sign-in/email/verification")
+    public ResponseEntity<ResponseDto> verificationEmail(@RequestBody MailDto.MailVerifyDto mailVerifyDto) {
+        try {
+            String email = mailVerifyDto.getEmail();
+
+            if(!email.matches(emailRegex)) {
+                log.info("유효하지 않은 이메일");
+                UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+
+            if (verificationService.verifyCode(email, mailVerifyDto.getVerificationCode())) {
+                log.info("인증 코드 검증 성공");
+                //검증 성공 후 코드 삭제
+                verificationService.deleteCode(email);
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
+            } else {
+                log.info("인증 코드 검증 실패");
+                UserErrorResult userErrorResult = UserErrorResult.FAILED_VALIDATING_CODE;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+        }catch(Exception e){
+            ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        }
+    }
+
+    //비밀번호 변경, 메일로 인증코드 발송(레디스에 저장), 인증 성공 시(레디스에서 삭제), 인증 실패 혹은 인증 안했을 시 레디스에 존재하므로 실패
+    @PutMapping("/sign-in/{userId}/password")
+    public ResponseEntity<ResponseDto> updatePassword(@RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto, @PathVariable String userId){
+        try{
+            String email = updatePasswordRequestDto.getEmail();
+            if(!email.matches(emailRegex)) {
+                log.info("유효하지 않은 이메일");
+                UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+
+            if(verificationService.isExistsValidationCode(email)){
+                log.info("검증되지 않은 이메일");
+                UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_EMAIL;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+
+            if (!updatePasswordRequestDto.getNewPassword().matches(passwordRegex)) {
+                log.info("유효하지 않은 비밀번호");
+                UserErrorResult userErrorResult = UserErrorResult.INVALID_PASSWORD;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+            userService.updatePassword(updatePasswordRequestDto, userId);
+
+            UserDto.UpdatePasswordResponseDto updatePasswordResponseDto = userService.updatePassword(updatePasswordRequestDto, userId);
+
+            ResponseDto responseDto = ResponseDto.builder()
+                    .payload(objectMapper.convertValue(updatePasswordResponseDto, Map.class))
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseDto); //204
+
+        }catch(Exception e){
+            log.info("비밀번호 변경 실패");
+            ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        }
+    }
+
     @PostMapping("/sign-in/phone/validation")
-    public ResponseEntity<ResponseDto> validation(@RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto> validationPhoneNumber(@RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         try {
             String phoneNumber = validationRequestDto.getPhone_number();
 
@@ -156,17 +283,18 @@ public class UserController {
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
+            String verificationCode = verificationService.makeVerificationCode();
+
             SmsDto.MessageDto messageDto = SmsDto.MessageDto.builder()
                     .to(phoneNumber)
-                    .content("[뭉클히어] 인증번호는 [" + smsService.makeVerificationCode() + "]입니다.")
+                    .content("[뭉클히어] 인증번호는 [" + verificationCode + "]입니다.")
                     .build();
 
             SmsDto.SmsResponseDto smsResponseDto = smsService.sendSms(messageDto);
-            ResponseDto responseDto = ResponseDto.builder()
-                    .payload(objectMapper.convertValue(smsResponseDto, Map.class))
-                    .build();
 
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto); //204
+            verificationService.saveVerificationCode(phoneNumber, verificationCode);
+
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
         }catch(Exception e){
             ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
 
@@ -174,7 +302,7 @@ public class UserController {
         }
     }
     @PostMapping("/sign-in/phone/verification")
-    public ResponseEntity<ResponseDto> verification(@RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto> verificationPhoneNumber(@RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         try {
             String phoneNumber = verificationRequestDto.getPhone_number();
 
@@ -186,10 +314,10 @@ public class UserController {
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
-            if (smsService.verifyCode(verificationRequestDto.getPhone_number(), verificationRequestDto.getVerification_code())) {
+            if (verificationService.verifyCode(verificationRequestDto.getPhone_number(), verificationRequestDto.getVerification_code())) {
                 log.info("인증 코드 검증 성공 성공");
                 //검증 성공 후 코드 삭제
-                smsService.deleteCode(verificationRequestDto.getPhone_number());
+                verificationService.deleteCode(verificationRequestDto.getPhone_number());
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
             } else {
                 log.info("인증 코드 검증 실패");

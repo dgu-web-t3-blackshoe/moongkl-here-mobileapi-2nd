@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
@@ -14,12 +15,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-@NoArgsConstructor @AllArgsConstructor @Getter @Builder
+@NoArgsConstructor @AllArgsConstructor @Getter @Builder(toBuilder = true)
 public class User {
     @Id
     @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "id", columnDefinition = "BINARY(16)")
+    @Type(type = "uuid-char")
     private UUID id;
 
     @Column(name = "email", nullable = false, length = 50)

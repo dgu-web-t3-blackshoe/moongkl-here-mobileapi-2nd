@@ -7,9 +7,19 @@ import java.util.List;
 
 public class SmsDto {
 
+    @Getter @Builder @NoArgsConstructor @AllArgsConstructor
+    public static class ValidationRequestDto{
+        String phone_number;
+    }
+
+    @Getter @Builder @NoArgsConstructor @AllArgsConstructor
+    public static class VerificationRequestDto{
+        String phone_number;
+        String verification_code;
+    }
+
     @AllArgsConstructor
     @NoArgsConstructor
-    @Setter
     @Getter
     @Builder
     public static class MessageDto {
@@ -19,7 +29,6 @@ public class SmsDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @Setter
     @Getter
     @Builder
     public static class SmsRequestDto {
@@ -34,7 +43,6 @@ public class SmsDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @Setter
     @Getter
     @Builder
     public static class SmsResponseDto {

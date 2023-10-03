@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -30,17 +31,20 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SmsServiceImpl {
-    @Value("${naver-cloud-sms.accessKey}")
+public class SmsServiceImpl implements SmsService{
+
+    private final StringRedisTemplate redisTemplate;
+
+    @Value("${naverCloudSms.accessKey}")
     private String accessKey;
 
-    @Value("${naver-cloud-sms.secretKey}")
+    @Value("${naverCloudSms.secretKey}")
     private String secretKey;
 
-    @Value("${naver-cloud-sms.serviceId}")
+    @Value("${naverCloudSms.serviceId}")
     private String serviceId;
 
-    @Value("${naver-cloud-sms.senderPhone}")
+    @Value("${naverCloudSms.senderPhoneNumber}")
     private String senderPhone;
 
     public String makeSignature(Long time) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
@@ -72,7 +76,6 @@ public class SmsServiceImpl {
         return encodeBase64String;
     }
 
-
     public SmsDto.SmsResponseDto sendSms(SmsDto.MessageDto messageDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         Long time = System.currentTimeMillis();
 
@@ -90,7 +93,6 @@ public class SmsServiceImpl {
                 .contentType("COMM")
                 .countryCode("82")
                 .from(senderPhone)
-                //TODO:이게 아니라 네자릿수 인증코드 들어가야함
                 .content(messageDto.getContent())
                 .messages(messages)
                 .build();
@@ -103,6 +105,9 @@ public class SmsServiceImpl {
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         SmsDto.SmsResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"), httpBody, SmsDto.SmsResponseDto.class);
 
+        saveVerificationCode(messageDto.getTo(), messageDto.getContent().substring(14, 18)); // 4자리수 추출
+        log.info("redis에 인증코드 저장 완료");
+
         return response;
     }
 
@@ -112,5 +117,22 @@ public class SmsServiceImpl {
             verificationCode += (int)(Math.random() * 10);
         }
         return verificationCode;
+    }
+
+    private void saveVerificationCode(String phoneNumber, String verificationCode) {
+        redisTemplate.opsForValue().set(phoneNumber, verificationCode);
+    }
+
+    public boolean verifyCode(String phoneNumber, String verificationCode) {
+        String code = redisTemplate.opsForValue().get(phoneNumber);
+        return code.equals(verificationCode);
+    }
+
+    public void deleteCode(String phoneNumber) {
+        redisTemplate.delete(phoneNumber);
+    }
+
+    public boolean isNotVerified(String phoneNumber) {
+        return redisTemplate.hasKey(phoneNumber);
     }
 }

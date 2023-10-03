@@ -106,9 +106,6 @@ public class SmsServiceImpl implements SmsService{
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         SmsDto.SmsResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"), httpBody, SmsDto.SmsResponseDto.class);
 
-        verificationService.saveVerificationCode(messageDto.getTo(), messageDto.getContent().substring(14, 18)); // 4자리수 추출
-        log.info("redis에 인증코드 저장 완료");
-
         return response;
     }
 

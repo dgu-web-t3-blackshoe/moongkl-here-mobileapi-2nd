@@ -85,7 +85,7 @@ public class UserController {
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
-            if(verificationService.isExistsValidationCode(signInRequestDto.getPhoneNumber())) {
+            if(!verificationService.isVerified(signInRequestDto.getPhoneNumber())) {
                 log.info("인증되지 않은 전화번호");
                 UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_PHONE_NUMBER;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -182,6 +182,7 @@ public class UserController {
             mailService.sendMail(mailSendDto);
 
             verificationService.saveVerificationCode(email, verificationCode);
+            verificationService.saveCompletionCode(email, false);
 
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
         }catch(Exception e){
@@ -207,8 +208,10 @@ public class UserController {
 
             if (verificationService.verifyCode(email, mailVerifyDto.getVerificationCode())) {
                 log.info("인증 코드 검증 성공");
-                //검증 성공 후 코드 삭제
-                verificationService.deleteCode(email);
+                //검증 성공 후 코드 삭제, 완료 코드 생성
+                verificationService.deleteVerificationCode(email);
+                verificationService.saveCompletionCode(email, true);
+
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
             } else {
                 log.info("인증 코드 검증 실패");
@@ -224,7 +227,6 @@ public class UserController {
         }
     }
 
-    //비밀번호 변경, 메일로 인증코드 발송(레디스에 저장), 인증 성공 시(레디스에서 삭제), 인증 실패 혹은 인증 안했을 시 레디스에 존재하므로 실패
     @PutMapping("/sign-in/{userId}/password")
     public ResponseEntity<ResponseDto> updatePassword(@RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto, @PathVariable String userId){
         try{
@@ -237,7 +239,7 @@ public class UserController {
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
-            if(verificationService.isExistsValidationCode(email)){
+            if(!verificationService.isVerified(email)){
                 log.info("검증되지 않은 이메일");
                 UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_EMAIL;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -293,6 +295,7 @@ public class UserController {
             SmsDto.SmsResponseDto smsResponseDto = smsService.sendSms(messageDto);
 
             verificationService.saveVerificationCode(phoneNumber, verificationCode);
+            verificationService.saveCompletionCode(phoneNumber, false);
 
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
         }catch(Exception e){
@@ -316,8 +319,9 @@ public class UserController {
 
             if (verificationService.verifyCode(verificationRequestDto.getPhone_number(), verificationRequestDto.getVerification_code())) {
                 log.info("인증 코드 검증 성공 성공");
-                //검증 성공 후 코드 삭제
-                verificationService.deleteCode(verificationRequestDto.getPhone_number());
+
+                verificationService.deleteVerificationCode(verificationRequestDto.getPhone_number());
+                verificationService.saveCompletionCode(verificationRequestDto.getPhone_number(), true);
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
             } else {
                 log.info("인증 코드 검증 실패");

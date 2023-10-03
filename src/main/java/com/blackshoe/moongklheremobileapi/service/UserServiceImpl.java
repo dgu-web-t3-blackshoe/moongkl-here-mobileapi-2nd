@@ -47,7 +47,6 @@ public class UserServiceImpl implements UserService{
     public UserDto.UpdatePasswordResponseDto updatePassword(UserDto.UpdatePasswordRequestDto updatePasswordRequestDto, String userId) {
 
         UUID uuid = UUID.fromString(userId);
-        log.info(uuid.toString());
 
         User originalUser = userRepository.findById(uuid)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));

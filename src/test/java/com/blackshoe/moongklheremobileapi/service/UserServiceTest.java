@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,7 +29,6 @@ public class UserServiceTest {
     UserServiceImpl userServiceImpl;
     public User user(){
         return User.builder()
-                .id(1L)
                 .email("test@test.com")
                 .password("test")
                 .nickname("test")

@@ -45,8 +45,6 @@ public class UserRepositoryTest {
     public User user(){
         return
                 User.builder()
-                .id(1L)
-                .userId("test")
                 .nickname("test")
                 .email("test@test.com")
                 .password("test")

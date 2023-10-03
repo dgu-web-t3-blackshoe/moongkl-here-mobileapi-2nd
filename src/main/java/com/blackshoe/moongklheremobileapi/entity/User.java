@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -33,6 +34,9 @@ public class User {
 
     @Column(name = "phone_number", nullable = false, length = 20)
     private String phoneNumber;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Post> post;
 
     @CreationTimestamp @Column(name = "created_at", nullable = false, length = 20)
     private LocalDateTime createdAt;

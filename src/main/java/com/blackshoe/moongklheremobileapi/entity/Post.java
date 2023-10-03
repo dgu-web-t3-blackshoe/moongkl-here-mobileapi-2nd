@@ -37,6 +37,10 @@ public class Post {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private SkinLocation skinLocation;
 
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "post_fk_user_id"))
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private User user;
+
     @ColumnDefault("0")
     private long likeCount;
 
@@ -61,6 +65,7 @@ public class Post {
                 StoryUrl storyUrl,
                 SkinTime skinTime,
                 SkinLocation skinLocation,
+                User user,
                 long likeCount,
                 long favoriteCount,
                 long commentCount,
@@ -72,6 +77,7 @@ public class Post {
         this.storyUrl = storyUrl;
         this.skinTime = skinTime;
         this.skinLocation = skinLocation;
+        this.user = user;
         this.likeCount = likeCount;
         this.favoriteCount = favoriteCount;
         this.commentCount = commentCount;

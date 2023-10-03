@@ -28,7 +28,6 @@ public class UserServiceTest {
     UserServiceImpl userServiceImpl;
     public User user(){
         return User.builder()
-                .id(1L)
                 .email("test@test.com")
                 .password("test")
                 .nickname("test")

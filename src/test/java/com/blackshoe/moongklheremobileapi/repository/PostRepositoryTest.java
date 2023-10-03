@@ -35,9 +35,13 @@ public class PostRepositoryTest {
 
         final SkinLocation skinLocation = SkinLocation.builder()
                 .build();
-//
-//        User user = User.builder()
-//                .build();
+
+        final User user = User.builder()
+                .email("")
+                .password("")
+                .nickname("")
+                .phoneNumber("")
+                .build();
 
         final Post post = Post.builder()
                 .skinUrl(skinUrl)
@@ -45,7 +49,7 @@ public class PostRepositoryTest {
                 .storyUrl(storyUrl)
                 .skinTime(skinTime)
                 .skinLocation(skinLocation)
-//                .user(user)
+                .user(user)
                 .likeCount(10)
                 .favoriteCount(100)
                 .viewCount(20)
@@ -62,7 +66,7 @@ public class PostRepositoryTest {
         assertThat(savedPost.getStoryUrl()).isEqualTo(storyUrl);
         assertThat(savedPost.getSkinTime()).isEqualTo(skinTime);
         assertThat(savedPost.getSkinLocation()).isEqualTo(skinLocation);
-//        assertThat(savedPost.getUser()).isEqualTo(user);
+        assertThat(savedPost.getUser()).isEqualTo(user);
         assertThat(savedPost.getLikeCount()).isEqualTo(10);
         assertThat(savedPost.getFavoriteCount()).isEqualTo(100);
         assertThat(savedPost.getViewCount()).isEqualTo(20);
@@ -85,11 +89,19 @@ public class PostRepositoryTest {
         final SkinLocation skinLocation = SkinLocation.builder()
                 .build();
 
+        final User user = User.builder()
+                .email("")
+                .password("")
+                .nickname("")
+                .phoneNumber("")
+                .build();
+
         final Post post = Post.builder()
                 .skinUrl(skinUrl)
                 .storyUrl(storyUrl)
                 .skinTime(skinTime)
                 .skinLocation(skinLocation)
+                .user(user)
                 .likeCount(10)
                 .favoriteCount(100)
                 .viewCount(20)
@@ -108,6 +120,7 @@ public class PostRepositoryTest {
         assertThat(foundPost.getStoryUrl()).isEqualTo(storyUrl);
         assertThat(foundPost.getSkinTime()).isEqualTo(skinTime);
         assertThat(foundPost.getSkinLocation()).isEqualTo(skinLocation);
+        assertThat(foundPost.getUser()).isEqualTo(user);
         assertThat(foundPost.getLikeCount()).isEqualTo(10);
         assertThat(foundPost.getFavoriteCount()).isEqualTo(100);
         assertThat(foundPost.getViewCount()).isEqualTo(20);

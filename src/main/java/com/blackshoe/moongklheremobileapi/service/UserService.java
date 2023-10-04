@@ -9,4 +9,5 @@ public interface UserService {
     boolean userExistsByEmail(String email);
     UserDto.UpdatePasswordResponseDto updatePassword(UserDto.UpdatePasswordRequestDto updatePasswordRequestDto, String userId);
 
+    UserDto.LoginResponseDto login(UserDto.LoginRequestDto loginRequestDto);
 }

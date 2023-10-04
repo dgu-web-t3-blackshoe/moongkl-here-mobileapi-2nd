@@ -46,6 +46,46 @@ public class UserController {
     //닉네임 한글 포함 8자리 이하 특수문자X
     private String nicknameRegex = "^[가-힣a-zA-Z0-9]{1,8}$";
 
+    @PostMapping("/login")
+    public ResponseEntity<ResponseDto> login(@RequestBody UserDto.LoginRequestDto loginRequestDto) {
+        try {
+            if (loginRequestDto.getEmail() == null || loginRequestDto.getPassword() == null) {
+                log.info("필수값 누락");
+                UserErrorResult userErrorResult = UserErrorResult.REQUIRED_VALUE;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+            if (!loginRequestDto.getEmail().matches(emailRegex)) {
+                log.info("유효하지 않은 이메일");
+                UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+            if (!loginRequestDto.getPassword().matches(passwordRegex)) {
+                log.info("유효하지 않은 비밀번호");
+                UserErrorResult userErrorResult = UserErrorResult.INVALID_PASSWORD;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+
+            UserDto.LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
+
+            ResponseDto responseDto = ResponseDto.builder()
+                    .payload(objectMapper.convertValue(loginResponseDto, Map.class))
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
+        }catch (Exception e) {
+            log.info("로그인 실패");
+            ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        }
+    }
+
     @PostMapping
     public ResponseEntity<ResponseDto> signIn(@RequestBody UserDto.SignInRequestDto signInRequestDto) throws Exception{
         try {
@@ -318,7 +358,7 @@ public class UserController {
             }
 
             if (verificationService.verifyCode(verificationRequestDto.getPhone_number(), verificationRequestDto.getVerification_code())) {
-                log.info("인증 코드 검증 성공 성공");
+                log.info("인증 코드 검증 성공");
 
                 verificationService.deleteVerificationCode(verificationRequestDto.getPhone_number());
                 verificationService.saveCompletionCode(verificationRequestDto.getPhone_number(), true);

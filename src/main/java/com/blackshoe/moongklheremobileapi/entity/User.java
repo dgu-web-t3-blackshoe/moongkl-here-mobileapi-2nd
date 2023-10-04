@@ -34,6 +34,10 @@ public class User {
     @Column(name = "phone_number", nullable = false, length = 20)
     private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 20)
+    private Role role;
+
     @CreationTimestamp @Column(name = "created_at", nullable = false, length = 20)
     private LocalDateTime createdAt;
 

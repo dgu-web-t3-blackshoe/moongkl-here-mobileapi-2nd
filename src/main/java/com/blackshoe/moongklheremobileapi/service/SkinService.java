@@ -5,6 +5,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
-public interface PostUploadService {
+public interface SkinService {
     SkinUrl uploadSkin(UUID userId, MultipartFile skin);
 }

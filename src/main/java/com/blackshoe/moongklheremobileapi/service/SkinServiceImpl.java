@@ -14,11 +14,11 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-public class PostUploadServiceImpl implements PostUploadService {
+public class SkinServiceImpl implements SkinService {
 
     private final AmazonS3Client amazonS3Client;
 
-    public PostUploadServiceImpl(AmazonS3Client amazonS3Client) {
+    public SkinServiceImpl(AmazonS3Client amazonS3Client) {
         this.amazonS3Client = amazonS3Client;
     }
 

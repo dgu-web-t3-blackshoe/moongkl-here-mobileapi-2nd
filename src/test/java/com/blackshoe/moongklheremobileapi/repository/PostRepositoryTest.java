@@ -1,8 +1,11 @@
 package com.blackshoe.moongklheremobileapi.repository;
 
 import com.blackshoe.moongklheremobileapi.entity.*;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
@@ -16,6 +19,8 @@ public class PostRepositoryTest {
     @Autowired
     private PostRepository postRepository;
 
+    private Logger log = LoggerFactory.getLogger(PostRepositoryTest.class);
+
     @Test
     public void PostRepositoryIsNotNull() {
         assertThat(postRepository).isNotNull();
@@ -25,22 +30,36 @@ public class PostRepositoryTest {
     public void PostSave() {
         //given
         final SkinUrl skinUrl = SkinUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
                 .build();
 
         final StoryUrl storyUrl = StoryUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
                 .build();
 
         final SkinTime skinTime = SkinTime.builder()
+                .year(2021)
+                .month(1)
+                .day(1)
+                .hour(1)
+                .minute(1)
                 .build();
 
         final SkinLocation skinLocation = SkinLocation.builder()
+                .latitude(1.0)
+                .longitude(1.0)
+                .country("test")
+                .state("test")
+                .city("test")
                 .build();
 
         final User user = User.builder()
-                .email("")
-                .password("")
-                .nickname("")
-                .phoneNumber("")
+                .email("test")
+                .password("test")
+                .nickname("test")
+                .phoneNumber("test")
                 .build();
 
         final Post post = Post.builder()
@@ -62,42 +81,64 @@ public class PostRepositoryTest {
         //then
         assertThat(savedPost).isNotNull();
         assertThat(savedPost.getId()).isNotNull();
+        log.info("savedPost.getId() = {}", savedPost.getId());
         assertThat(savedPost.getSkinUrl()).isEqualTo(skinUrl);
+        log.info("skinUrl.getId() = {}", savedPost.getSkinUrl().getId());
         assertThat(savedPost.getStoryUrl()).isEqualTo(storyUrl);
+        log.info("storyUrl.getId() = {}", savedPost.getStoryUrl().getId());
         assertThat(savedPost.getSkinTime()).isEqualTo(skinTime);
+        log.info("skinTime.getId() = {}", savedPost.getSkinTime().getId());
         assertThat(savedPost.getSkinLocation()).isEqualTo(skinLocation);
+        log.info("skinLocation.getId() = {}", savedPost.getSkinLocation().getId());
         assertThat(savedPost.getUser()).isEqualTo(user);
+        log.info("user.getId() = {}", savedPost.getUser().getId());
         assertThat(savedPost.getLikeCount()).isEqualTo(10);
         assertThat(savedPost.getFavoriteCount()).isEqualTo(100);
         assertThat(savedPost.getViewCount()).isEqualTo(20);
         assertThat(savedPost.isPublic()).isEqualTo(true);
         assertThat(savedPost.getCreatedAt()).isNotNull();
+        log.info("savedPost.getCreatedAt() = {}", savedPost.getCreatedAt());
     }
 
     @Test
     public void PostFindById() {
         //given
         final SkinUrl skinUrl = SkinUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
                 .build();
 
         final StoryUrl storyUrl = StoryUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
                 .build();
 
         final SkinTime skinTime = SkinTime.builder()
+                .year(2021)
+                .month(1)
+                .day(1)
+                .hour(1)
+                .minute(1)
                 .build();
 
         final SkinLocation skinLocation = SkinLocation.builder()
+                .latitude(1.0)
+                .longitude(1.0)
+                .country("test")
+                .state("test")
+                .city("test")
                 .build();
 
         final User user = User.builder()
-                .email("")
-                .password("")
-                .nickname("")
-                .phoneNumber("")
+                .email("test")
+                .password("test")
+                .nickname("test")
+                .phoneNumber("test")
                 .build();
 
         final Post post = Post.builder()
                 .skinUrl(skinUrl)
+                .storyUrl(storyUrl)
                 .storyUrl(storyUrl)
                 .skinTime(skinTime)
                 .skinLocation(skinLocation)

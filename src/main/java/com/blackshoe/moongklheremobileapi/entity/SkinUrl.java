@@ -3,11 +3,9 @@ package com.blackshoe.moongklheremobileapi.entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
@@ -17,10 +15,14 @@ import java.util.UUID;
 public class SkinUrl {
     @Id
     @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
+    @Column(nullable = false)
     private String s3Url;
 
+    @Column(nullable = false)
     private String cloudfrontUrl;
 
     @Builder

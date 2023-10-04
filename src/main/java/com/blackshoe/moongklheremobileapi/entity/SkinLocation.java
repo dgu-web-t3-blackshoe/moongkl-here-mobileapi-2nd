@@ -3,11 +3,9 @@ package com.blackshoe.moongklheremobileapi.entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
@@ -17,16 +15,23 @@ import java.util.UUID;
 public class SkinLocation {
     @Id
     @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
+    @Column(nullable = false)
     private Double longitude;
 
+    @Column(nullable = false)
     private Double latitude;
 
+    @Column(nullable = false)
     private String country;
 
+    @Column(nullable = false)
     private String state;
 
+    @Column(nullable = false)
     private String city;
 
     @Builder

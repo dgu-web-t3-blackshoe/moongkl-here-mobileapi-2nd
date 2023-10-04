@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.GenericGenerator;
 import org.joda.time.LocalDateTime;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -19,6 +20,8 @@ import java.util.UUID;
 public class Post {
     @Id
     @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
     @JoinColumn(name = "skin_url_id", foreignKey = @ForeignKey(name = "post_fk_skin_url_id"))
@@ -42,18 +45,23 @@ public class Post {
     private User user;
 
     @ColumnDefault("0")
+    @Column(nullable = false)
     private long likeCount;
 
     @ColumnDefault("0")
+    @Column(nullable = false)
     private long favoriteCount;
 
     @ColumnDefault("0")
+    @Column(nullable = false)
     private long commentCount;
 
     @ColumnDefault("0")
+    @Column(nullable = false)
     private long viewCount;
 
     @ColumnDefault("false")
+    @Column(nullable = false)
     private boolean isPublic;
 
     @CreatedDate

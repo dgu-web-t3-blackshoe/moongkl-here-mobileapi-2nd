@@ -63,14 +63,13 @@ public class UserController {
 
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
-            if (!loginRequestDto.getPassword().matches(passwordRegex)) {
-                log.info("유효하지 않은 비밀번호");
-                UserErrorResult userErrorResult = UserErrorResult.INVALID_PASSWORD;
+            if (!userService.userExistsByEmail(loginRequestDto.getEmail())){
+                log.info("존재하지 않는 사용자");
+                UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
+            log.info("로그인 성공");
             UserDto.LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
 
             ResponseDto responseDto = ResponseDto.builder()

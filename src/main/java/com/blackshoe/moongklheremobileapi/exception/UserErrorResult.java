@@ -16,7 +16,7 @@ public enum UserErrorResult {
     FAILED_VALIDATING_CODE(HttpStatus.BAD_REQUEST, "인증코드가 일치하지 않습니다. 인증 코드를 재요청해 주세요."), //400
     UNVERIFIED_PHONE_NUMBER(HttpStatus.UNPROCESSABLE_ENTITY, "인증되지 않은 전화번호입니다. 재시도해주세요."), //422
     UNVERIFIED_EMAIL(HttpStatus.UNPROCESSABLE_ENTITY, "인증되지 않은 이메일입니다. 재시도해주세요."), //422
-    NOT_FOUND_USER(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."), //404
+    NOT_FOUND_USER(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."), //404
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT입니다."), //401
     EXPIRED_JWT(HttpStatus.UNAUTHORIZED, "만료된 JWT입니다."), //401
     NOT_FOUND_JWT(HttpStatus.UNAUTHORIZED, "존재하지 않는 JWT입니다."), //401

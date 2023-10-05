@@ -70,13 +70,10 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserDto.UpdatePasswordResponseDto updatePassword(UserDto.UpdatePasswordRequestDto updatePasswordRequestDto, String userId) {
+    public UserDto.UpdatePasswordResponseDto updatePassword(UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
 
-        UUID uuid = UUID.fromString(userId);
-
-        User originalUser = userRepository.findById(uuid)
+        User originalUser = userRepository.findByEmail(updatePasswordRequestDto.getEmail())
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
-
 
         User updatedUser = originalUser.toBuilder()
                 .password(passwordEncoder.encode(updatePasswordRequestDto.getNewPassword()))
@@ -85,7 +82,7 @@ public class UserServiceImpl implements UserService{
         userRepository.save(updatedUser);
 
         return UserDto.UpdatePasswordResponseDto.builder()
-                .userId(uuid)
+                .userId(updatedUser.getId())
                 .updatedAt(updatedUser.getUpdatedAt())
                 .build();
     }

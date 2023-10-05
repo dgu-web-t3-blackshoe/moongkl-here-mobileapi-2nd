@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 public interface UserService {
     UserDto.SignInResponseDto signIn(UserDto.SignInRequestDto signInRequestDto);
     boolean userExistsByEmail(String email);
-    UserDto.UpdatePasswordResponseDto updatePassword(UserDto.UpdatePasswordRequestDto updatePasswordRequestDto, String userId);
-
+    UserDto.UpdatePasswordResponseDto updatePassword(UserDto.UpdatePasswordRequestDto updatePasswordRequestDto);
     UserDto.LoginResponseDto login(UserDto.LoginRequestDto loginRequestDto);
 }

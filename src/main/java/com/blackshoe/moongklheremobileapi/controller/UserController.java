@@ -48,7 +48,7 @@ public class UserController {
     //닉네임 한글 포함 8자리 이하 특수문자X
     private String nicknameRegex = "^[가-힣a-zA-Z0-9]{1,8}$";
 
-    @PostMapping("/login")
+    @PostMapping("/login") //@AuthenticationPrincipal User user
     public ResponseEntity<ResponseDto> login(@AuthenticationPrincipal User user, @RequestBody UserDto.LoginRequestDto loginRequestDto) {
         try {
             if (loginRequestDto.getEmail() == null || loginRequestDto.getPassword() == null) {
@@ -268,8 +268,8 @@ public class UserController {
         }
     }
 
-    @PutMapping("/sign-in/{userId}/password")
-    public ResponseEntity<ResponseDto> updatePassword(@RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto, @PathVariable String userId){
+    @PutMapping("/sign-in/password")
+    public ResponseEntity<ResponseDto> updatePassword(@RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto){
         try{
             String email = updatePasswordRequestDto.getEmail();
             if(!email.matches(emailRegex)) {
@@ -295,9 +295,9 @@ public class UserController {
 
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
-            userService.updatePassword(updatePasswordRequestDto, userId);
+            userService.updatePassword(updatePasswordRequestDto);
 
-            UserDto.UpdatePasswordResponseDto updatePasswordResponseDto = userService.updatePassword(updatePasswordRequestDto, userId);
+            UserDto.UpdatePasswordResponseDto updatePasswordResponseDto = userService.updatePassword(updatePasswordRequestDto);
 
             ResponseDto responseDto = ResponseDto.builder()
                     .payload(objectMapper.convertValue(updatePasswordResponseDto, Map.class))
@@ -316,7 +316,7 @@ public class UserController {
     @PostMapping("/sign-in/phone/validation")
     public ResponseEntity<ResponseDto> validationPhoneNumber(@RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         try {
-            String phoneNumber = validationRequestDto.getPhone_number();
+            String phoneNumber = validationRequestDto.getPhoneNumber();
 
             if(!phoneNumber.matches(phoneNumberRegex)) {
                 log.info("유효하지 않은 전화번호");
@@ -348,7 +348,7 @@ public class UserController {
     @PostMapping("/sign-in/phone/verification")
     public ResponseEntity<ResponseDto> verificationPhoneNumber(@RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         try {
-            String phoneNumber = verificationRequestDto.getPhone_number();
+            String phoneNumber = verificationRequestDto.getPhoneNumber();
 
             if(!phoneNumber.matches(phoneNumberRegex)) {
                 log.info("유효하지 않은 전화번호");
@@ -358,11 +358,11 @@ public class UserController {
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
-            if (verificationService.verifyCode(verificationRequestDto.getPhone_number(), verificationRequestDto.getVerification_code())) {
+            if (verificationService.verifyCode(verificationRequestDto.getPhoneNumber(), verificationRequestDto.getVerificationCode())) {
                 log.info("인증 코드 검증 성공");
 
-                verificationService.deleteVerificationCode(verificationRequestDto.getPhone_number());
-                verificationService.saveCompletionCode(verificationRequestDto.getPhone_number(), true);
+                verificationService.deleteVerificationCode(verificationRequestDto.getPhoneNumber());
+                verificationService.saveCompletionCode(verificationRequestDto.getPhoneNumber(), true);
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
             } else {
                 log.info("인증 코드 검증 실패");

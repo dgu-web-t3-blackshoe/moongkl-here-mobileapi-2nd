@@ -1,5 +1,7 @@
 package com.blackshoe.moongklheremobileapi.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +14,7 @@ public class JwtDto {
 
     @Getter
     @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class JwtRequestDto{
         UUID userId;
         String email;
@@ -19,6 +22,7 @@ public class JwtDto {
 
     @Getter
     @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class JwtResponseDto{
         UUID userId;
         String jwt;

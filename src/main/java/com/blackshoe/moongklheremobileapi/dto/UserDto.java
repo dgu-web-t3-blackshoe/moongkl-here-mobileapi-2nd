@@ -1,5 +1,7 @@
 package com.blackshoe.moongklheremobileapi.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -8,6 +10,7 @@ import java.util.UUID;
 public class UserDto {
     @Getter
     @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class SignInRequestDto {
         private String email;
         private String password;
@@ -17,6 +20,7 @@ public class UserDto {
 
     @Getter
     @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class SignInResponseDto{
         private UUID userId;
         private LocalDateTime createdAt;
@@ -24,6 +28,7 @@ public class UserDto {
 
     @Getter
     @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class LoginRequestDto{
         private String email;
         private String password;
@@ -31,6 +36,7 @@ public class UserDto {
 
     @Getter
     @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class LoginResponseDto{
         private UUID userId;
         private LocalDateTime createdAt;
@@ -39,6 +45,7 @@ public class UserDto {
 
     @Getter
     @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class UpdatePasswordRequestDto{
         private String email;
         private String newPassword;
@@ -46,6 +53,7 @@ public class UserDto {
 
     @Getter
     @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class UpdatePasswordResponseDto{
         private UUID userId;
         private LocalDateTime updatedAt;

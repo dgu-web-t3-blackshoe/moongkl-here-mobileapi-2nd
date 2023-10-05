@@ -4,6 +4,7 @@ import com.blackshoe.moongklheremobileapi.dto.MailDto;
 import com.blackshoe.moongklheremobileapi.dto.ResponseDto;
 import com.blackshoe.moongklheremobileapi.dto.SmsDto;
 import com.blackshoe.moongklheremobileapi.dto.UserDto;
+import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.UserException;
 import com.blackshoe.moongklheremobileapi.service.MailService;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
@@ -47,7 +49,7 @@ public class UserController {
     private String nicknameRegex = "^[가-힣a-zA-Z0-9]{1,8}$";
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseDto> login(@RequestBody UserDto.LoginRequestDto loginRequestDto) {
+    public ResponseEntity<ResponseDto> login(@AuthenticationPrincipal User user, @RequestBody UserDto.LoginRequestDto loginRequestDto) {
         try {
             if (loginRequestDto.getEmail() == null || loginRequestDto.getPassword() == null) {
                 log.info("필수값 누락");

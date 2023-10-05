@@ -38,6 +38,9 @@ public class User {
     @Column(name = "role", length = 20)
     private Role role;
 
+    @Column(name = "provider", length = 20)
+    private String provider;
+
     @CreationTimestamp @Column(name = "created_at", nullable = false, length = 20)
     private LocalDateTime createdAt;
 

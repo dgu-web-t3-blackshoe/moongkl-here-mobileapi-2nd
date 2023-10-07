@@ -7,6 +7,7 @@ import com.blackshoe.moongklheremobileapi.dto.UserDto;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.UserException;
+import com.blackshoe.moongklheremobileapi.oauth2.UserPrincipal;
 import com.blackshoe.moongklheremobileapi.service.MailService;
 import com.blackshoe.moongklheremobileapi.service.SmsService;
 import com.blackshoe.moongklheremobileapi.service.UserService;
@@ -48,8 +49,9 @@ public class UserController {
     //닉네임 한글 포함 8자리 이하 특수문자X
     private String nicknameRegex = "^[가-힣a-zA-Z0-9]{1,8}$";
 
-    @PostMapping("/login") //@AuthenticationPrincipal User user
-    public ResponseEntity<ResponseDto> login(@AuthenticationPrincipal User user, @RequestBody UserDto.LoginRequestDto loginRequestDto) {
+    @PostMapping("/login") //@AuthenticationPrincipal UserPrincipal userPrincipal, User user = userPrincipal.getUser();
+    public ResponseEntity<ResponseDto> login(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody UserDto.LoginRequestDto loginRequestDto) {
+
         try {
             if (loginRequestDto.getEmail() == null || loginRequestDto.getPassword() == null) {
                 log.info("필수값 누락");

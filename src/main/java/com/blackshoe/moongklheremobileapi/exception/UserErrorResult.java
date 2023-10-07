@@ -20,6 +20,8 @@ public enum UserErrorResult {
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT입니다."), //401
     EXPIRED_JWT(HttpStatus.UNAUTHORIZED, "만료된 JWT입니다."), //401
     NOT_FOUND_JWT(HttpStatus.UNAUTHORIZED, "존재하지 않는 JWT입니다."), //401
+    USER_PARTIALLY_CREATED(HttpStatus.ACCEPTED, "사용자 정보가 부분적으로 생성되었습니다. 사용자 정보를 다시 생성해주세요."), //202
+    USER_HAVE_TO_SIGN_IN(HttpStatus.UNAUTHORIZED, "사용자 정보가 부족합니다. 사용자 정보를 다시 생성해주세요."), //401
     ;
     private final HttpStatus httpStatus;
     private final String message;

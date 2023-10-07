@@ -25,13 +25,13 @@ public class User {
     @Column(name = "email", nullable = false, length = 50)
     private String email;
 
-    @Column(name = "password", nullable = false, length = 100)
+    @Column(name = "password", length = 100)
     private String password;
 
-    @Column(name = "nickname", nullable = false, length = 50)
+    @Column(name = "nickname", length = 50)
     private String nickname;
 
-    @Column(name = "phone_number", nullable = false, length = 20)
+    @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
@@ -47,4 +47,7 @@ public class User {
     @UpdateTimestamp @Column(name = "updated_at", length = 20)
     private LocalDateTime updatedAt;
 
+    public void setProvider(String authProvider) {
+        this.provider = authProvider;
+    }
 }

@@ -7,5 +7,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserException extends RuntimeException {
     private final UserErrorResult userErrorResult;
+    //UserPartiallyCreatedException, UserNecessarySignInException
+    public UserException(UserErrorResult userErrorResult, String message) {
+        super(message);
+        this.userErrorResult = userErrorResult;
+    }
 }
 

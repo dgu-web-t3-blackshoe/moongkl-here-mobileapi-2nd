@@ -2,6 +2,9 @@ package com.blackshoe.moongklheremobileapi.oauth2;
 
 import com.blackshoe.moongklheremobileapi.dto.JwtDto;
 import com.blackshoe.moongklheremobileapi.entity.Role;
+import com.blackshoe.moongklheremobileapi.entity.User;
+import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
+import com.blackshoe.moongklheremobileapi.exception.UserException;
 import com.blackshoe.moongklheremobileapi.repository.UserRepository;
 import com.blackshoe.moongklheremobileapi.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +22,8 @@ import java.util.UUID;
 @Slf4j
 @Service @RequiredArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-    private JwtTokenProvider jwtTokenProvider;
-    private UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserRepository userRepository;
 
     @Value("${spring.security.oauth2.redirect-uri}")
     private String REDIRECT_URI;
@@ -34,10 +37,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String userId = userPrincipal.getName();
         String email = userPrincipal.getEmail();
-        String userType = Role.USER.getRoleName();
 
         log.info("userId {}", userId);
         log.info("email {}", email);
+
+
+        //이메일로 회원 찾은 뒤 해당 회원의 password가 null이면 userSignInStatus를 false로 설정, null이 아니면 true로 설정
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        boolean userSignInStatus = user.getPassword() == null ? false : true;
 
         JwtDto.JwtRequestDto jwtRequestDto = JwtDto.JwtRequestDto
                 .builder()
@@ -48,6 +57,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String accessToken = jwtTokenProvider.createAccessToken(jwtRequestDto);
 
         response.setStatus(HttpServletResponse.SC_OK);
-        response.sendRedirect(REDIRECT_URI + "/social-login?userId=" + userId + "&access-token=" + accessToken);
+
+        //클라이언트단에서 sign-in이 true면 로그인, false면 회원가입하도록
+        response.sendRedirect(REDIRECT_URI + "/social-login?userId=" + userId + "&sign-in=" + String.valueOf(userSignInStatus) + "&access-token=" + accessToken);
     }
 }

@@ -1,12 +1,13 @@
 package com.blackshoe.moongklheremobileapi.oauth2;
 
 import com.blackshoe.moongklheremobileapi.entity.Role;
+import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
+import com.blackshoe.moongklheremobileapi.exception.UserException;
 import com.blackshoe.moongklheremobileapi.repository.UserRepository;
 import com.blackshoe.moongklheremobileapi.entity.User;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,13 +17,13 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@Service
+@Service @Transactional
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Autowired
     private UserRepository userRepository;
@@ -32,9 +33,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional( noRollbackFor = UserException.class )
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         final OAuth2User oAuth2User = super.loadUser(userRequest);
+
         try {
             log.info("OAuth2User attributes {} ", new ObjectMapper().writeValueAsString(oAuth2User.getAttributes()));
         } catch (JsonProcessingException e) {
@@ -45,6 +47,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         switch (authProvider.toLowerCase()) {
             case "google":
+                log.info("Auth provider: {}", authProvider);
+                email = (String) oAuth2User.getAttributes().get("email");
+                break;
+            case "facebook":
                 log.info("Auth provider: {}", authProvider);
                 email = (String) oAuth2User.getAttributes().get("email");
                 break;
@@ -62,25 +68,42 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 throw new AccessDeniedException("Unsupported auth provider: " + authProvider);
         }
 
-        User user;
+        User user = null;
         log.info("Trying to pull user info email {} authProvider {} ", email, authProvider);
+
         try {
-            user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+            if(userRepository.existsByEmail(email)) {
+                user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+                if (user.getPassword() == null) {
+                    log.info("User have to sign in: " + email);
+                } else {
+                    log.info("User password is null");
+                }
+                user.setProvider(authProvider);
+            }else{
+                user = User.builder()
+                        .email(email)
+                        .role(Role.USER)
+                        .provider(authProvider)
+                        .build();
+
+                userRepository.save(user);
+            }
+
         } catch (UsernameNotFoundException e) {
             log.error("User not found with email: {}", email);
             throw e;
         }
-        if (user.getProvider() == null || user.getProvider().toLowerCase() != authProvider.toLowerCase()) {
 
-            user = User.builder()
-                    .email(email)
-                    .nickname((String) oAuth2User.getAttributes().get("name"))
-                    .role(Role.USER)
-                    .provider(authProvider)
-                    .build();
+        if(user==null){
+            log.info("User is null");
+            throw new UsernameNotFoundException("User 정보 초기화 안됨: " + email);
         }
 
-        log.info("Successfully pulled user info email {} name {} authProvider {} ", user.getEmail(), user.getNickname(), user.getProvider());
+        log.info("user email {}", user.getEmail());
+        log.info("user authProvider {}", user.getProvider());
+
         return new CustomOAuth2User(user.getId().toString(), user.getEmail(), oAuth2User.getAttributes());
     }
 }

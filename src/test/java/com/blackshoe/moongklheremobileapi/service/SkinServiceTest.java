@@ -1,6 +1,7 @@
 package com.blackshoe.moongklheremobileapi.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.blackshoe.moongklheremobileapi.dto.SkinUrlDto;
 import com.blackshoe.moongklheremobileapi.entity.SkinUrl;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
@@ -59,13 +60,13 @@ public class SkinServiceTest {
         }
 
         //when
-        final SkinUrl skinUrl = skinService.uploadSkin(userId, testImg);
-        String s3Url = skinUrl.getS3Url();
+        final SkinUrlDto skinUrlDto = skinService.uploadSkin(userId, testImg);
+        String s3Url = skinUrlDto.getS3Url();
         s3Key = s3Url.substring(s3Url.indexOf("test"));
 
         //then
-        assertThat(skinUrl.getS3Url()).isNotNull();
-        assertThat(skinUrl.getCloudfrontUrl()).isNotNull();
+        assertThat(skinUrlDto.getS3Url()).isNotNull();
+        assertThat(skinUrlDto.getCloudfrontUrl()).isNotNull();
         deleteFile();
     }
 

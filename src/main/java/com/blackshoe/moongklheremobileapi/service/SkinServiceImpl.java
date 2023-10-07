@@ -1,7 +1,7 @@
 package com.blackshoe.moongklheremobileapi.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.blackshoe.moongklheremobileapi.entity.SkinUrl;
+import com.blackshoe.moongklheremobileapi.dto.SkinUrlDto;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.vo.ContentType;
@@ -32,7 +32,7 @@ public class SkinServiceImpl implements SkinService {
     private String SKIN_DIRECTORY;
 
     @Override
-    public SkinUrl uploadSkin(UUID userId, MultipartFile skin) {
+    public SkinUrlDto uploadSkin(UUID userId, MultipartFile skin) {
         if (skin == null) {
             throw new PostException(PostErrorResult.EMPTY_SKIN);
         }
@@ -69,11 +69,11 @@ public class SkinServiceImpl implements SkinService {
 
         String cloudFrontUrl = DISTRIBUTION_DOMAIN + "/" + key;
 
-        SkinUrl skinUrl = SkinUrl.builder()
+        SkinUrlDto skinUrlDto = SkinUrlDto.builder()
                 .s3Url(s3Url)
                 .cloudfrontUrl(cloudFrontUrl)
                 .build();
 
-        return skinUrl;
+        return skinUrlDto;
     }
 }

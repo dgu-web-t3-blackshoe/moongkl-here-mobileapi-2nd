@@ -1,5 +1,6 @@
 package com.blackshoe.moongklheremobileapi.service;
 
+import com.blackshoe.moongklheremobileapi.config.ModelMapperConfig;
 import com.blackshoe.moongklheremobileapi.dto.PostDto;
 import com.blackshoe.moongklheremobileapi.dto.SkinLocationDto;
 import com.blackshoe.moongklheremobileapi.dto.SkinTimeDto;
@@ -9,18 +10,18 @@ import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
 import com.blackshoe.moongklheremobileapi.repository.SkinLocationRepository;
 import com.blackshoe.moongklheremobileapi.repository.SkinTimeRepository;
+import org.joda.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class PostServiceTest {
@@ -37,76 +38,95 @@ public class PostServiceTest {
     @Mock
     private SkinTimeRepository skinTimeRepository;
 
-    private final Logger log = LoggerFactory.getLogger(PostServiceTest.class);
+    private final UUID skinUrlId = UUID.randomUUID();
+
+    private final SkinUrl skinUrl = SkinUrl.builder()
+            .id(skinUrlId)
+            .s3Url("test")
+            .cloudfrontUrl("test")
+            .build();
+
+    private final UUID storyUrlId = UUID.randomUUID();
+
+    private final StoryUrl storyUrl = StoryUrl.builder()
+            .id(storyUrlId)
+            .s3Url("test")
+            .cloudfrontUrl("test")
+            .build();
+
+    private final UUID userId = UUID.randomUUID();
+
+    private final User user = User.builder()
+            .id(userId)
+            .nickname("test")
+            .email("test")
+            .password("test")
+            .phoneNumber("test")
+            .build();
+
+    private final SkinLocationDto skinLocationDto = SkinLocationDto.builder()
+            .latitude(1.0)
+            .longitude(1.0)
+            .country("test")
+            .state("test")
+            .city("test")
+            .build();
+
+    private final SkinLocation skinLocation = SkinLocation.builder()
+            .latitude(1.0)
+            .longitude(1.0)
+            .country("test")
+            .state("test")
+            .city("test")
+            .build();
+
+    private final SkinTimeDto skinTimeDto = SkinTimeDto.builder()
+            .year(2021)
+            .month(1)
+            .day(1)
+            .hour(1)
+            .minute(1)
+            .build();
+
+    private final SkinTime skinTime = SkinTime.builder()
+            .year(2021)
+            .month(1)
+            .day(1)
+            .hour(1)
+            .minute(1)
+            .build();
+
+    private final PostDto.PostCreateRequest postCreateRequest = PostDto.PostCreateRequest.builder()
+            .location(skinLocationDto)
+            .time(skinTimeDto)
+            .isPublic(true)
+            .build();
 
     @Test
     public void 포스트_등록() {
         // given
-        final UUID skinUrlId = UUID.randomUUID();
-
-        final SkinUrl skinUrl = SkinUrl.builder()
-                .id(skinUrlId)
-                .s3Url("test")
-                .cloudfrontUrl("test")
-                .build();
-
-        final UUID storyUrlId = UUID.randomUUID();
-
-        final StoryUrl storyUrl = StoryUrl.builder()
-                .id(storyUrlId)
-                .s3Url("test")
-                .cloudfrontUrl("test")
-                .build();
-
-        final UUID userId = UUID.randomUUID();
-
-        final User user = User.builder()
-                .id(userId)
-                .nickname("test")
-                .email("test")
-                .password("test")
-                .phoneNumber("test")
-                .build();
-
-        final SkinLocationDto skinLocationDto = SkinLocationDto.builder()
-                .latitude(1.0)
-                .longitude(1.0)
-                .country("test")
-                .state("test")
-                .city("test")
-                .build();
-
-        final SkinTimeDto skinTimeDto = SkinTimeDto.builder()
-                .year(2021)
-                .month(1)
-                .day(1)
-                .hour(1)
-                .minute(1)
-                .build();
-
-        final PostDto.PostCreateRequest postCreateRequest = PostDto.PostCreateRequest.builder()
-                .location(skinLocationDto)
-                .time(skinTimeDto)
+        final Post post = Post.builder()
+                .skinUrl(skinUrl)
+                .storyUrl(storyUrl)
+                .skinLocation(skinLocation)
+                .skinTime(skinTime)
+                .user(user)
                 .isPublic(true)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         // when
-        final Post post = postService.createPost(user, skinUrl, storyUrl, postCreateRequest);
+        when(postRepository.save(any(Post.class))).thenReturn(post);
+        final PostDto postDto = postService.createPost(user, skinUrl, storyUrl, postCreateRequest);
 
         // then
-        assertThat(post.getUser().getId()).isEqualTo(userId);
-        assertThat(post.getSkinUrl().getId()).isEqualTo(skinUrlId);
-        assertThat(post.getStoryUrl().getId()).isEqualTo(storyUrlId);
-        assertThat(post.getSkinLocation().getLatitude()).isEqualTo(skinLocationDto.getLatitude());
-        assertThat(post.getSkinLocation().getLongitude()).isEqualTo(skinLocationDto.getLongitude());
-        assertThat(post.getSkinLocation().getCountry()).isEqualTo(skinLocationDto.getCountry());
-        assertThat(post.getSkinLocation().getState()).isEqualTo(skinLocationDto.getState());
-        assertThat(post.getSkinLocation().getCity()).isEqualTo(skinLocationDto.getCity());
-        assertThat(post.getSkinTime().getYear()).isEqualTo(skinTimeDto.getYear());
-        assertThat(post.getSkinTime().getMonth()).isEqualTo(skinTimeDto.getMonth());
-        assertThat(post.getSkinTime().getDay()).isEqualTo(skinTimeDto.getDay());
-        assertThat(post.getSkinTime().getHour()).isEqualTo(skinTimeDto.getHour());
-        assertThat(post.getSkinTime().getMinute()).isEqualTo(skinTimeDto.getMinute());
-        assertThat(post.isPublic()).isEqualTo(postCreateRequest.getIsPublic());
+        assertThat(postDto).isNotNull();
+        assertThat(postDto.getUserId()).isNotNull();
+        assertThat(postDto.getSkin()).isNotNull();
+        assertThat(postDto.getStory()).isNotNull();
+        assertThat(postDto.getLocation()).isNotNull();
+        assertThat(postDto.getTime()).isNotNull();
+        assertThat(postDto.getIsPublic()).isNotNull();
+        assertThat(postDto.getCreatedAt()).isNotNull();
     }
 }

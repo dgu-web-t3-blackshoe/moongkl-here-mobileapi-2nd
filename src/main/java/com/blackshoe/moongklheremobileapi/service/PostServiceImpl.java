@@ -1,9 +1,10 @@
 package com.blackshoe.moongklheremobileapi.service;
 
 import com.blackshoe.moongklheremobileapi.dto.PostDto;
+import com.blackshoe.moongklheremobileapi.dto.SkinLocationDto;
+import com.blackshoe.moongklheremobileapi.dto.SkinTimeDto;
 import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
-import com.blackshoe.moongklheremobileapi.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -21,23 +22,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public Post createPost(User user, SkinUrl skinUrl, StoryUrl storyUrl, PostDto.PostCreateRequest postCreateRequest) {
+    public PostDto createPost(User user, SkinUrl skinUrl, StoryUrl storyUrl, PostDto.PostCreateRequest postCreateRequest) {
 
-        final SkinLocation skinLocation = SkinLocation.builder()
-                .latitude(postCreateRequest.getLocation().getLatitude())
-                .longitude(postCreateRequest.getLocation().getLongitude())
-                .country(postCreateRequest.getLocation().getCountry())
-                .state(postCreateRequest.getLocation().getState())
-                .city(postCreateRequest.getLocation().getCity())
-                .build();
+        final SkinLocation skinLocation = getSkinLocationFromPostCreateRequest(postCreateRequest);
 
-        final SkinTime skinTime = SkinTime.builder()
-                .year(postCreateRequest.getTime().getYear())
-                .month(postCreateRequest.getTime().getMonth())
-                .day(postCreateRequest.getTime().getDay())
-                .hour(postCreateRequest.getTime().getHour())
-                .minute(postCreateRequest.getTime().getMinute())
-                .build();
+        final SkinTime skinTime = getSkinTimeFromPostCreateRequest(postCreateRequest);
+
+        final Boolean isPublic = postCreateRequest.getIsPublic();
 
         final Post post = Post.builder()
                 .user(user)
@@ -45,12 +36,66 @@ public class PostServiceImpl implements PostService {
                 .storyUrl(storyUrl)
                 .skinLocation(skinLocation)
                 .skinTime(skinTime)
-                .isPublic(postCreateRequest.getIsPublic())
+                .isPublic(isPublic)
                 .build();
 
+        final Post savedPost = postRepository.save(post);
 
-        postRepository.save(post);
+        final PostDto postDto = convertPostToPostDto(skinUrl, storyUrl, savedPost);
 
-        return post;
+        return postDto;
+    }
+
+    private static SkinLocation getSkinLocationFromPostCreateRequest(PostDto.PostCreateRequest postCreateRequest) {
+        final SkinLocation skinLocation = SkinLocation.builder()
+                .latitude(postCreateRequest.getLocation().getLatitude())
+                .longitude(postCreateRequest.getLocation().getLongitude())
+                .country(postCreateRequest.getLocation().getCountry())
+                .state(postCreateRequest.getLocation().getState())
+                .city(postCreateRequest.getLocation().getCity())
+                .build();
+        return skinLocation;
+    }
+
+    private static SkinTime getSkinTimeFromPostCreateRequest(PostDto.PostCreateRequest postCreateRequest) {
+        final SkinTime skinTime = SkinTime.builder()
+                .year(postCreateRequest.getTime().getYear())
+                .month(postCreateRequest.getTime().getMonth())
+                .day(postCreateRequest.getTime().getDay())
+                .hour(postCreateRequest.getTime().getHour())
+                .minute(postCreateRequest.getTime().getMinute())
+                .build();
+        return skinTime;
+    }
+
+    private static PostDto convertPostToPostDto(SkinUrl skinUrl, StoryUrl storyUrl, Post savedPost) {
+        final SkinLocationDto skinLocationDto = SkinLocationDto.builder()
+                .latitude(savedPost.getSkinLocation().getLatitude())
+                .longitude(savedPost.getSkinLocation().getLongitude())
+                .country(savedPost.getSkinLocation().getCountry())
+                .state(savedPost.getSkinLocation().getState())
+                .city(savedPost.getSkinLocation().getCity())
+                .build();
+
+        final SkinTimeDto skinTimeDto = SkinTimeDto.builder()
+                .year(savedPost.getSkinTime().getYear())
+                .month(savedPost.getSkinTime().getMonth())
+                .day(savedPost.getSkinTime().getDay())
+                .hour(savedPost.getSkinTime().getHour())
+                .minute(savedPost.getSkinTime().getMinute())
+                .build();
+
+        final PostDto postDto = PostDto.builder()
+                .postId(savedPost.getId())
+                .userId(savedPost.getUser().getId())
+                .skin(skinUrl.getCloudfrontUrl())
+                .story(storyUrl.getCloudfrontUrl())
+                .location(skinLocationDto)
+                .time(skinTimeDto)
+                .isPublic(savedPost.isPublic())
+                .createdAt(savedPost.getCreatedAt())
+                .build();
+
+        return postDto;
     }
 }

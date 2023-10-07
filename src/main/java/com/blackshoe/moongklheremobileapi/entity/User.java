@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
@@ -15,7 +16,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-@NoArgsConstructor @AllArgsConstructor @Getter @Builder
+@NoArgsConstructor @AllArgsConstructor @Getter @Builder(toBuilder = true)
 public class User {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -26,14 +27,21 @@ public class User {
     @Column(name = "email", nullable = false, length = 50)
     private String email;
 
-    @Column(name = "password", nullable = false, length = 100)
+    @Column(name = "password", length = 100)
     private String password;
 
-    @Column(name = "nickname", nullable = false, length = 50)
+    @Column(name = "nickname", length = 50)
     private String nickname;
 
-    @Column(name = "phone_number", nullable = false, length = 20)
+    @Column(name = "phone_number", length = 20)
     private String phoneNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 20)
+    private Role role;
+
+    @Column(name = "provider", length = 20)
+    private String provider;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Post> post;
@@ -44,4 +52,7 @@ public class User {
     @UpdateTimestamp @Column(name = "updated_at", length = 20)
     private LocalDateTime updatedAt;
 
+    public void setProvider(String authProvider) {
+        this.provider = authProvider;
+    }
 }

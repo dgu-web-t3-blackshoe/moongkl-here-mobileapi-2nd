@@ -34,6 +34,7 @@ import java.util.List;
 public class SmsServiceImpl implements SmsService{
 
     private final StringRedisTemplate redisTemplate;
+    private final VerificationService verificationService;
 
     @Value("${naverCloudSms.accessKey}")
     private String accessKey;
@@ -105,34 +106,7 @@ public class SmsServiceImpl implements SmsService{
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         SmsDto.SmsResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceId +"/messages"), httpBody, SmsDto.SmsResponseDto.class);
 
-        saveVerificationCode(messageDto.getTo(), messageDto.getContent().substring(14, 18)); // 4자리수 추출
-        log.info("redis에 인증코드 저장 완료");
-
         return response;
     }
 
-    public String makeVerificationCode() {
-        String verificationCode = "";
-        for (int i = 0; i < 4; i++) {
-            verificationCode += (int)(Math.random() * 10);
-        }
-        return verificationCode;
-    }
-
-    private void saveVerificationCode(String phoneNumber, String verificationCode) {
-        redisTemplate.opsForValue().set(phoneNumber, verificationCode);
-    }
-
-    public boolean verifyCode(String phoneNumber, String verificationCode) {
-        String code = redisTemplate.opsForValue().get(phoneNumber);
-        return code.equals(verificationCode);
-    }
-
-    public void deleteCode(String phoneNumber) {
-        redisTemplate.delete(phoneNumber);
-    }
-
-    public boolean isNotVerified(String phoneNumber) {
-        return redisTemplate.hasKey(phoneNumber);
-    }
 }

@@ -1,5 +1,7 @@
 package com.blackshoe.moongklheremobileapi.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -8,29 +10,25 @@ import java.util.List;
 public class SmsDto {
 
     @Getter @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class ValidationRequestDto{
-        String phone_number;
+        String phoneNumber;
     }
 
     @Getter @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class VerificationRequestDto{
-        String phone_number;
-        String verification_code;
+        String phoneNumber;
+        String verificationCode;
     }
 
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    @Builder
+    @Builder @Getter @NoArgsConstructor @AllArgsConstructor
     public static class MessageDto {
         String to;
         String content;
     }
 
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    @Builder
+    @Builder @Getter @NoArgsConstructor @AllArgsConstructor
     public static class SmsRequestDto {
         String type;
         String contentType;

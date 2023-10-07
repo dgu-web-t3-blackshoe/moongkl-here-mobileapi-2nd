@@ -31,8 +31,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     //swagger
-    implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
+    //implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
+    implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+    //compileOnly group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
+    //compileOnly group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
 
+    //@org.springframework.transaction.annotation.Transactional
+    implementation 'org.springframework:spring-tx'
 
     //mailsender
     implementation 'org.springframework.boot:spring-boot-starter-mail'

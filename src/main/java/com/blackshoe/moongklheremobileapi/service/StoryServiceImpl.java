@@ -1,6 +1,7 @@
 package com.blackshoe.moongklheremobileapi.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.blackshoe.moongklheremobileapi.dto.StoryUrlDto;
 import com.blackshoe.moongklheremobileapi.entity.SkinUrl;
 import com.blackshoe.moongklheremobileapi.entity.StoryUrl;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
@@ -33,7 +34,7 @@ public class StoryServiceImpl implements StoryService {
     private String STORY_DIRECTORY;
 
     @Override
-    public StoryUrl uploadStory(UUID userId, MultipartFile story) {
+    public StoryUrlDto uploadStory(UUID userId, MultipartFile story) {
         if (story == null) {
             throw new PostException(PostErrorResult.EMPTY_STORY);
         }
@@ -70,11 +71,11 @@ public class StoryServiceImpl implements StoryService {
 
         String cloudFrontUrl = DISTRIBUTION_DOMAIN + "/" + key;
 
-        StoryUrl storyUrl = StoryUrl.builder()
+        StoryUrlDto storyUrlDto = StoryUrlDto.builder()
                 .s3Url(s3Url)
                 .cloudfrontUrl(cloudFrontUrl)
                 .build();
 
-        return storyUrl;
+        return storyUrlDto;
     }
 }

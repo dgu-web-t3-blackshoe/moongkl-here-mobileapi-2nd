@@ -1,8 +1,6 @@
 package com.blackshoe.moongklheremobileapi.service;
 
-import com.blackshoe.moongklheremobileapi.dto.PostDto;
-import com.blackshoe.moongklheremobileapi.dto.SkinLocationDto;
-import com.blackshoe.moongklheremobileapi.dto.SkinTimeDto;
+import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +20,14 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostDto createPost(User user, SkinUrl skinUrl, StoryUrl storyUrl, PostDto.PostCreateRequest postCreateRequest) {
+    public PostDto createPost(User user,
+                              SkinUrlDto uploadedSkinUrl,
+                              StoryUrlDto uploadedStoryUrl,
+                              PostDto.PostCreateRequest postCreateRequest) {
+
+        final SkinUrl skinUrl = convertSkinUrlDtoToEntity(uploadedSkinUrl);
+
+        final StoryUrl storyUrl = convertStoryUrlDtoToEntity(uploadedStoryUrl);
 
         final SkinLocation skinLocation = getSkinLocationFromPostCreateRequest(postCreateRequest);
 
@@ -41,9 +46,24 @@ public class PostServiceImpl implements PostService {
 
         final Post savedPost = postRepository.save(post);
 
-        final PostDto postDto = convertPostToPostDto(skinUrl, storyUrl, savedPost);
+        final PostDto postDto = convertPostEntityToDto(skinUrl, storyUrl, savedPost);
 
         return postDto;
+    }
+
+    private static SkinUrl convertSkinUrlDtoToEntity(SkinUrlDto uploadedSkinUrl) {
+        return SkinUrl.builder()
+                .s3Url(uploadedSkinUrl.getS3Url())
+                .cloudfrontUrl(uploadedSkinUrl.getCloudfrontUrl())
+                .build();
+    }
+
+    private static StoryUrl convertStoryUrlDtoToEntity(StoryUrlDto uploadedStoryUrl) {
+        final StoryUrl storyUrl = StoryUrl.builder()
+                .s3Url(uploadedStoryUrl.getS3Url())
+                .cloudfrontUrl(uploadedStoryUrl.getCloudfrontUrl())
+                .build();
+        return storyUrl;
     }
 
     private static SkinLocation getSkinLocationFromPostCreateRequest(PostDto.PostCreateRequest postCreateRequest) {
@@ -68,7 +88,7 @@ public class PostServiceImpl implements PostService {
         return skinTime;
     }
 
-    private static PostDto convertPostToPostDto(SkinUrl skinUrl, StoryUrl storyUrl, Post savedPost) {
+    private static PostDto convertPostEntityToDto(SkinUrl skinUrl, StoryUrl storyUrl, Post savedPost) {
         final SkinLocationDto skinLocationDto = SkinLocationDto.builder()
                 .latitude(savedPost.getSkinLocation().getLatitude())
                 .longitude(savedPost.getSkinLocation().getLongitude())

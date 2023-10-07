@@ -1,9 +1,7 @@
 package com.blackshoe.moongklheremobileapi.service;
 
 import com.blackshoe.moongklheremobileapi.config.ModelMapperConfig;
-import com.blackshoe.moongklheremobileapi.dto.PostDto;
-import com.blackshoe.moongklheremobileapi.dto.SkinLocationDto;
-import com.blackshoe.moongklheremobileapi.dto.SkinTimeDto;
+import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
@@ -38,18 +36,22 @@ public class PostServiceTest {
     @Mock
     private SkinTimeRepository skinTimeRepository;
 
-    private final UUID skinUrlId = UUID.randomUUID();
-
-    private final SkinUrl skinUrl = SkinUrl.builder()
-            .id(skinUrlId)
+    private final SkinUrlDto skinUrlDto = SkinUrlDto.builder()
             .s3Url("test")
             .cloudfrontUrl("test")
             .build();
 
-    private final UUID storyUrlId = UUID.randomUUID();
+    private final SkinUrl skinUrl = SkinUrl.builder()
+            .s3Url("test")
+            .cloudfrontUrl("test")
+            .build();
+
+    private final StoryUrlDto storyUrlDto = StoryUrlDto.builder()
+            .s3Url("test")
+            .cloudfrontUrl("test")
+            .build();
 
     private final StoryUrl storyUrl = StoryUrl.builder()
-            .id(storyUrlId)
             .s3Url("test")
             .cloudfrontUrl("test")
             .build();
@@ -117,7 +119,7 @@ public class PostServiceTest {
 
         // when
         when(postRepository.save(any(Post.class))).thenReturn(post);
-        final PostDto postDto = postService.createPost(user, skinUrl, storyUrl, postCreateRequest);
+        final PostDto postDto = postService.createPost(user, skinUrlDto, storyUrlDto, postCreateRequest);
 
         // then
         assertThat(postDto).isNotNull();

@@ -48,10 +48,21 @@ public class UserController {
 
     //닉네임 한글 포함 8자리 이하 특수문자X
     private String nicknameRegex = "^[가-힣a-zA-Z0-9]{1,8}$";
+    @GetMapping("/test")
+    public ResponseEntity<ResponseDto> test(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        User user = userPrincipal.getUser();
+        log.info(user.getEmail());
+        log.info(user.getNickname());
+        log.info(user.getPhoneNumber());
+        log.info(user.getRole().toString());
+        log.info(user.getCreatedAt().toString());
+        log.info(user.getUpdatedAt().toString());
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 
     @PostMapping("/login") //@AuthenticationPrincipal UserPrincipal userPrincipal, User user = userPrincipal.getUser();
-    public ResponseEntity<ResponseDto> login(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody UserDto.LoginRequestDto loginRequestDto) {
-
+    public ResponseEntity<ResponseDto> login(@RequestBody UserDto.LoginRequestDto loginRequestDto) {
         try {
             if (loginRequestDto.getEmail() == null || loginRequestDto.getPassword() == null) {
                 log.info("필수값 누락");

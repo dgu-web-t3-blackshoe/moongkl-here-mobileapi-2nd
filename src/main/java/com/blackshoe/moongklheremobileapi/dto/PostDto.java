@@ -61,6 +61,6 @@ public class PostDto {
         private long commentCount;
         private long viewCount;
         private Boolean isPublic;
-        private LocalDateTime createdAt;
+        private String createdAt;
     }
 }

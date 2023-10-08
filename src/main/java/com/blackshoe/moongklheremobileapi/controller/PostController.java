@@ -70,6 +70,18 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
+    @GetMapping("/{postId}")
+    public ResponseEntity<ResponseDto> getPost(@PathVariable("postId") UUID postId) {
+
+        final PostDto.PostReadResponse postReadResponse = postService.getPost(postId);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(postReadResponse, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
     @ExceptionHandler(PostException.class)
     public ResponseEntity<ResponseDto> handlePostException(PostException e) {
         final PostErrorResult errorResult = e.getPostErrorResult();

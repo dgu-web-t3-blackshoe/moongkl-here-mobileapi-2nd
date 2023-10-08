@@ -148,7 +148,7 @@ public class PostServiceImpl implements PostService {
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
                 .isPublic(post.isPublic())
-                .createdAt(post.getCreatedAt())
+                .createdAt(post.getCreatedAt().toString())
                 .build();
 
         return postReadResponse;

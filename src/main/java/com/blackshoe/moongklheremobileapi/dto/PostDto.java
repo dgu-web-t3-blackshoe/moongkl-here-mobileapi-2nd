@@ -1,14 +1,13 @@
 package com.blackshoe.moongklheremobileapi.dto;
 
-import com.blackshoe.moongklheremobileapi.entity.SkinLocation;
-import com.blackshoe.moongklheremobileapi.entity.SkinUrl;
-import com.blackshoe.moongklheremobileapi.entity.StoryUrl;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import org.joda.time.LocalDateTime;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Data
@@ -29,16 +28,21 @@ public class PostDto {
 
     @Data
     @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class PostCreateRequest {
-        private SkinLocationDto location;
-        private SkinTimeDto time;
+        @NotNull(message = "location is required")
+        private @Valid SkinLocationDto location;
+        @NotNull(message = "time is required")
+        private @Valid SkinTimeDto time;
+        @NotNull(message = "is_public is required")
         private Boolean isPublic;
     }
 
     @Data
     @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class PostCreateResponse {
-        private UUID postId;
-        private LocalDateTime createdAt;
+        private String postId;
+        private String createdAt;
     }
 }

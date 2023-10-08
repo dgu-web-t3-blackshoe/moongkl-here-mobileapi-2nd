@@ -35,11 +35,12 @@ public class UserRepositoryTest {
     public void 회원존재하는지테스트(){
         //given
         final User user = this.user();
+
         //when
         final Optional<User> savedUser = userRepository.findByEmail(user.getEmail());
 
         //then
-        assertThat(savedUser).isNull();
+        assertThat(savedUser).isEmpty();
     }
 
     public User user(){

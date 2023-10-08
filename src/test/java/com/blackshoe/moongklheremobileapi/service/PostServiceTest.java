@@ -14,10 +14,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +40,8 @@ public class PostServiceTest {
 
     @Mock
     private SkinTimeRepository skinTimeRepository;
+
+    private Logger log = LoggerFactory.getLogger(PostServiceTest.class);
 
     private final SkinUrlDto skinUrlDto = SkinUrlDto.builder()
             .s3Url("test")
@@ -131,4 +138,52 @@ public class PostServiceTest {
         assertThat(postDto.getIsPublic()).isNotNull();
         assertThat(postDto.getCreatedAt()).isNotNull();
     }
+
+    @Test
+    public void getPost_returnsPostDto_isNotNull() {
+        // given
+        final UUID postId = UUID.randomUUID();
+        final Post post = Post.builder()
+                .id(postId)
+                .skinUrl(skinUrl)
+                .storyUrl(storyUrl)
+                .skinLocation(skinLocation)
+                .skinTime(skinTime)
+                .user(user)
+                .isPublic(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        // when
+        when(postRepository.findById(postId)).thenReturn(java.util.Optional.of(post));
+        final PostDto.PostReadResponse postReadResponse = postService.getPost(postId);
+
+        // then
+        assertThat(postReadResponse).isNotNull();
+        assertThat(postReadResponse.getPostId()).isNotNull();
+        assertThat(postReadResponse.getUserId()).isNotNull();
+        assertThat(postReadResponse.getSkin()).isNotNull();
+        assertThat(postReadResponse.getStory()).isNotNull();
+        assertThat(postReadResponse.getLocation()).isNotNull();
+        assertThat(postReadResponse.getTime()).isNotNull();
+        assertThat(postReadResponse.getIsPublic()).isNotNull();
+        assertThat(postReadResponse.getFavoriteCount()).isNotNull();
+        assertThat(postReadResponse.getCommentCount()).isNotNull();
+        assertThat(postReadResponse.getLikeCount()).isNotNull();
+        assertThat(postReadResponse.getViewCount()).isNotNull();
+        assertThat(postReadResponse.getCreatedAt()).isNotNull();
+    }
+
+    @Test
+    public void getPost_whenNull_error() {
+        // given
+        final UUID postId = UUID.randomUUID();
+
+        // when
+        when(postRepository.findById(postId)).thenReturn(java.util.Optional.empty());
+
+        final PostException postException = assertThrows(PostException.class, () -> postService.getPost(postId));
+
+        // then
+        assertThat(postException.getPostErrorResult()).isEqualTo(PostErrorResult.POST_NOT_FOUND);}
 }

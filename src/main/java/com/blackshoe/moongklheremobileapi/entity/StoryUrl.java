@@ -1,5 +1,6 @@
 package com.blackshoe.moongklheremobileapi.entity;
 
+import com.blackshoe.moongklheremobileapi.dto.StoryUrlDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,5 +31,13 @@ public class StoryUrl {
         this.id = id;
         this.s3Url = s3Url;
         this.cloudfrontUrl = cloudfrontUrl;
+    }
+
+    public static StoryUrl convertStoryUrlDtoToEntity(StoryUrlDto uploadedStoryUrl) {
+        final StoryUrl storyUrl = StoryUrl.builder()
+                .s3Url(uploadedStoryUrl.getS3Url())
+                .cloudfrontUrl(uploadedStoryUrl.getCloudfrontUrl())
+                .build();
+        return storyUrl;
     }
 }

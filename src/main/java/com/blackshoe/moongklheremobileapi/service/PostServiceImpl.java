@@ -25,9 +25,9 @@ public class PostServiceImpl implements PostService {
                               StoryUrlDto uploadedStoryUrl,
                               PostDto.PostCreateRequest postCreateRequest) {
 
-        final SkinUrl skinUrl = convertSkinUrlDtoToEntity(uploadedSkinUrl);
+        final SkinUrl skinUrl = SkinUrl.convertSkinUrlDtoToEntity(uploadedSkinUrl);
 
-        final StoryUrl storyUrl = convertStoryUrlDtoToEntity(uploadedStoryUrl);
+        final StoryUrl storyUrl = StoryUrl.convertStoryUrlDtoToEntity(uploadedStoryUrl);
 
         final SkinLocation skinLocation = getSkinLocationFromPostCreateRequest(postCreateRequest);
 
@@ -51,40 +51,31 @@ public class PostServiceImpl implements PostService {
         return postDto;
     }
 
-    private static SkinUrl convertSkinUrlDtoToEntity(SkinUrlDto uploadedSkinUrl) {
-        return SkinUrl.builder()
-                .s3Url(uploadedSkinUrl.getS3Url())
-                .cloudfrontUrl(uploadedSkinUrl.getCloudfrontUrl())
-                .build();
-    }
-
-    private static StoryUrl convertStoryUrlDtoToEntity(StoryUrlDto uploadedStoryUrl) {
-        final StoryUrl storyUrl = StoryUrl.builder()
-                .s3Url(uploadedStoryUrl.getS3Url())
-                .cloudfrontUrl(uploadedStoryUrl.getCloudfrontUrl())
-                .build();
-        return storyUrl;
-    }
-
     private static SkinLocation getSkinLocationFromPostCreateRequest(PostDto.PostCreateRequest postCreateRequest) {
+        final SkinLocationDto skinLocationDto = postCreateRequest.getLocation();
+
         final SkinLocation skinLocation = SkinLocation.builder()
-                .latitude(postCreateRequest.getLocation().getLatitude())
-                .longitude(postCreateRequest.getLocation().getLongitude())
-                .country(postCreateRequest.getLocation().getCountry())
-                .state(postCreateRequest.getLocation().getState())
-                .city(postCreateRequest.getLocation().getCity())
+                .latitude(skinLocationDto.getLatitude())
+                .longitude(skinLocationDto.getLongitude())
+                .country(skinLocationDto.getCountry())
+                .state(skinLocationDto.getState())
+                .city(skinLocationDto.getCity())
                 .build();
+
         return skinLocation;
     }
 
     private static SkinTime getSkinTimeFromPostCreateRequest(PostDto.PostCreateRequest postCreateRequest) {
+        final SkinTimeDto skinTimeDto = postCreateRequest.getTime();
+
         final SkinTime skinTime = SkinTime.builder()
-                .year(postCreateRequest.getTime().getYear())
-                .month(postCreateRequest.getTime().getMonth())
-                .day(postCreateRequest.getTime().getDay())
-                .hour(postCreateRequest.getTime().getHour())
-                .minute(postCreateRequest.getTime().getMinute())
+                .year(skinTimeDto.getYear())
+                .month(skinTimeDto.getMonth())
+                .day(skinTimeDto.getDay())
+                .hour(skinTimeDto.getHour())
+                .minute(skinTimeDto.getMinute())
                 .build();
+
         return skinTime;
     }
 

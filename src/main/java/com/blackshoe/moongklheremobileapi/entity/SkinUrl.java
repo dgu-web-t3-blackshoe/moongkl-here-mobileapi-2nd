@@ -1,5 +1,6 @@
 package com.blackshoe.moongklheremobileapi.entity;
 
+import com.blackshoe.moongklheremobileapi.dto.SkinUrlDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,5 +31,12 @@ public class SkinUrl {
         this.id = id;
         this.s3Url = s3Url;
         this.cloudfrontUrl = cloudfrontUrl;
+    }
+
+    public static SkinUrl convertSkinUrlDtoToEntity(SkinUrlDto uploadedSkinUrl) {
+        return SkinUrl.builder()
+                .s3Url(uploadedSkinUrl.getS3Url())
+                .cloudfrontUrl(uploadedSkinUrl.getCloudfrontUrl())
+                .build();
     }
 }

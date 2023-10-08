@@ -2,8 +2,11 @@ package com.blackshoe.moongklheremobileapi.controller;
 
 import com.blackshoe.moongklheremobileapi.config.SecurityConfig;
 import com.blackshoe.moongklheremobileapi.dto.*;
+import com.blackshoe.moongklheremobileapi.entity.Post;
 import com.blackshoe.moongklheremobileapi.entity.Role;
 import com.blackshoe.moongklheremobileapi.entity.User;
+import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
+import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.oauth2.CustomOAuth2UserService;
 import com.blackshoe.moongklheremobileapi.oauth2.OAuth2SuccessHandler;
 import com.blackshoe.moongklheremobileapi.repository.UserRepository;
@@ -47,6 +50,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -295,6 +299,69 @@ public class PostControllerTest {
         //then
         MockHttpServletResponse response = result.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getPost_whenSuccess_returns200() throws Exception {
+        //given
+        final UUID postId = UUID.randomUUID();
+
+        final PostDto.PostReadResponse postReadResponse = PostDto.PostReadResponse.builder()
+                .postId(postId)
+                .userId(UUID.randomUUID())
+                .skin("test")
+                .story("test")
+                .location(skinLocationDto)
+                .time(skinTimeDto)
+                .likeCount(0)
+                .commentCount(0)
+                .favoriteCount(0)
+                .viewCount(0)
+                .isPublic(true)
+                .createdAt(LocalDateTime.now().toString())
+                .build();
+
+        //when
+        when(postService.getPost(any(UUID.class))).thenReturn(postReadResponse);
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts/{postId}", postId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getPost_whenPostNotFound_returns404() throws Exception {
+        //given
+        final UUID postId = UUID.randomUUID();
+
+        //when
+        when(postService.getPost(any(UUID.class))).thenThrow(new PostException(PostErrorResult.POST_NOT_FOUND));
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts/{postId}", postId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
         assertThat(response.getContentAsString()).isNotEmpty();
         log.info("response: {}", response.getContentAsString());
     }

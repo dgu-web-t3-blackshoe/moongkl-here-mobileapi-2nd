@@ -14,12 +14,12 @@ public class SkinUrlRepositoryTest {
     private SkinUrlRepository skinUrlRepository;
 
     @Test
-    public void SkinUrlRepositoryIsNotNull() {
+    public void assert_isNotNull() {
         assertThat(skinUrlRepository).isNotNull();
     }
 
     @Test
-    public void SkinUrlSave() {
+    public void save_returns_isNotNull() {
         //given
         final SkinUrl skinUrl = SkinUrl.builder()
                 .s3Url("s3Url")
@@ -37,7 +37,7 @@ public class SkinUrlRepositoryTest {
     }
 
     @Test
-    public void SkinUrlFindById() {
+    public void findById_returns_savedSkinUrl() {
         //given
         final SkinUrl skinUrl = SkinUrl.builder()
                 .s3Url("s3Url")

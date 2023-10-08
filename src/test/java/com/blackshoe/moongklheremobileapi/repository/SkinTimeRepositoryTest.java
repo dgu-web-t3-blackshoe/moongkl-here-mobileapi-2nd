@@ -14,12 +14,12 @@ public class SkinTimeRepositoryTest {
     private SkinTimeRepository skinTimeRepository;
 
     @Test
-    public void SkinTimeRepositoryIsNotNull() {
+    public void assert_isNotNull() {
         assertThat(skinTimeRepository).isNotNull();
     }
 
     @Test
-    public void SkinTimeSave() {
+    public void save_returns_isNotNull() {
         //given
         final SkinTime skinTime = SkinTime.builder()
                 .year(2020)
@@ -43,7 +43,7 @@ public class SkinTimeRepositoryTest {
     }
 
     @Test
-    public void SkinTimeFindById() {
+    public void findById_returns_savedSkinTime() {
         //given
         final SkinTime skinTime = SkinTime.builder()
                 .year(2020)

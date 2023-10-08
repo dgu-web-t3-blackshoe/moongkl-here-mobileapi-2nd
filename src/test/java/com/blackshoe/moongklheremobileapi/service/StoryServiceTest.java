@@ -52,7 +52,7 @@ public class StoryServiceTest {
     private final UUID userId = UUID.randomUUID();
 
     @Test
-    public void 스토리_S3_업로드() {
+    public void storyUpload_returnsStoryUrlDto_isNotNull() {
         //given
         final MultipartFile testImg;
         try {
@@ -75,7 +75,7 @@ public class StoryServiceTest {
     }
 
     @Test
-    public void 스토리_비었을_때_에러처리() {
+    public void storyUpload_emptyStory_error() {
         //given
 
         //when
@@ -86,7 +86,7 @@ public class StoryServiceTest {
     }
 
     @Test
-    public void 스토리_파일_타입_에러처리() {
+    public void storyUpload_fileType_error() {
         //given
         final MultipartFile testTxt;
         try {
@@ -105,7 +105,7 @@ public class StoryServiceTest {
     }
 
     @Test
-    public void 스토리_파일_크기_에러처리() {
+    public void storyUpload_fileSize_error() {
         //given
         final MultipartFile testImg;
 
@@ -121,7 +121,7 @@ public class StoryServiceTest {
     }
 
     @Test
-    public void 스토리_파일_업로드_에러처리() {
+    public void storyUpload_server_error() {
         //given
         ReflectionTestUtils.setField(storyService, "BUCKET", "a");
         final MultipartFile testImg;

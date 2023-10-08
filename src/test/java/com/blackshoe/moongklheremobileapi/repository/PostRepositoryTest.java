@@ -1,15 +1,12 @@
 package com.blackshoe.moongklheremobileapi.repository;
 
 import com.blackshoe.moongklheremobileapi.entity.*;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,12 +19,12 @@ public class PostRepositoryTest {
     private Logger log = LoggerFactory.getLogger(PostRepositoryTest.class);
 
     @Test
-    public void PostRepositoryIsNotNull() {
+    public void assert_isNotNull() {
         assertThat(postRepository).isNotNull();
     }
 
     @Test
-    public void PostSave() {
+    public void save_returns_isNotNull() {
         //given
         final SkinUrl skinUrl = SkinUrl.builder()
                 .s3Url("test")
@@ -101,7 +98,7 @@ public class PostRepositoryTest {
     }
 
     @Test
-    public void PostFindById() {
+    public void findById_returns_savedPost() {
         //given
         final SkinUrl skinUrl = SkinUrl.builder()
                 .s3Url("test")

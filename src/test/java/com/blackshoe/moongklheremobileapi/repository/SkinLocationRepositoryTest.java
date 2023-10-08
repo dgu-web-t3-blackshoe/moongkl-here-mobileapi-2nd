@@ -14,12 +14,12 @@ public class SkinLocationRepositoryTest {
     private SkinLocationRepository skinLocationRepository;
 
     @Test
-    public void SkinLocationRepositoryIsNotNull() {
+    public void assert_isNotNull() {
         assertThat(skinLocationRepository).isNotNull();
     }
 
     @Test
-    public void SkinLocationSave() {
+    public void save_returns_isNotNull() {
         //given
         final SkinLocation skinLocation = SkinLocation.builder()
                 .latitude(10.0)
@@ -43,7 +43,7 @@ public class SkinLocationRepositoryTest {
     }
 
     @Test
-    public void SkinLocationFindById() {
+    public void findById_returns_savedSkinLocation() {
         //given
         final SkinLocation skinLocation = SkinLocation.builder()
                 .latitude(10.0)

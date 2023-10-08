@@ -105,7 +105,7 @@ public class PostServiceTest {
             .build();
 
     @Test
-    public void 포스트_등록() {
+    public void createPost_returnsPostDto_isNotNull() {
         // given
         final Post post = Post.builder()
                 .skinUrl(skinUrl)

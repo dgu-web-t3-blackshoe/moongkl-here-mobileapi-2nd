@@ -48,7 +48,7 @@ public class SkinServiceTest {
     private final UUID userId = UUID.randomUUID();
 
     @Test
-    public void 스킨_S3_업로드() {
+    public void uploadSkin_returnsSkinUrlDto_isNotNull() {
         //given
         final MultipartFile testImg;
         try {
@@ -71,7 +71,7 @@ public class SkinServiceTest {
     }
 
     @Test
-    public void 스킨_비었을_때_에러처리() {
+    public void uploadSkin_emptySkin_error() {
         //given
 
         //when
@@ -82,7 +82,7 @@ public class SkinServiceTest {
     }
 
     @Test
-    public void 스킨_파일_타입_에러처리() {
+    public void uploadSkin_fileType_error() {
         //given
         final MultipartFile testTxt;
         try {
@@ -101,7 +101,7 @@ public class SkinServiceTest {
     }
 
     @Test
-    public void 스킨_파일_크기_에러처리() {
+    public void uploadSkin_fileSize_error() {
         //given
         final MultipartFile testImg;
 
@@ -117,7 +117,7 @@ public class SkinServiceTest {
     }
 
     @Test
-    public void 스킨_파일_업로드_에러처리() {
+    public void uploadSkin_server_error() {
         //given
         ReflectionTestUtils.setField(skinService, "BUCKET", "a");
         final MultipartFile testImg;

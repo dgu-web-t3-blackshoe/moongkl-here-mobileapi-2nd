@@ -14,12 +14,12 @@ public class StoryUrlRepositoryTest {
     private StoryUrlRepository storyUrlRepository;
 
     @Test
-    public void StoryUrlRepositoryIsNotNull() {
+    public void assert_isNotNull() {
         assertThat(storyUrlRepository).isNotNull();
     }
 
     @Test
-    public void StoryUrlSave() {
+    public void save_returns_isNotNull() {
         //given
         final StoryUrl storyUrl = StoryUrl.builder()
                 .s3Url("s3Url")
@@ -36,7 +36,7 @@ public class StoryUrlRepositoryTest {
     }
 
     @Test
-    public void StoryUrlFindById() {
+    public void findById_returns_savedStoryUrl() {
         //given
         final StoryUrl storyUrl = StoryUrl.builder()
                 .s3Url("s3Url")

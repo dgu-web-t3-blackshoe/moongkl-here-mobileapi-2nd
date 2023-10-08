@@ -1,4 +1,4 @@
-package com.blackshoe.moongklheremobileapi.configuration;
+package com.blackshoe.moongklheremobileapi.config;
 
 import com.blackshoe.moongklheremobileapi.oauth2.CustomOAuth2UserService;
 import com.blackshoe.moongklheremobileapi.oauth2.OAuth2SuccessHandler;

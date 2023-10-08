@@ -2,11 +2,14 @@ package com.blackshoe.moongklheremobileapi.service;
 
 import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.*;
+import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
+import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -108,5 +111,46 @@ public class PostServiceImpl implements PostService {
                 .build();
 
         return postDto;
+    }
+
+    @Override
+    public PostDto.PostReadResponse getPost(UUID postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> {
+            log.error("Post not found. postId: {}", postId);
+            throw new PostException(PostErrorResult.POST_NOT_FOUND);
+        });
+
+        final SkinLocationDto skinLocationDto = SkinLocationDto.builder()
+                .latitude(post.getSkinLocation().getLatitude())
+                .longitude(post.getSkinLocation().getLongitude())
+                .country(post.getSkinLocation().getCountry())
+                .state(post.getSkinLocation().getState())
+                .city(post.getSkinLocation().getCity())
+                .build();
+
+        final SkinTimeDto skinTimeDto = SkinTimeDto.builder()
+                .year(post.getSkinTime().getYear())
+                .month(post.getSkinTime().getMonth())
+                .day(post.getSkinTime().getDay())
+                .hour(post.getSkinTime().getHour())
+                .minute(post.getSkinTime().getMinute())
+                .build();
+
+        final PostDto.PostReadResponse postReadResponse = PostDto.PostReadResponse.builder()
+                .postId(post.getId())
+                .userId(post.getUser().getId())
+                .skin(post.getSkinUrl().getCloudfrontUrl())
+                .story(post.getStoryUrl().getCloudfrontUrl())
+                .location(skinLocationDto)
+                .time(skinTimeDto)
+                .favoriteCount(post.getFavoriteCount())
+                .viewCount(post.getViewCount())
+                .likeCount(post.getLikeCount())
+                .commentCount(post.getCommentCount())
+                .isPublic(post.isPublic())
+                .createdAt(post.getCreatedAt())
+                .build();
+
+        return postReadResponse;
     }
 }

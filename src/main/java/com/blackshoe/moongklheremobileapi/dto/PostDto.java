@@ -19,10 +19,10 @@ public class PostDto {
     private String story;
     private SkinLocationDto location;
     private SkinTimeDto time;
-    private int likeCount;
-    private int favoriteCount;
-    private int commentCount;
-    private int viewCount;
+    private long likeCount;
+    private long favoriteCount;
+    private long commentCount;
+    private long viewCount;
     private Boolean isPublic;
     private LocalDateTime createdAt;
 
@@ -44,5 +44,23 @@ public class PostDto {
     public static class PostCreateResponse {
         private String postId;
         private String createdAt;
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class PostReadResponse {
+        private UUID postId;
+        private UUID userId;
+        private String skin;
+        private String story;
+        private SkinLocationDto location;
+        private SkinTimeDto time;
+        private long likeCount;
+        private long favoriteCount;
+        private long commentCount;
+        private long viewCount;
+        private Boolean isPublic;
+        private LocalDateTime createdAt;
     }
 }

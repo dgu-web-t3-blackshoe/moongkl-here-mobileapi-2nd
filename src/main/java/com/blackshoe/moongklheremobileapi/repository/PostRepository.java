@@ -54,5 +54,5 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month = :#{#postTimeFilter.toMonth} AND p.skinTime.day <= :#{#postTimeFilter.toDay})) " +
             "  AND p.isPublic = true" +
             "  AND p.skinLocation.country != '대한민국'")
-    Page<PostDto.PostListReadResponse> findAllByCreatedAtBetweenAndAbroadAndIsPublic(PostTimeFilter postTimeFilter, Pageable pageable);
+    Page<PostDto.PostListReadResponse> findAllBySkinTimeBetweenAndAbroadAndIsPublic(PostTimeFilter postTimeFilter, Pageable pageable);
 }

@@ -348,7 +348,7 @@ public class PostRepositoryTest {
     }
 
     @Test
-    public void findAllByCreatedAtBetweenAndAbroadAndIsPublic_whenDefaultSuccess_isNotNull() throws JsonProcessingException {
+    public void findAllBySkinTimeBetweenAndAbroadAndIsPublic_whenDefaultSuccess_isNotNull() throws JsonProcessingException {
         // given
         final SkinLocation domestic = SkinLocation.builder()
                 .latitude(1.0)
@@ -424,7 +424,7 @@ public class PostRepositoryTest {
 
         // when
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
-                = postRepository.findAllByCreatedAtBetweenAndAbroadAndIsPublic(postTimeFilter, pageable);
+                = postRepository.findAllBySkinTimeBetweenAndAbroadAndIsPublic(postTimeFilter, pageable);
         final String result = objectMapper.writeValueAsString(postListReadResponsePage);
 
         // then

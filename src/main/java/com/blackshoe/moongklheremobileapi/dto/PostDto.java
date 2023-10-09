@@ -63,4 +63,20 @@ public class PostDto {
         private Boolean isPublic;
         private String createdAt;
     }
+
+    @Data
+    @Builder
+    public static class PostListReadResponse {
+        private UUID postId;
+        private UUID userId;
+        private String skin;
+        private String story;
+
+        public PostListReadResponse(UUID postId, UUID userId, String skin, String story) {
+            this.postId = postId;
+            this.userId = userId;
+            this.skin = skin;
+            this.story = story;
+        }
+    }
 }

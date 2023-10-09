@@ -19,19 +19,19 @@ public class SkinTime {
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(length = 4, nullable = false)
+    @Column(name = "skin_year", length = 4, nullable = false)
     private int year;
 
-    @Column(length = 2, nullable = false)
+    @Column(name = "skin_month", length = 2, nullable = false)
     private int month;
 
-    @Column(length = 2, nullable = false)
+    @Column(name = "skin_day", length = 2, nullable = false)
     private int day;
 
-    @Column(length = 2, nullable = false)
+    @Column(name = "skin_hour", length = 2, nullable = false)
     private int hour;
 
-    @Column(length = 2, nullable = false)
+    @Column(name = "skin_minute", length = 2, nullable = false)
     private int minute;
 
     @Builder

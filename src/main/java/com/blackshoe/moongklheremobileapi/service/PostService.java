@@ -18,7 +18,7 @@ public interface PostService {
 
     PostDto.PostReadResponse getPost(UUID postId);
 
-    Page<PostDto.PostListReadResponse> getPostList(String from, String to, LocationType location,
-                                                   Double latitude, Double longitude, Double radius,
-                                                   SortType sort, Integer page, Integer size);
+    Page<PostDto.PostListReadResponse> getPostList(String from, String to,
+                                                   String location, Double latitude, Double longitude, Double radius,
+                                                   String sort, Integer size, Integer page);
 }

@@ -165,14 +165,10 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostDto.PostListReadResponse> getPostList(String from, String to,
-                                                          LocationType location, Double latitude, Double longitude, Double radius,
-                                                          SortType sort, Integer size, Integer page) {
+                                                          String location, Double latitude, Double longitude, Double radius,
+                                                          String sort, Integer size, Integer page) {
 
-        final Sort sortType = Sort.by(Sort.Direction.DESC, SortType.getSortField(sort));
-
-        final Pageable pageable = PageRequest.of(page, size, sortType);
-
-        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
+        final PostTimeFilter postTimeFilter = PostTimeFilter.verifyAndConvertStringToPostTimeFilter(from, to);
 
         final PostPointFilter postPointFilter = PostPointFilter.builder()
                 .latitude(latitude)
@@ -180,9 +176,17 @@ public class PostServiceImpl implements PostService {
                 .radius(radius)
                 .build();
 
+        final LocationType locationType = LocationType.verifyAndConvertStringToLocationType(location);
+
+        final SortType sortType = SortType.verifyAndConvertStringToSortType(sort);
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, SortType.getSortField(sortType));
+
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
         final Page<PostDto.PostListReadResponse> postListReadResponsePage;
 
-        switch (location) {
+        switch (locationType) {
             case DOMESTIC:
                 postListReadResponsePage
                         = postRepository.findAllBySkinTimeBetweenAndDomesticAndIsPublic(postTimeFilter, pageable);

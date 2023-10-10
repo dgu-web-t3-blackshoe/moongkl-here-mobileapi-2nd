@@ -1,5 +1,7 @@
 package com.blackshoe.moongklheremobileapi.vo;
 
+import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
+import com.blackshoe.moongklheremobileapi.exception.PostException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -21,5 +23,18 @@ public enum SortType {
             default:
                 return "createdAt";
         }
+    }
+
+    public static SortType verifyAndConvertStringToSortType(String sort) {
+        if (sort.equals(LIKES.getSortType())) {
+            return SortType.LIKES;
+        }
+        if (sort.equals(VIEWS.getSortType())) {
+            return SortType.VIEWS;
+        }
+        if (sort.equals(DEFAULT.getSortType())) {
+            return SortType.DEFAULT;
+        }
+        throw new PostException(PostErrorResult.INVALID_SORT_TYPE);
     }
 }

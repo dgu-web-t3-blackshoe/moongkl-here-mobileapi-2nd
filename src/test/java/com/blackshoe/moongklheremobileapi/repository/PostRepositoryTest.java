@@ -247,7 +247,7 @@ public class PostRepositoryTest {
 
         final String from = "2023-01-01";
         final String to = "2023-12-31";
-        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
+        final PostTimeFilter postTimeFilter = PostTimeFilter.verifyAndConvertStringToPostTimeFilter(from, to);
         final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
         final Integer size = 10;
         final Integer page = 0;
@@ -332,7 +332,7 @@ public class PostRepositoryTest {
 
         final String from = "2023-01-01";
         final String to = "2023-12-31";
-        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
+        final PostTimeFilter postTimeFilter = PostTimeFilter.verifyAndConvertStringToPostTimeFilter(from, to);
         final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
         final Integer size = 10;
         final Integer page = 0;
@@ -417,7 +417,7 @@ public class PostRepositoryTest {
 
         final String from = "2023-01-01";
         final String to = "2023-12-31";
-        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
+        final PostTimeFilter postTimeFilter = PostTimeFilter.verifyAndConvertStringToPostTimeFilter(from, to);
         final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
         final Integer size = 10;
         final Integer page = 0;
@@ -502,7 +502,7 @@ public class PostRepositoryTest {
 
         final String from = "2023-01-01";
         final String to = "2023-12-31";
-        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
+        final PostTimeFilter postTimeFilter = PostTimeFilter.verifyAndConvertStringToPostTimeFilter(from, to);
         final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
         final Integer size = 10;
         final Integer page = 0;

@@ -12,6 +12,7 @@ import com.blackshoe.moongklheremobileapi.service.PostService;
 import com.blackshoe.moongklheremobileapi.service.SkinService;
 import com.blackshoe.moongklheremobileapi.service.StoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -77,6 +78,27 @@ public class PostController {
 
         final ResponseDto responseDto = ResponseDto.builder()
                 .payload(objectMapper.convertValue(postReadResponse, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseDto> getPostList(@RequestParam(name = "from", required = false, defaultValue = "2001-01-01") String from,
+                                                   @RequestParam(name = "to", required = false, defaultValue = "2999-12-31") String to,
+                                                   @RequestParam(name = "location", required = false, defaultValue = "default") String location,
+                                                   @RequestParam(name = "latitude", required = false, defaultValue = "0") Double latitude,
+                                                   @RequestParam(name = "longitude", required = false, defaultValue = "0") Double longitude,
+                                                   @RequestParam(name = "radius", required = false, defaultValue = "0") Double radius,
+                                                   @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
+                                                   @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
+                                                   @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage
+                = postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);

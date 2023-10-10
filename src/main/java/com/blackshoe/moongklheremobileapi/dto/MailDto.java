@@ -7,11 +7,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+
 public class MailDto {
 
     @Getter @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class MailRequestDto {
+        @NotBlank
         private String email;
     }
 
@@ -26,7 +29,9 @@ public class MailDto {
     @Getter @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class MailVerifyDto{
+        @NotBlank
         private String email;
+        @NotBlank
         private String verificationCode;
     }
 }

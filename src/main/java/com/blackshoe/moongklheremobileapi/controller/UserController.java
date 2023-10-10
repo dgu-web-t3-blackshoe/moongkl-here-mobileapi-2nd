@@ -173,35 +173,6 @@ public class UserController {
         }
     }
 
-    /*
-    @PostMapping("/sign-in/email/validation")
-    public ResponseEntity<ResponseDto> validationEmail(@RequestBody String email) {
-        try {
-            if(!email.matches(emailRegex)) {
-                log.info("유효하지 않은 이메일");
-                UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
-                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-            }
-
-            if (userService.userExistsByEmail(email)) {
-                log.info("이메일 중복");
-                UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_EMAIL;
-
-                ResponseDto responseDto = ResponseDto.builder()
-                        .error(userErrorResult.getMessage())
-                        .build();
-
-                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-            }
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
-        }catch(Exception e){
-            ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
-        }
-    }*/
     @PostMapping("/sign-in/email/validation")
     public ResponseEntity<ResponseDto> validationEmail(@RequestBody MailDto.MailRequestDto mailRequestDto) {
         try {

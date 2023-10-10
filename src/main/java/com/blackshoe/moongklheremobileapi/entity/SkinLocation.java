@@ -19,11 +19,12 @@ public class SkinLocation {
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(nullable = false)
-    private Double longitude;
 
     @Column(nullable = false)
     private Double latitude;
+
+    @Column(nullable = false)
+    private Double longitude;
 
     @Column(nullable = false)
     private String country;
@@ -35,10 +36,10 @@ public class SkinLocation {
     private String city;
 
     @Builder
-    public SkinLocation(UUID id, Double longitude, Double latitude, String country, String state, String city) {
+    public SkinLocation(UUID id, Double latitude, Double longitude, String country, String state, String city) {
         this.id = id;
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
         this.country = country;
         this.state = state;
         this.city = city;

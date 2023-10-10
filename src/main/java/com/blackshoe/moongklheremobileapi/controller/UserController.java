@@ -83,6 +83,20 @@ public class UserController {
                 UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
             }
+            if (userService.userExistsByNickname(loginRequestDto.getEmail())) {
+                log.info("이미 존재하는 닉네임");
+                UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_NICKNAME;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+            if (!userService.userExistsByEmailAndPassword(loginRequestDto.getEmail(), loginRequestDto.getPassword())) {
+                log.info("비밀번호 불일치");
+                UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
 
             log.info("로그인 성공");
             UserDto.LoginResponseDto loginResponseDto = userService.login(loginRequestDto);

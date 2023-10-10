@@ -86,4 +86,24 @@ public class UserServiceImpl implements UserService{
                 .updatedAt(updatedUser.getUpdatedAt())
                 .build();
     }
+
+    @Override
+    public boolean userExistsByNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
+    }
+
+    @Override
+    public boolean userExistsByEmailAndPassword(String email, String password) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                return true; // 인증 성공
+            }
+        }
+
+        return false; // 인증 실패
+    }
 }

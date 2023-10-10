@@ -41,3 +41,4 @@ my-debug-key.keystore
 .env
 application.yml
 src/main/resources/application.yml
+.DS_Store

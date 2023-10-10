@@ -32,10 +32,12 @@ public class VerificationServiceImpl implements VerificationService{
 
     public boolean isVerified(String key){
         String status = redisTemplate.opsForValue().get("CompletionCode:"+key);
+        if(status == null) return false;
         return status.equals("true");
     }
     public boolean verifyCode(String key, String verificationCode) {
         String code = redisTemplate.opsForValue().get(key);
+        if(code == null) return false;
         return code.equals(verificationCode);
     }
 

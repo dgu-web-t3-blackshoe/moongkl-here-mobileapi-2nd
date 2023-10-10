@@ -194,26 +194,24 @@ public class PostServiceTest {
     }
 
     @Test
-    public void getPosts_whenDefaultSuccess_isNotNull() {
+    public void getPostList_whenDefaultSuccess_isNotNull() {
         // given
-        Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
 
-        String from = "2023-01-01";
-        String to = "2023-12-31";
-        LocationType location = LocationType.DEFAULT;
-        Double longitude = 0.0;
-        Double latitude = 0.0;
+        final String from = "2023-01-01";
+        final String to = "2023-12-31";
+        final String location = LocationType.DEFAULT.getLocationType();
+        final Double longitude = 0.0;
+        final Double latitude = 0.0;
         final Double radius = 0.0;
-        SortType sort = SortType.DEFAULT;
-        Integer size = 10;
-        Integer page = 0;
-
-        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
-        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
-        final Pageable pageable = PageRequest.of(page, size, sortBy);
+        final String sort = SortType.DEFAULT.getSortType();
+        final Integer size = 10;
+        final Integer page = 0;
 
         // when
-        when(postRepository.findAllBySkinTimeBetweenAndIsPublic(postTimeFilter, pageable)).thenReturn(mockPostListReadResponsePage);
+        when(postRepository.findAllBySkinTimeBetweenAndIsPublic(
+                any(PostTimeFilter.class),
+                any(Pageable.class))).thenReturn(mockPostListReadResponsePage);
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page);
 
@@ -222,26 +220,24 @@ public class PostServiceTest {
     }
 
     @Test
-    public void getPosts_whenDomesticSuccess_isNotNull() {
+    public void getPostList_whenDomesticSuccess_isNotNull() {
         // given
         Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
 
-        String from = "2023-01-01";
-        String to = "2023-12-31";
-        LocationType location = LocationType.DOMESTIC;
-        Double longitude = 0.0;
-        Double latitude = 0.0;
+        final String from = "2023-01-01";
+        final String to = "2023-12-31";
+        final String location = LocationType.DOMESTIC.getLocationType();
+        final Double longitude = 0.0;
+        final Double latitude = 0.0;
         final Double radius = 0.0;
-        SortType sort = SortType.DEFAULT;
-        Integer size = 10;
-        Integer page = 0;
-
-        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
-        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
-        final Pageable pageable = PageRequest.of(page, size, sortBy);
+        final String sort = SortType.LIKES.getSortType();
+        final Integer size = 10;
+        final Integer page = 0;
 
         // when
-        when(postRepository.findAllBySkinTimeBetweenAndDomesticAndIsPublic(postTimeFilter, pageable)).thenReturn(mockPostListReadResponsePage);
+        when(postRepository.findAllBySkinTimeBetweenAndDomesticAndIsPublic(
+                any(PostTimeFilter.class),
+                any(Pageable.class))).thenReturn(mockPostListReadResponsePage);
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page);
 
@@ -250,26 +246,24 @@ public class PostServiceTest {
     }
 
     @Test
-    public void getPosts_whenAbroadSuccess_isNotNull() {
+    public void getPostList_whenAbroadSuccess_isNotNull() {
         // given
         Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
 
-        String from = "2023-01-01";
-        String to = "2023-12-31";
-        LocationType location = LocationType.ABROAD;
-        Double longitude = 0.0;
-        Double latitude = 0.0;
+        final String from = "2023-01-01";
+        final String to = "2023-12-31";
+        final String location = LocationType.ABROAD.getLocationType();
+        final Double longitude = 0.0;
+        final Double latitude = 0.0;
         final Double radius = 0.0;
-        SortType sort = SortType.DEFAULT;
-        Integer size = 10;
-        Integer page = 0;
-
-        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
-        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
-        final Pageable pageable = PageRequest.of(page, size, sortBy);
+        final String sort = SortType.VIEWS.getSortType();
+        final Integer size = 10;
+        final Integer page = 0;
 
         // when
-        when(postRepository.findAllBySkinTimeBetweenAndAbroadAndIsPublic(postTimeFilter, pageable)).thenReturn(mockPostListReadResponsePage);
+        when(postRepository.findAllBySkinTimeBetweenAndAbroadAndIsPublic(
+                any(PostTimeFilter.class),
+                any(Pageable.class))).thenReturn(mockPostListReadResponsePage);
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page);
 
@@ -278,35 +272,89 @@ public class PostServiceTest {
     }
 
     @Test
-    public void getPosts_whenCurrentLocationSuccess_isNotNull() {
+    public void getPostList_whenCurrentLocationSuccess_isNotNull() {
         // given
         Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
 
-        String from = "2023-01-01";
-        String to = "2023-12-31";
-        LocationType location = LocationType.CURRENT;
-        Double longitude = 0.0;
-        Double latitude = 0.0;
-        final Double radius = 3.0;
-        SortType sort = SortType.DEFAULT;
-        Integer size = 10;
-        Integer page = 0;
-
-        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
-        final PostPointFilter postPointFilter = PostPointFilter.builder()
-                .latitude(latitude)
-                .longitude(longitude)
-                .radius(radius)
-                .build();
-        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
-        final Pageable pageable = PageRequest.of(page, size, sortBy);
+        final String from = "2023-01-01";
+        final String to = "2023-12-31";
+        final String location = LocationType.CURRENT.getLocationType();
+        final Double longitude = 0.0;
+        final Double latitude = 0.0;
+        final Double radius = 0.0;
+        final String sort = SortType.DEFAULT.getSortType();
+        final Integer size = 10;
+        final Integer page = 0;
 
         // when
-        when(postRepository.findAllBySkinTimeBetweenAndCurrentLocationAndIsPublic(postTimeFilter, postPointFilter, pageable)).thenReturn(mockPostListReadResponsePage);
+        when(postRepository.findAllBySkinTimeBetweenAndCurrentLocationAndIsPublic(
+                any(PostTimeFilter.class),
+                any(PostPointFilter.class),
+                any(Pageable.class))).thenReturn(mockPostListReadResponsePage);
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page);
 
         // then
         assertThat(postListReadResponsePage.getContent()).isNotNull();
+    }
+
+    @Test
+    public void getPostList_whenInvalidLocationType_throwsPostException() {
+        // given
+        final String from = "2023-01-01";
+        final String to = "2023-12-31";
+        final String location = "invalid";
+        final Double longitude = 0.0;
+        final Double latitude = 0.0;
+        final Double radius = 0.0;
+        final String sort = SortType.DEFAULT.getSortType();
+        final Integer size = 10;
+        final Integer page = 0;
+
+        // when
+        final PostException postException = assertThrows(PostException.class, () -> postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page));
+
+        // then
+        assertThat(postException.getPostErrorResult()).isEqualTo(PostErrorResult.INVALID_LOCATION_TYPE);
+    }
+
+    @Test
+    public void getPostList_whenInvalidDateFormat_throwsPostException() {
+        // given
+        final String from = "2023-011";
+        final String to = "2023-1231";
+        final String location = LocationType.DEFAULT.getLocationType();
+        final Double longitude = 0.0;
+        final Double latitude = 0.0;
+        final Double radius = 0.0;
+        final String sort = SortType.DEFAULT.getSortType();
+        final Integer size = 10;
+        final Integer page = 0;
+
+        // when
+        final PostException postException = assertThrows(PostException.class, () -> postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page));
+
+        // then
+        assertThat(postException.getPostErrorResult()).isEqualTo(PostErrorResult.INVALID_DATE_FORMAT);
+    }
+
+    @Test
+    public void getPostList_whenInvalidSortType_throwsPostException() {
+        // given
+        final String from = "2023-01-01";
+        final String to = "2023-12-31";
+        final String location = LocationType.DEFAULT.getLocationType();
+        final Double longitude = 0.0;
+        final Double latitude = 0.0;
+        final Double radius = 0.0;
+        final String sort = "invalid";
+        final Integer size = 10;
+        final Integer page = 0;
+
+        // when
+        final PostException postException = assertThrows(PostException.class, () -> postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page));
+
+        // then
+        assertThat(postException.getPostErrorResult()).isEqualTo(PostErrorResult.INVALID_SORT_TYPE);
     }
 }

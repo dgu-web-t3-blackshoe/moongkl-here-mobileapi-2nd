@@ -2,6 +2,7 @@ package com.blackshoe.moongklheremobileapi.repository;
 
 import com.blackshoe.moongklheremobileapi.dto.PostDto;
 import com.blackshoe.moongklheremobileapi.entity.*;
+import com.blackshoe.moongklheremobileapi.vo.PostPointFilter;
 import com.blackshoe.moongklheremobileapi.vo.PostTimeFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -425,6 +426,96 @@ public class PostRepositoryTest {
         // when
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postRepository.findAllBySkinTimeBetweenAndAbroadAndIsPublic(postTimeFilter, pageable);
+        final String result = objectMapper.writeValueAsString(postListReadResponsePage);
+
+        // then
+        assertThat(postListReadResponsePage.getContent()).isNotNull();
+        log.info("postListReadResponsePage = {}", result);
+    }
+
+    @Test
+    public void findAllBySkinTimeBetweenAndCurrentLocationAndIsPublic_whenDefaultSuccess_isNotNull() throws JsonProcessingException {
+        // given
+        final SkinLocation domestic = SkinLocation.builder()
+                .latitude(1.0)
+                .longitude(1.0)
+                .country("대한민국")
+                .state("서울특별시")
+                .city("강남구")
+                .build();
+
+        final SkinLocation foreign = SkinLocation.builder()
+                .latitude(1000.0)
+                .longitude(1000.0)
+                .country("미국")
+                .state("캘리포니아")
+                .city("로스앤젤레스")
+                .build();
+
+        final SkinTime year2020 = SkinTime.builder()
+                .year(2020)
+                .month(1)
+                .day(1)
+                .hour(1)
+                .minute(1)
+                .build();
+
+        final SkinTime year2023 = SkinTime.builder()
+                .year(2023)
+                .month(1)
+                .day(1)
+                .hour(1)
+                .minute(1)
+                .build();
+
+        final User user = User.builder()
+                .email("test")
+                .password("test")
+                .nickname("test")
+                .phoneNumber("test")
+                .build();
+
+        final SkinUrl skinUrl = SkinUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        final StoryUrl storyUrl = StoryUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        for (int idx = 0; idx < 50; idx++) {
+            Post post = Post.builder()
+                    .skinUrl(skinUrl)
+                    .storyUrl(storyUrl)
+                    .skinLocation(idx % 2 == 0 ? domestic : foreign)
+                    .skinTime(idx % 2 == 0 ? year2020 : year2023)
+                    .user(user)
+                    .likeCount((long) (Math.random() * 100))
+                    .viewCount((long) (Math.random() * 100))
+                    .isPublic(true)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            postRepository.save(post);
+        }
+
+        final String from = "2023-01-01";
+        final String to = "2023-12-31";
+        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+        final Integer size = 10;
+        final Integer page = 0;
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+        final PostPointFilter postPointFilter = PostPointFilter.builder()
+                .latitude(0.8)
+                .longitude(0.8)
+                .radius(3.0)
+                .build();
+
+        // when
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage
+                = postRepository.findAllBySkinTimeBetweenAndCurrentLocationAndIsPublic(postTimeFilter, postPointFilter, pageable);
         final String result = objectMapper.writeValueAsString(postListReadResponsePage);
 
         // then

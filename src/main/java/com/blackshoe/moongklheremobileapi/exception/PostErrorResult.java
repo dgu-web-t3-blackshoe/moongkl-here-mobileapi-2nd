@@ -15,7 +15,9 @@ public enum PostErrorResult {
     STORY_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "스토리 업로드에 실패했습니다."),
     INVALID_STORY_SIZE(HttpStatus.BAD_REQUEST, "스토리 파일의 크기가 유효하지 않습니다."),
     INVALID_STORY_TYPE(HttpStatus.BAD_REQUEST, "스토리 파일의 확장자가 유효하지 않습니다."),
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다.");
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
+    INVALID_LOCATION_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 위치 타입입니다."),
+    GET_POST_LIST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "게시글 목록을 가져오는데 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

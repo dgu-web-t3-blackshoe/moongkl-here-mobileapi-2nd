@@ -5,7 +5,16 @@ import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
+import com.blackshoe.moongklheremobileapi.vo.LocationType;
+import com.blackshoe.moongklheremobileapi.vo.PostPointFilter;
+import com.blackshoe.moongklheremobileapi.vo.PostTimeFilter;
+import com.blackshoe.moongklheremobileapi.vo.SortType;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -152,5 +161,48 @@ public class PostServiceImpl implements PostService {
                 .build();
 
         return postReadResponse;
+    }
+
+    @Override
+    public Page<PostDto.PostListReadResponse> getPostList(String from, String to,
+                                                          LocationType location, Double latitude, Double longitude, Double radius,
+                                                          SortType sort, Integer size, Integer page) {
+
+        final Sort sortType = Sort.by(Sort.Direction.DESC, SortType.getSortField(sort));
+
+        final Pageable pageable = PageRequest.of(page, size, sortType);
+
+        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
+
+        final PostPointFilter postPointFilter = PostPointFilter.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .radius(radius)
+                .build();
+
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage;
+
+        switch (location) {
+            case DOMESTIC:
+                postListReadResponsePage
+                        = postRepository.findAllBySkinTimeBetweenAndDomesticAndIsPublic(postTimeFilter, pageable);
+                return postListReadResponsePage;
+            case ABROAD:
+                postListReadResponsePage
+                        = postRepository.findAllBySkinTimeBetweenAndAbroadAndIsPublic(postTimeFilter, pageable);
+                return postListReadResponsePage;
+            case CURRENT:
+                postListReadResponsePage
+                        = postRepository.findAllBySkinTimeBetweenAndCurrentLocationAndIsPublic(
+                        postTimeFilter,
+                        postPointFilter,
+                        pageable);
+                return postListReadResponsePage;
+            case DEFAULT:
+                postListReadResponsePage = postRepository.findAllBySkinTimeBetweenAndIsPublic(postTimeFilter, pageable);
+                return postListReadResponsePage;
+        }
+
+        throw new PostException(PostErrorResult.GET_POST_LIST_FAILED);
     }
 }

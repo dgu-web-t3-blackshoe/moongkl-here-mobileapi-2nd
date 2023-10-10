@@ -8,6 +8,10 @@ import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
 import com.blackshoe.moongklheremobileapi.repository.SkinLocationRepository;
 import com.blackshoe.moongklheremobileapi.repository.SkinTimeRepository;
+import com.blackshoe.moongklheremobileapi.vo.LocationType;
+import com.blackshoe.moongklheremobileapi.vo.PostPointFilter;
+import com.blackshoe.moongklheremobileapi.vo.PostTimeFilter;
+import com.blackshoe.moongklheremobileapi.vo.SortType;
 import org.joda.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,9 +20,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -185,5 +190,123 @@ public class PostServiceTest {
         final PostException postException = assertThrows(PostException.class, () -> postService.getPost(postId));
 
         // then
-        assertThat(postException.getPostErrorResult()).isEqualTo(PostErrorResult.POST_NOT_FOUND);}
+        assertThat(postException.getPostErrorResult()).isEqualTo(PostErrorResult.POST_NOT_FOUND);
+    }
+
+    @Test
+    public void getPosts_whenDefaultSuccess_isNotNull() {
+        // given
+        Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+
+        String from = "2023-01-01";
+        String to = "2023-12-31";
+        LocationType location = LocationType.DEFAULT;
+        Double longitude = 0.0;
+        Double latitude = 0.0;
+        final Double radius = 0.0;
+        SortType sort = SortType.DEFAULT;
+        Integer size = 10;
+        Integer page = 0;
+
+        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        // when
+        when(postRepository.findAllBySkinTimeBetweenAndIsPublic(postTimeFilter, pageable)).thenReturn(mockPostListReadResponsePage);
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage
+                = postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page);
+
+        // then
+        assertThat(postListReadResponsePage.getContent()).isNotNull();
+    }
+
+    @Test
+    public void getPosts_whenDomesticSuccess_isNotNull() {
+        // given
+        Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+
+        String from = "2023-01-01";
+        String to = "2023-12-31";
+        LocationType location = LocationType.DOMESTIC;
+        Double longitude = 0.0;
+        Double latitude = 0.0;
+        final Double radius = 0.0;
+        SortType sort = SortType.DEFAULT;
+        Integer size = 10;
+        Integer page = 0;
+
+        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        // when
+        when(postRepository.findAllBySkinTimeBetweenAndDomesticAndIsPublic(postTimeFilter, pageable)).thenReturn(mockPostListReadResponsePage);
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage
+                = postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page);
+
+        // then
+        assertThat(postListReadResponsePage.getContent()).isNotNull();
+    }
+
+    @Test
+    public void getPosts_whenAbroadSuccess_isNotNull() {
+        // given
+        Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+
+        String from = "2023-01-01";
+        String to = "2023-12-31";
+        LocationType location = LocationType.ABROAD;
+        Double longitude = 0.0;
+        Double latitude = 0.0;
+        final Double radius = 0.0;
+        SortType sort = SortType.DEFAULT;
+        Integer size = 10;
+        Integer page = 0;
+
+        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        // when
+        when(postRepository.findAllBySkinTimeBetweenAndAbroadAndIsPublic(postTimeFilter, pageable)).thenReturn(mockPostListReadResponsePage);
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage
+                = postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page);
+
+        // then
+        assertThat(postListReadResponsePage.getContent()).isNotNull();
+    }
+
+    @Test
+    public void getPosts_whenCurrentLocationSuccess_isNotNull() {
+        // given
+        Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+
+        String from = "2023-01-01";
+        String to = "2023-12-31";
+        LocationType location = LocationType.CURRENT;
+        Double longitude = 0.0;
+        Double latitude = 0.0;
+        final Double radius = 3.0;
+        SortType sort = SortType.DEFAULT;
+        Integer size = 10;
+        Integer page = 0;
+
+        final PostTimeFilter postTimeFilter = PostTimeFilter.convertStringToPostTimeFilter(from, to);
+        final PostPointFilter postPointFilter = PostPointFilter.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .radius(radius)
+                .build();
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        // when
+        when(postRepository.findAllBySkinTimeBetweenAndCurrentLocationAndIsPublic(postTimeFilter, postPointFilter, pageable)).thenReturn(mockPostListReadResponsePage);
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage
+                = postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page);
+
+        // then
+        assertThat(postListReadResponsePage.getContent()).isNotNull();
+    }
 }

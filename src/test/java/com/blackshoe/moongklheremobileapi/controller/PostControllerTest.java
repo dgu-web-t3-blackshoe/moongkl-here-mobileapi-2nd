@@ -17,6 +17,7 @@ import com.blackshoe.moongklheremobileapi.security.UserPrincipal;
 import com.blackshoe.moongklheremobileapi.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.models.auth.In;
 import org.joda.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -42,11 +45,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.print.Pageable;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -362,6 +368,84 @@ public class PostControllerTest {
         //then
         MockHttpServletResponse response = result.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getPostList_whenSuccess_returns200() throws Exception {
+        //given
+        final String from = "2023-01-01";
+        final String to = "2023-12-31";
+        final String sort = "views";
+        final Integer size = 10;
+        final Integer page = 0;
+
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+
+        //when
+        when(postService.getPostList(any(String.class), any(String.class), any(String.class),
+                any(Double.class), any(Double.class), any(Double.class),
+                any(String.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPostListReadResponsePage);
+
+        final MvcResult result = mockMvc.perform(
+                get("/posts")
+                        .queryParam("from", from)
+                        .queryParam("to", to)
+                        .queryParam("sort", sort)
+                        .queryParam("size", String.valueOf(size))
+                        .queryParam("page", String.valueOf(page))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf())
+                        .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getPostList_whenInvalidParameter_returns400() throws Exception {
+        //given
+        final String from = "2023-01-01";
+        final String to = "2023-12-31";
+        final String sort = "views";
+        final String location = "invalid";
+        final Integer size = 10;
+        final Integer page = 0;
+
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+
+        //when
+        when(postService.getPostList(any(String.class), any(String.class), eq(location),
+                any(Double.class), any(Double.class), any(Double.class),
+                any(String.class), any(Integer.class), any(Integer.class)))
+                .thenThrow(new PostException(PostErrorResult.INVALID_LOCATION_TYPE));
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts")
+                                .queryParam("from", from)
+                                .queryParam("to", to)
+                                .queryParam("sort", sort)
+                                .queryParam("location", location)
+                                .queryParam("size", String.valueOf(size))
+                                .queryParam("page", String.valueOf(page))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(response.getContentAsString()).isNotEmpty();
         log.info("response: {}", response.getContentAsString());
     }

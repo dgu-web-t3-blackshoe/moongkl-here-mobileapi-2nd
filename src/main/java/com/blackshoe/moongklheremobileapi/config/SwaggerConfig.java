@@ -1,4 +1,4 @@
-package com.blackshoe.moongklheremobileapi.configuration;
+package com.blackshoe.moongklheremobileapi.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;

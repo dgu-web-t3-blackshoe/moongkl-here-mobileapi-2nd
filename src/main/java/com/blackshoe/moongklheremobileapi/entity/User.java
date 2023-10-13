@@ -11,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -19,7 +20,8 @@ import java.util.UUID;
 public class User {
     @Id
     @GeneratedValue(generator = "uuid2")
-    @Type(type = "uuid-char")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Column(name = "email", nullable = false, length = 50)
@@ -40,6 +42,9 @@ public class User {
 
     @Column(name = "provider", length = 20)
     private String provider;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Post> post;
 
     @CreationTimestamp @Column(name = "created_at", nullable = false, length = 20)
     private LocalDateTime createdAt;

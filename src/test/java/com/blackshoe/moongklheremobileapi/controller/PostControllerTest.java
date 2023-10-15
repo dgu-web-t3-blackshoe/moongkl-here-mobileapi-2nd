@@ -100,15 +100,6 @@ public class PostControllerTest {
 
     @BeforeEach
     public void setUp() {
-        final User user = User.builder()
-                .id(UUID.randomUUID())
-                .email("test")
-                .password("test")
-                .nickname("test")
-                .phoneNumber("test")
-                .role(Role.USER)
-                .build();
-
         when(userRepository.findByEmail(any())).thenReturn(Optional.of(user));
 
         when(userDetailService.loadUserByUsername(any())).thenReturn(UserPrincipal.create(user));
@@ -118,6 +109,16 @@ public class PostControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private final UUID userId = UUID.randomUUID();
+
+    final User user = User.builder()
+            .id(userId)
+            .email("test")
+            .password("test")
+            .nickname("test")
+            .phoneNumber("test")
+            .role(Role.USER)
+            .build();
 
     private final MockMultipartFile skin = new MockMultipartFile("skin", "test", "image/png", "test".getBytes());
 
@@ -446,6 +447,39 @@ public class PostControllerTest {
         //then
         MockHttpServletResponse response = result.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getGroupedByCityUserPostList_whenSuccess_returns200() throws Exception {
+        //given
+        final Double latitude = 0.0;
+        final Double longitude = 0.0;
+        final Double radius = 0.0;
+
+        final Page<PostDto.PostGroupByCityReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+
+        //when
+        when(postService.getGroupedByCityUserPostList(any(User.class), any(Double.class), any(Double.class), any(Double.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPostListReadResponsePage);
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts")
+                                .queryParam("user", userId.toString())
+                                .queryParam("latitude", String.valueOf(latitude))
+                                .queryParam("longitude", String.valueOf(longitude))
+                                .queryParam("radius", String.valueOf(radius))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.getContentAsString()).isNotEmpty();
         log.info("response: {}", response.getContentAsString());
     }

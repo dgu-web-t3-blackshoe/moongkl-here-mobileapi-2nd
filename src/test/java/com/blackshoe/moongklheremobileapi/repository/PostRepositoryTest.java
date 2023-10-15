@@ -808,4 +808,83 @@ public class PostRepositoryTest {
         assertThat(postListReadResponsePage).isNotNull();
         log.info("postListReadResponsePage = {}", result);
     }
+
+    @Test
+    public void findAllUserPostByTime_whenSuccess_isNotNull() throws JsonProcessingException {
+        // given
+        final SkinLocation skinLocation = SkinLocation.builder()
+                .latitude(1.0)
+                .longitude(1.0)
+                .country("대한민국")
+                .state("서울특별시")
+                .city("강남구")
+                .build();
+
+        final SkinTime year2020 = SkinTime.builder()
+                .year(2020)
+                .month(1)
+                .day(1)
+                .hour(1)
+                .minute(1)
+                .build();
+
+        final SkinTime year2023 = SkinTime.builder()
+                .year(2023)
+                .month(1)
+                .day(1)
+                .hour(1)
+                .minute(1)
+                .build();
+
+        final User user = User.builder()
+                .email("test")
+                .password("test")
+                .nickname("test")
+                .phoneNumber("test")
+                .build();
+
+        final User savedUser = userRepository.save(user);
+
+        final UUID userId = savedUser.getId();
+
+        final SkinUrl skinUrl = SkinUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        final StoryUrl storyUrl = StoryUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        for (int idx = 0; idx < 50; idx++) {
+            Post post = Post.builder()
+                    .skinUrl(skinUrl)
+                    .storyUrl(storyUrl)
+                    .user(savedUser)
+                    .skinLocation(skinLocation)
+                    .skinTime(idx % 2 == 0 ? year2020 : year2023)
+                    .likeCount((long) (Math.random() * 100))
+                    .viewCount((long) (Math.random() * 100))
+                    .isPublic(true)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            postRepository.save(post);
+        }
+
+        final PostTimeFilter postTimeFilter = PostTimeFilter.verifyAndConvertStringToPostTimeFilter("2023-01-01", "2023-01-01");
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+        final Integer size = 10;
+        final Integer page = 0;
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        // when
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage
+                = postRepository.findAllUserPostByTime(savedUser, postTimeFilter, pageable);
+        final String result = objectMapper.writeValueAsString(postListReadResponsePage);
+
+        // then
+        assertThat(postListReadResponsePage.getContent()).isNotNull();
+        log.info("postListReadResponsePage = {}", result);
+    }
 }

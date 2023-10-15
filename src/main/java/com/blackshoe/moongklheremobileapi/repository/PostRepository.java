@@ -106,5 +106,5 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "  AND ((p.skinTime.year < :#{#postTimeFilter.toYear}) OR " +
             "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month < :#{#postTimeFilter.toMonth}) OR " +
             "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month = :#{#postTimeFilter.toMonth} AND p.skinTime.day <= :#{#postTimeFilter.toDay})) " )
-    Page<PostDto.PostListReadResponse> findAllUserPostByTime(User user, PostTimeFilter postTimeFilter, Pageable pageable);
+    Page<PostDto.PostListReadResponse> findAllUserPostBySkinTime(User user, PostTimeFilter postTimeFilter, Pageable pageable);
 }

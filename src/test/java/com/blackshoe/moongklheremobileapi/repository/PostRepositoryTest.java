@@ -880,7 +880,7 @@ public class PostRepositoryTest {
 
         // when
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
-                = postRepository.findAllUserPostByTime(savedUser, postTimeFilter, pageable);
+                = postRepository.findAllUserPostBySkinTime(savedUser, postTimeFilter, pageable);
         final String result = objectMapper.writeValueAsString(postListReadResponsePage);
 
         // then

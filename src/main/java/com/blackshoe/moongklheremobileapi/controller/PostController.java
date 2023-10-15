@@ -128,6 +128,31 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @GetMapping(params = {"user", "country", "state", "city"})
+    public ResponseEntity<ResponseDto> getUserCityPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                           @RequestParam(name = "user") UUID userId,
+                                                           @RequestParam(name = "country") String country,
+                                                           @RequestParam(name = "state") String state,
+                                                           @RequestParam(name = "city") String city,
+                                                           @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
+                                                           @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
+                                                           @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+        User user = userPrincipal.getUser();
+
+        if (!user.getId().equals(userId)) {
+            throw new PostException(PostErrorResult.USER_NOT_MATCH);
+        }
+
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage
+                = postService.getUserCityPostList(user, country, state, city, sort, size, page);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
     @ExceptionHandler(PostException.class)
     public ResponseEntity<ResponseDto> handlePostException(PostException e) {
         final PostErrorResult errorResult = e.getPostErrorResult();

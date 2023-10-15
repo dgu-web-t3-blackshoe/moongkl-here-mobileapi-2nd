@@ -357,4 +357,28 @@ public class PostServiceTest {
         // then
         assertThat(postException.getPostErrorResult()).isEqualTo(PostErrorResult.INVALID_SORT_TYPE);
     }
+
+    @Test
+    public void getGroupedByCityUserPostList_whenSuccess_isNotNull() {
+        // given
+        Page<PostDto.PostGroupByCityReadResponse> mockGroupedByCityUserPostListReadResponseList = new PageImpl<>(new ArrayList<>());
+
+        final User user = new User();
+        final Double longitude = 0.0;
+        final Double latitude = 0.0;
+        final Double radius = 0.0;
+        final Integer size = 10;
+        final Integer page = 0;
+
+        // when
+        when(postRepository.findAllUserPostByLocationAndGroupByCity(
+                any(User.class),
+                any(PostPointFilter.class),
+                any(Pageable.class))).thenReturn(mockGroupedByCityUserPostListReadResponseList);
+        final Page<PostDto.PostGroupByCityReadResponse> groupedByCityUserPostListReadResponseList
+                = postService.getGroupedByCityUserPostList(user, latitude, longitude, radius, size, page);
+
+        // then
+        assertThat(groupedByCityUserPostListReadResponseList).isNotNull();
+    }
 }

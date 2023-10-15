@@ -404,4 +404,29 @@ public class PostServiceTest {
         // then
         assertThat(userCityPostListReadResponsePage).isNotNull();
     }
+
+    @Test
+    public void getUserSkinTimePostList_whenSuccess_isNotNull() {
+        // given
+        Page<PostDto.PostListReadResponse> mockUserSkinTimePostListReadResponseList = new PageImpl<>(new ArrayList<>());
+
+        final User user = new User();
+        final String from = "2023-01-01";
+        final String to = "2023-12-31";
+        final String sort = SortType.DEFAULT.getSortType();
+        final Integer size = 10;
+        final Integer page = 0;
+
+        // when
+        when(postRepository.findAllUserPostBySkinTime(
+                any(User.class),
+                any(PostTimeFilter.class),
+                any(Pageable.class))).thenReturn(mockUserSkinTimePostListReadResponseList);
+
+        final Page<PostDto.PostListReadResponse> userSkinTimePostListReadResponsePage
+                = postService.getUserSkinTimePostList(user, from, to, sort, size, page);
+
+        // then
+        assertThat(userSkinTimePostListReadResponsePage).isNotNull();
+    }
 }

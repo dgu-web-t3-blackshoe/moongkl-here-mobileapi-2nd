@@ -483,4 +483,66 @@ public class PostControllerTest {
         assertThat(response.getContentAsString()).isNotEmpty();
         log.info("response: {}", response.getContentAsString());
     }
+
+    @Test
+    public void getUserPostListGroupedByCity_whenInvalidUserId_returns403() throws Exception {
+        //given
+        final Double latitude = 0.0;
+        final Double longitude = 0.0;
+        final Double radius = 0.0;
+
+        final Page<PostDto.PostGroupByCityReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+
+        //when
+        when(postService.getUserPostListGroupedByCity(any(User.class), any(Double.class), any(Double.class), any(Double.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPostListReadResponsePage);
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts")
+                                .queryParam("user", UUID.randomUUID().toString())
+                                .queryParam("latitude", String.valueOf(latitude))
+                                .queryParam("longitude", String.valueOf(longitude))
+                                .queryParam("radius", String.valueOf(radius))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getUserPostListGroupedByCity_whenInvalidParam_returns400() throws Exception {
+        //given
+        final Page<PostDto.PostGroupByCityReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+
+        //when
+        when(postService.getUserPostListGroupedByCity(any(User.class), any(Double.class), any(Double.class), any(Double.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPostListReadResponsePage);
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts")
+                                .queryParam("user", UUID.randomUUID().toString())
+                                .queryParam("latitude", "latitude")
+                                .queryParam("longitude", "longitude")
+                                .queryParam("radius", "radius")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
 }

@@ -21,4 +21,10 @@ public interface PostService {
     Page<PostDto.PostListReadResponse> getPostList(String from, String to,
                                                    String location, Double latitude, Double longitude, Double radius,
                                                    String sort, Integer size, Integer page);
+
+    Page<PostDto.PostGroupByCityReadResponse> getGroupedByCityUserPostList(User user,
+                                                                           Double latitude,
+                                                                           Double longitude,
+                                                                           Double radius,
+                                                                           Integer size, Integer page);
 }

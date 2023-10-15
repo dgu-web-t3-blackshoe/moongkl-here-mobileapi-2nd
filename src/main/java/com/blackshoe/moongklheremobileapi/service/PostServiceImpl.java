@@ -209,4 +209,20 @@ public class PostServiceImpl implements PostService {
 
         throw new PostException(PostErrorResult.GET_POST_LIST_FAILED);
     }
+
+    @Override
+    public Page<PostDto.PostGroupByCityReadResponse> getGroupedByCityUserPostList(User user, Double latitude, Double longitude, Double radius, Integer size, Integer page) {
+        final PostPointFilter postPointFilter = PostPointFilter.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .radius(radius)
+                .build();
+
+        final Pageable pageable = PageRequest.of(page, size);
+
+        final Page<PostDto.PostGroupByCityReadResponse> postGroupByCityReadResponsePage
+                = postRepository.findAllUserPostByLocationAndGroupByCity(user, postPointFilter, pageable);
+
+        return postGroupByCityReadResponsePage;
+    }
 }

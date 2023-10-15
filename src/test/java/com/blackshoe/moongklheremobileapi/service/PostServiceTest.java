@@ -8,10 +8,7 @@ import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
 import com.blackshoe.moongklheremobileapi.repository.SkinLocationRepository;
 import com.blackshoe.moongklheremobileapi.repository.SkinTimeRepository;
-import com.blackshoe.moongklheremobileapi.vo.LocationType;
-import com.blackshoe.moongklheremobileapi.vo.PostPointFilter;
-import com.blackshoe.moongklheremobileapi.vo.PostTimeFilter;
-import com.blackshoe.moongklheremobileapi.vo.SortType;
+import com.blackshoe.moongklheremobileapi.vo.*;
 import org.joda.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -380,5 +377,31 @@ public class PostServiceTest {
 
         // then
         assertThat(groupedByCityUserPostListReadResponseList).isNotNull();
+    }
+
+    @Test
+    public void getUserCityPostList_whenSuccess_isNotNull() {
+        // given
+        Page<PostDto.PostListReadResponse> mockCityUserPostListReadResponseList = new PageImpl<>(new ArrayList<>());
+
+        final User user = new User();
+        final String country = "country";
+        final String state = "state";
+        final String city = "city";
+        final String sort = SortType.DEFAULT.getSortType();
+        final Integer size = 10;
+        final Integer page = 0;
+
+        // when
+        when(postRepository.findAllUserPostByCity(
+                any(User.class),
+                any(PostAddressFilter.class),
+                any(Pageable.class))).thenReturn(mockCityUserPostListReadResponseList);
+
+        final Page<PostDto.PostListReadResponse> userCityPostListReadResponsePage
+                = postService.getUserCityPostList(user, country, state, city, sort, size, page);
+
+        // then
+        assertThat(userCityPostListReadResponsePage).isNotNull();
     }
 }

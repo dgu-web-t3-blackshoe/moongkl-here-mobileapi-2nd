@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.util.stream.Collectors;
@@ -30,6 +31,15 @@ public class ControllerExceptionAdvice {
 
         final ResponseDto responseDto = ResponseDto.builder()
                 .error(errors)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ResponseDto> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        final ResponseDto responseDto = ResponseDto.builder()
+                .error(e.getMessage())
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);

@@ -615,15 +615,102 @@ public class PostRepositoryTest {
                 .build();
 
         // when
-        log.info("userId = {}", userId);
-        final List<Post> posts = postRepository.findAllByUser(savedUser);
-        log.info("post userId = {}", posts.get(0).getUser().getId());
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postRepository.findAllUserPostByLocation(savedUser, postPointFilter, pageable);
         final String result = objectMapper.writeValueAsString(postListReadResponsePage);
 
         // then
         assertThat(postListReadResponsePage.getContent()).isNotNull();
+        log.info("postListReadResponsePage = {}", result);
+    }
+
+    @Test
+    public void findAllUserPostByLocationAndGroupByCity_whenSuccess_isNotNull() throws JsonProcessingException {
+        // given
+        final SkinLocation locationA = SkinLocation.builder()
+                .latitude(1.0)
+                .longitude(1.0)
+                .country("대한민국")
+                .state("서울특별시")
+                .city("강남구")
+                .build();
+
+        final SkinLocation locationB = SkinLocation.builder()
+                .latitude(1.0)
+                .longitude(1.0)
+                .country("대한민국")
+                .state("서울특별시")
+                .city("송파구")
+                .build();
+
+        final SkinLocation locationC = SkinLocation.builder()
+                .latitude(1.0)
+                .longitude(1.0)
+                .country("대한민국")
+                .state("경기도")
+                .city("과천시")
+                .build();
+
+        final SkinTime year2023 = SkinTime.builder()
+                .year(2023)
+                .month(1)
+                .day(1)
+                .hour(1)
+                .minute(1)
+                .build();
+
+        final User user = User.builder()
+                .email("test")
+                .password("test")
+                .nickname("test")
+                .phoneNumber("test")
+                .build();
+
+        final User savedUser = userRepository.save(user);
+
+        final UUID userId = savedUser.getId();
+
+        final SkinUrl skinUrl = SkinUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        final StoryUrl storyUrl = StoryUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        for (int idx = 0; idx < 50; idx++) {
+            Post post = Post.builder()
+                    .skinUrl(skinUrl)
+                    .storyUrl(storyUrl)
+                    .user(savedUser)
+                    .skinLocation(idx % 3 == 0 ? locationA : idx % 3 == 1 ? locationB : locationC)
+                    .skinTime(year2023)
+                    .likeCount((long) (Math.random() * 100))
+                    .viewCount((long) (Math.random() * 100))
+                    .isPublic(true)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            postRepository.save(post);
+        }
+
+        final Integer size = 10;
+        final Integer page = 0;
+        final Pageable pageable = PageRequest.of(page, size);
+        final PostPointFilter postPointFilter = PostPointFilter.builder()
+                .latitude(0.98)
+                .longitude(0.98)
+                .radius(3.0)
+                .build();
+
+        // when
+        final Page<PostDto.PostGroupByCityReadResponse> postListGroupByCityReadResponse
+                = postRepository.findAllUserPostByLocationAndGroupByCity(savedUser, postPointFilter, pageable);
+        final String result = objectMapper.writeValueAsString(postListGroupByCityReadResponse);
+
+        // then
+        assertThat(postListGroupByCityReadResponse).isNotNull();
         log.info("postListReadResponsePage = {}", result);
     }
 }

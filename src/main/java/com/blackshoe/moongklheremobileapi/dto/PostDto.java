@@ -8,6 +8,7 @@ import org.joda.time.LocalDateTime;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -66,6 +67,7 @@ public class PostDto {
 
     @Data
     @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class PostListReadResponse {
         private UUID postId;
         private UUID userId;
@@ -77,6 +79,36 @@ public class PostDto {
             this.userId = userId;
             this.skin = skin;
             this.story = story;
+        }
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class PostListGroupByCityReadResponse {
+        private List<PostGroupByCityReadResponse> regions;
+
+        public PostListGroupByCityReadResponse(List<PostGroupByCityReadResponse> regions) {
+            this.regions = regions;
+        }
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class PostGroupByCityReadResponse {
+        private String country;
+        private String state;
+        private String city;
+        private long postCount;
+        private String thumbnail;
+
+        public PostGroupByCityReadResponse(String country, String state, String city, long postCount, String thumbnail) {
+            this.country = country;
+            this.state = state;
+            this.city = city;
+            this.postCount = postCount;
+            this.thumbnail = thumbnail;
         }
     }
 }

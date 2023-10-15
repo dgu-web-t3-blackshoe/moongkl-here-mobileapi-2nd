@@ -78,4 +78,14 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     Page<PostDto.PostListReadResponse> findAllUserPostByLocation(User user, PostPointFilter postPointFilter, Pageable pageable);
 
     List<Post> findAllByUser(User user);
+
+    @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostGroupByCityReadResponse(" +
+            "p.skinLocation.country, p.skinLocation.state, p.skinLocation.city, COUNT(p), p.skinUrl.cloudfrontUrl) " +
+            "FROM Post p " +
+            "WHERE p.user = :user " +
+            "AND p.skinLocation.latitude BETWEEN :#{#postPointFilter.latitude - #postPointFilter.latitudeDelta} AND :#{#postPointFilter.latitude + #postPointFilter.latitudeDelta} " +
+            "AND p.skinLocation.longitude BETWEEN :#{#postPointFilter.longitude - #postPointFilter.longitudeDelta} AND :#{#postPointFilter.longitude + #postPointFilter.longitudeDelta} " +
+            "GROUP BY p.skinLocation.country, p.skinLocation.state, p.skinLocation.city "+
+            "ORDER BY COUNT(p) DESC")
+    Page<PostDto.PostGroupByCityReadResponse> findAllUserPostByLocationAndGroupByCity(User user, PostPointFilter postPointFilter, Pageable pageable);
 }

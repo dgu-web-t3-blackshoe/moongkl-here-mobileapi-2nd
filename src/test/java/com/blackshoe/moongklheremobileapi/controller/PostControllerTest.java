@@ -656,4 +656,143 @@ public class PostControllerTest {
         assertThat(response.getContentAsString()).isNotEmpty();
         log.info("response: {}", response.getContentAsString());
     }
+
+    @Test
+    public void getUserSkinTimePostList_whenSuccess_returns200() throws Exception {
+        // given
+        final String from = "from";
+        final String to = "to";
+        final Integer size = 10;
+        final Integer page = 0;
+
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
+
+        // when
+        when(postService.getUserSkinTimePostList(any(User.class), any(String.class), any(String.class), any(String.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPostListReadResponsePage);
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts")
+                                .queryParam("user", userId.toString())
+                                .queryParam("from", from)
+                                .queryParam("to", to)
+                                .queryParam("size", String.valueOf(size))
+                                .queryParam("page", String.valueOf(page))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getUserSkinTimePostList_whenInvalidUser_returns403() throws Exception {
+        // given
+        final String from = "from";
+        final String to = "to";
+        final Integer size = 10;
+        final Integer page = 0;
+
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
+
+        // when
+        when(postService.getUserSkinTimePostList(any(User.class), any(String.class), any(String.class), any(String.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPostListReadResponsePage);
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts")
+                                .queryParam("user", UUID.randomUUID().toString())
+                                .queryParam("from", from)
+                                .queryParam("to", to)
+                                .queryParam("size", String.valueOf(size))
+                                .queryParam("page", String.valueOf(page))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        // then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getUserSkinTimePostList_whenInvalidDateFormat_returns400() throws Exception {
+        // given
+        final String from = "from";
+        final String to = "to";
+        final Integer size = 10;
+        final Integer page = 0;
+
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
+
+        // when
+        when(postService.getUserSkinTimePostList(any(User.class), eq(from), any(String.class), any(String.class), any(Integer.class), any(Integer.class)))
+                .thenThrow(new PostException(PostErrorResult.INVALID_DATE_FORMAT));
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts")
+                                .queryParam("user", userId.toString())
+                                .queryParam("from", from)
+                                .queryParam("to", to)
+                                .queryParam("size", String.valueOf(size))
+                                .queryParam("page", String.valueOf(page))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        // then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getUserSkinTimePostList_whenInvalidParamForGetPostList_returns400() throws Exception {
+        // given
+        final String from = "from";
+        final String to = "to";
+        final Integer size = 10;
+        final Integer page = 0;
+
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
+
+        // when
+        when(postService.getUserSkinTimePostList(any(User.class), any(String.class), any(String.class), any(String.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPostListReadResponsePage);
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts")
+                                .queryParam("user", userId.toString())
+                                .queryParam("to", to)
+                                .queryParam("size", String.valueOf(size))
+                                .queryParam("page", String.valueOf(page))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        // then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
 }

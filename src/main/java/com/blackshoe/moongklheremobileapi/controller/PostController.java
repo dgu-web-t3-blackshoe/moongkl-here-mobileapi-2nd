@@ -12,6 +12,7 @@ import com.blackshoe.moongklheremobileapi.service.PostService;
 import com.blackshoe.moongklheremobileapi.service.SkinService;
 import com.blackshoe.moongklheremobileapi.service.StoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import javax.validation.Valid;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/posts")
 public class PostController {
@@ -84,7 +86,8 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseDto> getPostList(@RequestParam(name = "from", required = false, defaultValue = "2001-01-01") String from,
+    public ResponseEntity<ResponseDto> getPostList(@RequestParam(name = "user", required = false, defaultValue = "false") String user,
+                                                   @RequestParam(name = "from", required = false, defaultValue = "2001-01-01") String from,
                                                    @RequestParam(name = "to", required = false, defaultValue = "2999-12-31") String to,
                                                    @RequestParam(name = "location", required = false, defaultValue = "default") String location,
                                                    @RequestParam(name = "latitude", required = false, defaultValue = "0") Double latitude,
@@ -93,6 +96,12 @@ public class PostController {
                                                    @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
                                                    @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
                                                    @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+        if (!user.equals("false")) {
+            throw new PostException(PostErrorResult.INVALID_PARAMETER_FOR_GET_POST_LIST);
+        }
+
+        log.info("get post list from: {}, to: {}, location: {}, latitude: {}, longitude: {}, radius: {}, sort: {}, size: {}, page: {}",
+                from, to, location, latitude, longitude, radius, sort, size, page);
 
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page);
@@ -112,6 +121,10 @@ public class PostController {
                                                                     @RequestParam(name = "radius") Double radius,
                                                                     @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
                                                                     @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+
+        log.info("get user post list grouped by city, user: {}, latitude: {}, longitude: {}, radius: {}, size: {}, page: {}",
+                userId, latitude, longitude, radius, size, page);
+
         User user = userPrincipal.getUser();
 
         if (!user.getId().equals(userId)) {
@@ -137,6 +150,9 @@ public class PostController {
                                                            @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
                                                            @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
                                                            @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+        log.info("get user city post list, user: {}, country: {}, state: {}, city: {}, sort: {}, size: {}, page: {}",
+                userId, country, state, city, sort, size, page);
+
         User user = userPrincipal.getUser();
 
         if (!user.getId().equals(userId)) {
@@ -145,6 +161,34 @@ public class PostController {
 
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postService.getUserCityPostList(user, country, state, city, sort, size, page);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
+    @GetMapping(params = {"user", "from", "to"})
+    public ResponseEntity<ResponseDto> getUserSkinTimePostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                               @RequestParam(name = "user") UUID userId,
+                                                               @RequestParam(name = "from") String from,
+                                                               @RequestParam(name = "to") String to,
+                                                               @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
+                                                               @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
+                                                               @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+
+        log.info("get user skin time post list, user: {}, from: {}, to: {}, sort: {}, size: {}, page: {}",
+                userId, from, to, sort, size, page);
+
+        User user = userPrincipal.getUser();
+
+        if (!user.getId().equals(userId)) {
+            throw new PostException(PostErrorResult.USER_NOT_MATCH);
+        }
+
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage
+                = postService.getUserSkinTimePostList(user, from, to, sort, size, page);
 
         final ResponseDto responseDto = ResponseDto.builder()
                 .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))

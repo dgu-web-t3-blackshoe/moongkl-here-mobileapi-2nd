@@ -20,7 +20,8 @@ public enum PostErrorResult {
     GET_POST_LIST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "게시글 목록을 가져오는데 실패했습니다."),
     INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "날짜 형식이 유효하지 않습니다."),
     INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 타입입니다."),
-    USER_NOT_MATCH(HttpStatus.FORBIDDEN, "게시글 작성자가 아닙니다.");
+    USER_NOT_MATCH(HttpStatus.FORBIDDEN, "게시글 작성자가 아닙니다."),
+    INVALID_PARAMETER_FOR_GET_POST_LIST(HttpStatus.BAD_REQUEST, "유효하지 않은 파라미터입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

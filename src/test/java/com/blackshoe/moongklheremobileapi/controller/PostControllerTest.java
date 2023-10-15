@@ -382,7 +382,7 @@ public class PostControllerTest {
         final Integer size = 10;
         final Integer page = 0;
 
-        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
 
         //when
         when(postService.getPostList(any(String.class), any(String.class), any(String.class),
@@ -391,16 +391,16 @@ public class PostControllerTest {
                 .thenReturn(mockPostListReadResponsePage);
 
         final MvcResult result = mockMvc.perform(
-                get("/posts")
-                        .queryParam("from", from)
-                        .queryParam("to", to)
-                        .queryParam("sort", sort)
-                        .queryParam("size", String.valueOf(size))
-                        .queryParam("page", String.valueOf(page))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .with(csrf())
-                        .with(user(userDetailService.loadUserByUsername("test"))))
+                        get("/posts")
+                                .queryParam("from", from)
+                                .queryParam("to", to)
+                                .queryParam("sort", sort)
+                                .queryParam("size", String.valueOf(size))
+                                .queryParam("page", String.valueOf(page))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -421,7 +421,7 @@ public class PostControllerTest {
         final Integer size = 10;
         final Integer page = 0;
 
-        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
 
         //when
         when(postService.getPostList(any(String.class), any(String.class), eq(location),
@@ -458,7 +458,7 @@ public class PostControllerTest {
         final Double longitude = 0.0;
         final Double radius = 0.0;
 
-        final Page<PostDto.PostGroupByCityReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+        final Page<PostDto.PostGroupByCityReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
 
         //when
         when(postService.getUserPostListGroupedByCity(any(User.class), any(Double.class), any(Double.class), any(Double.class), any(Integer.class), any(Integer.class)))
@@ -491,7 +491,7 @@ public class PostControllerTest {
         final Double longitude = 0.0;
         final Double radius = 0.0;
 
-        final Page<PostDto.PostGroupByCityReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+        final Page<PostDto.PostGroupByCityReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
 
         //when
         when(postService.getUserPostListGroupedByCity(any(User.class), any(Double.class), any(Double.class), any(Double.class), any(Integer.class), any(Integer.class)))
@@ -520,7 +520,7 @@ public class PostControllerTest {
     @Test
     public void getUserPostListGroupedByCity_whenInvalidParam_returns400() throws Exception {
         //given
-        final Page<PostDto.PostGroupByCityReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
+        final Page<PostDto.PostGroupByCityReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
 
         //when
         when(postService.getUserPostListGroupedByCity(any(User.class), any(Double.class), any(Double.class), any(Double.class), any(Integer.class), any(Integer.class)))
@@ -540,6 +540,117 @@ public class PostControllerTest {
                 .andReturn();
 
         //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getUserCityPostList_whenSuccess_returns200() throws Exception {
+        // given
+        final String country = "country";
+        final String state = "state";
+        final String city = "city";
+        final Integer size = 10;
+        final Integer page = 0;
+
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
+
+        // when
+        when(postService.getUserCityPostList(any(User.class), any(String.class), any(String.class), any(String.class), any(String.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPostListReadResponsePage);
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts")
+                                .queryParam("user", userId.toString())
+                                .queryParam("country", country)
+                                .queryParam("state", state)
+                                .queryParam("city", city)
+                                .queryParam("size", String.valueOf(size))
+                                .queryParam("page", String.valueOf(page))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getUserCityPostList_whenInvalidUser_returns403() throws Exception {
+        // given
+        final String country = "country";
+        final String state = "state";
+        final String city = "city";
+        final Integer size = 10;
+        final Integer page = 0;
+
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
+
+        // when
+        when(postService.getUserCityPostList(any(User.class), any(String.class), any(String.class), any(String.class), any(String.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPostListReadResponsePage);
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts")
+                                .queryParam("user", UUID.randomUUID().toString())
+                                .queryParam("country", country)
+                                .queryParam("state", state)
+                                .queryParam("city", city)
+                                .queryParam("size", String.valueOf(size))
+                                .queryParam("page", String.valueOf(page))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        // then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getUserCityPostList_whenInvalidParam_returns400() throws Exception {
+        // given
+        final String country = "country";
+        final String state = "state";
+        final String city = "city";
+        final String size = "size";
+        final Integer page = 0;
+
+        final Page<PostDto.PostListReadResponse> mockPostListReadResponsePage = new PageImpl<>(new ArrayList<>());
+
+        // when
+        when(postService.getUserCityPostList(any(User.class), any(String.class), any(String.class), any(String.class), any(String.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPostListReadResponsePage);
+
+        final MvcResult result = mockMvc.perform(
+                        get("/posts")
+                                .queryParam("user", userId.toString())
+                                .queryParam("country", country)
+                                .queryParam("state", state)
+                                .queryParam("city", city)
+                                .queryParam("size", String.valueOf(size))
+                                .queryParam("page", String.valueOf(page))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        // then
         MockHttpServletResponse response = result.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(response.getContentAsString()).isNotEmpty();

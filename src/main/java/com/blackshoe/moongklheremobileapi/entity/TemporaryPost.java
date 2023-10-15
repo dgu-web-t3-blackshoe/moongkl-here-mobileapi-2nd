@@ -24,23 +24,23 @@ public class TemporaryPost {
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @JoinColumn(name = "skin_url_id", foreignKey = @ForeignKey(name = "post_fk_skin_url_id"))
+    @JoinColumn(name = "skin_url_id", foreignKey = @ForeignKey(name = "temporary_post_fk_skin_url_id"))
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private SkinUrl skinUrl;
 
-    @JoinColumn(name = "story_url_id", foreignKey = @ForeignKey(name = "post_fk_story_url_id"))
+    @JoinColumn(name = "story_url_id", foreignKey = @ForeignKey(name = "temporary_post_fk_story_url_id"))
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private StoryUrl storyUrl;
 
-    @JoinColumn(name = "skin_time_id", foreignKey = @ForeignKey(name = "post_fk_skin_time_id"))
+    @JoinColumn(name = "skin_time_id", foreignKey = @ForeignKey(name = "temporary_post_fk_skin_time_id"))
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private SkinTime skinTime;
 
-    @JoinColumn(name = "skin_location_id", foreignKey = @ForeignKey(name = "post_fk_skin_location_id"))
+    @JoinColumn(name = "skin_location_id", foreignKey = @ForeignKey(name = "temporary_post_fk_skin_location_id"))
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private SkinLocation skinLocation;
 
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "post_fk_user_id"))
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "temporary_post_fk_user_id"))
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private User user;
 

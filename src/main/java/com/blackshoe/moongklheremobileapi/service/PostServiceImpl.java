@@ -243,4 +243,20 @@ public class PostServiceImpl implements PostService {
 
         return userCityPostReadResponsePage;
     }
+
+    @Override
+    public Page<PostDto.PostListReadResponse> getUserSkinTimePostList(User user, String from, String to, String sort, Integer size, Integer page) {
+
+        final PostTimeFilter postTimeFilter = PostTimeFilter.verifyAndConvertStringToPostTimeFilter(from, to);
+
+        final SortType sortType = SortType.verifyAndConvertStringToSortType(sort);
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, SortType.getSortField(sortType));
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        final Page<PostDto.PostListReadResponse> userSkinTimePostReadResponsePage
+                = postRepository.findAllUserPostBySkinTime(user, postTimeFilter, pageable);
+
+        return userSkinTimePostReadResponsePage;
+    }
 }

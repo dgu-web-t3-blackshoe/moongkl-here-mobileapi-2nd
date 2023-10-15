@@ -29,4 +29,6 @@ public interface PostService {
                                                                            Integer size, Integer page);
 
     Page<PostDto.PostListReadResponse> getUserCityPostList(User user, String country, String state, String city, String sort, Integer size, Integer page);
+
+    Page<PostDto.PostListReadResponse> getUserSkinTimePostList(User user, String from, String to, String sort, Integer size, Integer page);
 }

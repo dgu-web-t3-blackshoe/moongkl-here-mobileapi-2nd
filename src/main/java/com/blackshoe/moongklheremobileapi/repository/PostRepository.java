@@ -98,4 +98,13 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "AND p.skinLocation.state = :#{#postAddressFilter.state} " +
             "AND p.skinLocation.city = :#{#postAddressFilter.city} " )
     Page<PostDto.PostListReadResponse> findAllUserPostByCity(User user, PostAddressFilter postAddressFilter, Pageable pageable);
+
+    @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +
+            "p.id, p.user.id, p.skinUrl.cloudfrontUrl, p.storyUrl.cloudfrontUrl) " +
+            "FROM Post p " +
+            "WHERE p.user = :user " +
+            "  AND ((p.skinTime.year < :#{#postTimeFilter.toYear}) OR " +
+            "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month < :#{#postTimeFilter.toMonth}) OR " +
+            "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month = :#{#postTimeFilter.toMonth} AND p.skinTime.day <= :#{#postTimeFilter.toDay})) " )
+    Page<PostDto.PostListReadResponse> findAllUserPostByTime(User user, PostTimeFilter postTimeFilter, Pageable pageable);
 }

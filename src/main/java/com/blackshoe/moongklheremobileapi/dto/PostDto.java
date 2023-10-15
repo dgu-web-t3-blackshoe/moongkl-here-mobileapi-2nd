@@ -85,17 +85,6 @@ public class PostDto {
     @Data
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class PostListGroupByCityReadResponse {
-        private List<PostGroupByCityReadResponse> regions;
-
-        public PostListGroupByCityReadResponse(List<PostGroupByCityReadResponse> regions) {
-            this.regions = regions;
-        }
-    }
-
-    @Data
-    @Builder
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class PostGroupByCityReadResponse {
         private String country;
         private String state;

@@ -47,7 +47,7 @@ public class PostController {
                                                   @RequestPart(name = "skin") MultipartFile skin,
                                                   @RequestPart(name = "story") MultipartFile story,
                                                   @RequestPart(name = "post_create_request") @Valid
-                                                      PostDto.PostCreateRequest postCreateRequest) {
+                                                  PostDto.PostCreateRequest postCreateRequest) {
 
         final User user = userPrincipal.getUser();
 
@@ -99,6 +99,30 @@ public class PostController {
 
         final ResponseDto responseDto = ResponseDto.builder()
                 .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
+    @GetMapping(params = {"user", "latitude", "longitude", "radius"})
+    public ResponseEntity<ResponseDto> getGroupedByCityUserPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                    @RequestParam(name = "user") UUID userId,
+                                                                    @RequestParam(name = "latitude") Double latitude,
+                                                                    @RequestParam(name = "longitude") Double longitude,
+                                                                    @RequestParam(name = "radius") Double radius,
+                                                                    @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
+                                                                    @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+        User user = userPrincipal.getUser();
+
+        if (!user.getId().equals(userId)) {
+            throw new PostException(PostErrorResult.USER_NOT_MATCH);
+        }
+
+        final Page<PostDto.PostGroupByCityReadResponse> postGroupByCityReadResponsePage
+                = postService.getGroupedByCityUserPostList(user, latitude, longitude, radius, size, page);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(postGroupByCityReadResponsePage, Map.class))
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);

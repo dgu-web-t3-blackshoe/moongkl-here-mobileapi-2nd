@@ -5,10 +5,7 @@ import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
-import com.blackshoe.moongklheremobileapi.vo.LocationType;
-import com.blackshoe.moongklheremobileapi.vo.PostPointFilter;
-import com.blackshoe.moongklheremobileapi.vo.PostTimeFilter;
-import com.blackshoe.moongklheremobileapi.vo.SortType;
+import com.blackshoe.moongklheremobileapi.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
@@ -212,6 +209,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostDto.PostGroupByCityReadResponse> getGroupedByCityUserPostList(User user, Double latitude, Double longitude, Double radius, Integer size, Integer page) {
+
         final PostPointFilter postPointFilter = PostPointFilter.builder()
                 .latitude(latitude)
                 .longitude(longitude)
@@ -224,5 +222,25 @@ public class PostServiceImpl implements PostService {
                 = postRepository.findAllUserPostByLocationAndGroupByCity(user, postPointFilter, pageable);
 
         return postGroupByCityReadResponsePage;
+    }
+
+    @Override
+    public Page<PostDto.PostListReadResponse> getUserCityPostList(User user, String country, String state, String city, String sort, Integer size, Integer page) {
+
+        final PostAddressFilter postAddressFilter = PostAddressFilter.builder()
+                .country(country)
+                .state(state)
+                .city(city)
+                .build();
+
+        final SortType sortType = SortType.verifyAndConvertStringToSortType(sort);
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, SortType.getSortField(sortType));
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        final Page<PostDto.PostListReadResponse> userCityPostReadResponsePage
+                = postRepository.findAllUserPostByCity(user, postAddressFilter, pageable);
+
+        return userCityPostReadResponsePage;
     }
 }

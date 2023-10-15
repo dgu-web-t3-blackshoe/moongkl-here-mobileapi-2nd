@@ -22,7 +22,7 @@ public interface PostService {
                                                    String location, Double latitude, Double longitude, Double radius,
                                                    String sort, Integer size, Integer page);
 
-    Page<PostDto.PostGroupByCityReadResponse> getGroupedByCityUserPostList(User user,
+    Page<PostDto.PostGroupByCityReadResponse> getUserPostListGroupedByCity(User user,
                                                                            Double latitude,
                                                                            Double longitude,
                                                                            Double radius,

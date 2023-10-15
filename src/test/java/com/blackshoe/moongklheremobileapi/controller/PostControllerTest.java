@@ -452,7 +452,7 @@ public class PostControllerTest {
     }
 
     @Test
-    public void getGroupedByCityUserPostList_whenSuccess_returns200() throws Exception {
+    public void getUserPostListGroupedByCity_whenSuccess_returns200() throws Exception {
         //given
         final Double latitude = 0.0;
         final Double longitude = 0.0;
@@ -461,7 +461,7 @@ public class PostControllerTest {
         final Page<PostDto.PostGroupByCityReadResponse> mockPostListReadResponsePage =  new PageImpl<>(new ArrayList<>());
 
         //when
-        when(postService.getGroupedByCityUserPostList(any(User.class), any(Double.class), any(Double.class), any(Double.class), any(Integer.class), any(Integer.class)))
+        when(postService.getUserPostListGroupedByCity(any(User.class), any(Double.class), any(Double.class), any(Double.class), any(Integer.class), any(Integer.class)))
                 .thenReturn(mockPostListReadResponsePage);
 
         final MvcResult result = mockMvc.perform(

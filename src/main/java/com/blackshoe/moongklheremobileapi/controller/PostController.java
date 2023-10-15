@@ -105,7 +105,7 @@ public class PostController {
     }
 
     @GetMapping(params = {"user", "latitude", "longitude", "radius"})
-    public ResponseEntity<ResponseDto> getGroupedByCityUserPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto> getUserPostListGroupedByCity(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                     @RequestParam(name = "user") UUID userId,
                                                                     @RequestParam(name = "latitude") Double latitude,
                                                                     @RequestParam(name = "longitude") Double longitude,
@@ -119,7 +119,7 @@ public class PostController {
         }
 
         final Page<PostDto.PostGroupByCityReadResponse> postGroupByCityReadResponsePage
-                = postService.getGroupedByCityUserPostList(user, latitude, longitude, radius, size, page);
+                = postService.getUserPostListGroupedByCity(user, latitude, longitude, radius, size, page);
 
         final ResponseDto responseDto = ResponseDto.builder()
                 .payload(objectMapper.convertValue(postGroupByCityReadResponsePage, Map.class))

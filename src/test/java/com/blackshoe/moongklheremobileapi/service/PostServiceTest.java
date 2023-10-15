@@ -356,9 +356,9 @@ public class PostServiceTest {
     }
 
     @Test
-    public void getGroupedByCityUserPostList_whenSuccess_isNotNull() {
+    public void getUserPostListGroupedByCity_whenSuccess_isNotNull() {
         // given
-        Page<PostDto.PostGroupByCityReadResponse> mockGroupedByCityUserPostListReadResponseList = new PageImpl<>(new ArrayList<>());
+        Page<PostDto.PostGroupByCityReadResponse> mockUserPostListGroupedByCityReadResponseList = new PageImpl<>(new ArrayList<>());
 
         final User user = new User();
         final Double longitude = 0.0;
@@ -371,12 +371,12 @@ public class PostServiceTest {
         when(postRepository.findAllUserPostByLocationAndGroupByCity(
                 any(User.class),
                 any(PostPointFilter.class),
-                any(Pageable.class))).thenReturn(mockGroupedByCityUserPostListReadResponseList);
-        final Page<PostDto.PostGroupByCityReadResponse> groupedByCityUserPostListReadResponseList
-                = postService.getGroupedByCityUserPostList(user, latitude, longitude, radius, size, page);
+                any(Pageable.class))).thenReturn(mockUserPostListGroupedByCityReadResponseList);
+        final Page<PostDto.PostGroupByCityReadResponse> userPostListGroupedByCityReadResponsePage
+                = postService.getUserPostListGroupedByCity(user, latitude, longitude, radius, size, page);
 
         // then
-        assertThat(groupedByCityUserPostListReadResponseList).isNotNull();
+        assertThat(userPostListGroupedByCityReadResponsePage).isNotNull();
     }
 
     @Test

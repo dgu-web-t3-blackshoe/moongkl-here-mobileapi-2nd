@@ -208,7 +208,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostDto.PostGroupByCityReadResponse> getGroupedByCityUserPostList(User user, Double latitude, Double longitude, Double radius, Integer size, Integer page) {
+    public Page<PostDto.PostGroupByCityReadResponse> getUserPostListGroupedByCity(User user, Double latitude, Double longitude, Double radius, Integer size, Integer page) {
 
         final PostPointFilter postPointFilter = PostPointFilter.builder()
                 .latitude(latitude)

@@ -3,6 +3,7 @@ package com.blackshoe.moongklheremobileapi.repository;
 import com.blackshoe.moongklheremobileapi.dto.PostDto;
 import com.blackshoe.moongklheremobileapi.entity.Post;
 import com.blackshoe.moongklheremobileapi.entity.User;
+import com.blackshoe.moongklheremobileapi.vo.PostAddressFilter;
 import com.blackshoe.moongklheremobileapi.vo.PostPointFilter;
 import com.blackshoe.moongklheremobileapi.vo.PostTimeFilter;
 import org.springframework.data.domain.Page;
@@ -88,4 +89,13 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "GROUP BY p.skinLocation.country, p.skinLocation.state, p.skinLocation.city "+
             "ORDER BY COUNT(p) DESC")
     Page<PostDto.PostGroupByCityReadResponse> findAllUserPostByLocationAndGroupByCity(User user, PostPointFilter postPointFilter, Pageable pageable);
+
+    @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +
+            "p.id, p.user.id, p.skinUrl.cloudfrontUrl, p.storyUrl.cloudfrontUrl) " +
+            "FROM Post p " +
+            "WHERE p.user = :user " +
+            "AND p.skinLocation.country = :#{#postAddressFilter.country} " +
+            "AND p.skinLocation.state = :#{#postAddressFilter.state} " +
+            "AND p.skinLocation.city = :#{#postAddressFilter.city} " )
+    Page<PostDto.PostListReadResponse> findAllUserPostByCity(User user, PostAddressFilter postAddressFilter, Pageable pageable);
 }

@@ -7,6 +7,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
 import org.joda.time.LocalDateTime;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -67,6 +68,9 @@ public class Post {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
     @Builder
     public Post(UUID id,
                 SkinUrl skinUrl,
@@ -79,7 +83,8 @@ public class Post {
                 long commentCount,
                 long viewCount,
                 boolean isPublic,
-                LocalDateTime createdAt) {
+                LocalDateTime createdAt,
+                LocalDateTime updatedAt) {
         this.id = id;
         this.skinUrl = skinUrl;
         this.storyUrl = storyUrl;
@@ -92,5 +97,10 @@ public class Post {
         this.viewCount = viewCount;
         this.isPublic = isPublic;
         this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public void changeIsPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
     }
 }

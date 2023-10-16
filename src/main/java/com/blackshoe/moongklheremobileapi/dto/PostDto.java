@@ -26,6 +26,7 @@ public class PostDto {
     private long viewCount;
     private Boolean isPublic;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @Data
     @Builder
@@ -45,6 +46,14 @@ public class PostDto {
     public static class PostCreateResponse {
         private String postId;
         private String createdAt;
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class PostUpdateResponse {
+        private String postId;
+        private String updatedAt;
     }
 
     @Data

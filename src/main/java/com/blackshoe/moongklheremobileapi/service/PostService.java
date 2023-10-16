@@ -16,6 +16,8 @@ public interface PostService {
                        StoryUrlDto uploadedStoryUrl,
                        PostDto.PostCreateRequest postCreateRequest);
 
+    PostDto changePostIsPublic(User user, UUID postId, Boolean isPublic);
+
     PostDto.PostReadResponse getPost(UUID postId);
 
     Page<PostDto.PostListReadResponse> getPostList(String from, String to,

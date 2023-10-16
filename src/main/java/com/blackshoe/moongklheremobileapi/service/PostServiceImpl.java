@@ -114,7 +114,29 @@ public class PostServiceImpl implements PostService {
                 .time(skinTimeDto)
                 .isPublic(savedPost.isPublic())
                 .createdAt(savedPost.getCreatedAt())
+                .updatedAt(savedPost.getUpdatedAt())
                 .build();
+
+        return postDto;
+    }
+
+    @Override
+    @Transactional
+    public PostDto changePostIsPublic(User user, UUID postId, Boolean isPublic) {
+
+        final Post post = postRepository.findById(postId).orElseThrow(() -> {
+            log.error("Post not found. postId: {}", postId);
+            throw new PostException(PostErrorResult.POST_NOT_FOUND);
+        });
+
+        if (post.getUser().getId() != user.getId()) {
+            log.error("User does not have permission to change post isPublic. postId: {}", postId);
+            throw new PostException(PostErrorResult.USER_NOT_MATCH);
+        }
+
+        post.changeIsPublic(isPublic);
+
+        final PostDto postDto = convertPostEntityToDto(post.getSkinUrl(), post.getStoryUrl(), post);
 
         return postDto;
     }

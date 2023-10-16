@@ -142,6 +142,29 @@ public class PostServiceTest {
     }
 
     @Test
+    public void changePostIsPublic_returnsPostDto_isValid() {
+        // given
+        final UUID postId = UUID.randomUUID();
+        final Post post = Post.builder()
+                .id(postId)
+                .skinUrl(skinUrl)
+                .storyUrl(storyUrl)
+                .skinLocation(skinLocation)
+                .skinTime(skinTime)
+                .user(user)
+                .isPublic(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        // when
+        when(postRepository.findById(postId)).thenReturn(java.util.Optional.of(post));
+        final PostDto postDto = postService.changePostIsPublic(user, postId, false);
+
+        // then
+        assertThat(postDto.getIsPublic()).isEqualTo(false);
+    }
+
+    @Test
     public void getPost_returnsPostDto_isNotNull() {
         // given
         final UUID postId = UUID.randomUUID();

@@ -31,6 +31,7 @@ public class PostDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+
     @Data
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -123,5 +124,15 @@ public class PostDto {
             this.postCount = postCount;
             this.thumbnail = thumbnail;
         }
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class IncreaseViewCountDto {
+        private UUID postId;
+        private Long viewCount;
+        private UUID userId;
+        private LocalDateTime lastViewedAt;
     }
 }

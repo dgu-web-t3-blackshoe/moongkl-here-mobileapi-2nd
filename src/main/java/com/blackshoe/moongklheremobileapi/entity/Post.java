@@ -103,4 +103,8 @@ public class Post {
     public void changeIsPublic(Boolean isPublic) {
         this.isPublic = isPublic;
     }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
 }

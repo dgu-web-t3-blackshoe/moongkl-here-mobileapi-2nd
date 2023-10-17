@@ -8,6 +8,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,6 +20,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor @AllArgsConstructor @Getter @Builder(toBuilder = true)
+@EntityListeners(AuditingEntityListener.class)
 public class User {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -46,10 +50,12 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Post> post;
 
-    @CreationTimestamp @Column(name = "created_at", nullable = false, length = 20)
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, length = 20)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp @Column(name = "updated_at", length = 20)
+    @LastModifiedDate
+    @Column(name = "updated_at", length = 20)
     private LocalDateTime updatedAt;
 
     public void setProvider(String authProvider) {

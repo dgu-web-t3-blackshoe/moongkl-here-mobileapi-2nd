@@ -24,7 +24,7 @@ public class TemporaryPost {
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @JoinColumn(name = "skin_url_id", foreignKey = @ForeignKey(name = "post_fk_skin_url_id"))
+    @JoinColumn(name = "skin_url_id", foreignKey = @ForeignKey(name = "temporary_post_fk_skin_url_id"))
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private SkinUrl skinUrl;
 

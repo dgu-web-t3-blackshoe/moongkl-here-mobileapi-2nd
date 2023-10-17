@@ -52,6 +52,23 @@ public class User {
     @UpdateTimestamp @Column(name = "updated_at", length = 20)
     private LocalDateTime updatedAt;
 
+    @JoinColumn(name = "profile_img_url_id", foreignKey = @ForeignKey(name = "user_fk_profile_img_url_id"))
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private ProfileImgUrl profileImgUrl;
+
+    @JoinColumn(name = "background_img_url_id", foreignKey = @ForeignKey(name = "user_fk_background_img_url_id"))
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private BackgroundImgUrl backgroundImgUrl;
+
+    @Column(name = "status_message", length = 100)
+    private String statusMessage;
+
+    @Column(name = "like_count", length = 10)
+    private int likeCount;
+
+    @Column(name = "favorite_count", length = 10)
+    private int favoriteCount;
+
     public void setProvider(String authProvider) {
         this.provider = authProvider;
     }

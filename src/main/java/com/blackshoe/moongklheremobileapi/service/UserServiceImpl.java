@@ -1,9 +1,10 @@
 package com.blackshoe.moongklheremobileapi.service;
 
+import com.blackshoe.moongklheremobileapi.dto.BackgroundImgUrlDto;
 import com.blackshoe.moongklheremobileapi.dto.JwtDto;
+import com.blackshoe.moongklheremobileapi.dto.ProfileImgUrlDto;
 import com.blackshoe.moongklheremobileapi.dto.UserDto;
-import com.blackshoe.moongklheremobileapi.entity.Role;
-import com.blackshoe.moongklheremobileapi.entity.User;
+import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.UserException;
 import com.blackshoe.moongklheremobileapi.security.JwtTokenProvider;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.blackshoe.moongklheremobileapi.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -105,5 +107,109 @@ public class UserServiceImpl implements UserService{
         }
 
         return false; // 인증 실패
+    }
+
+    @Override
+    public void deleteUser(UUID userId) {
+        userRepository.deleteById(userId);
+    }
+
+    @Override
+    @Transactional
+    public UserDto.UpdateProfileResponseDto updateProfile(UserDto.UpdateProfileDto updateProfileDto) {
+
+        User user = userRepository.findById(updateProfileDto.getUserId())
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+
+        final ProfileImgUrl profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(updateProfileDto.getProfileImgUrlDto());
+        final BackgroundImgUrl backgroundImgUrl = BackgroundImgUrl.convertBackgroundImgUrlDtoToEntity(updateProfileDto.getBackgroundImgUrlDto());
+
+        user = user.toBuilder()
+                .nickname(updateProfileDto.getNickname())
+                .statusMessage(updateProfileDto.getStatusMessage())
+                .profileImgUrl(profileImgUrl)
+                .backgroundImgUrl(backgroundImgUrl)
+                .build();
+
+        userRepository.save(user);
+
+        return UserDto.UpdateProfileResponseDto.builder()
+                .userId(user.getId())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    @Override
+    public UserDto.UserProfileInfoResponseDto getUserProfileInfo(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
+                .cloudfrontUrl(user.getProfileImgUrl().getCloudfrontUrl())
+                .s3Url(user.getProfileImgUrl().getS3Url())
+                .build();
+
+        BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
+                .cloudfrontUrl(user.getBackgroundImgUrl().getCloudfrontUrl())
+                .s3Url(user.getBackgroundImgUrl().getS3Url())
+                .build();
+
+        int postcount = user.getPost().size();
+
+        return UserDto.UserProfileInfoResponseDto.builder()
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .statusMessage(user.getStatusMessage())
+                .profileImgUrlDto(profileImgUrlDto)
+                .backgroundImgUrlDto(backgroundImgUrlDto)
+                .likeCount(user.getLikeCount())
+                .favoriteCount(user.getFavoriteCount())
+                .postCount(postcount)
+                .build();
+    }
+
+    @Override
+    public UserDto.UserBasicProfileInfoResponseDto getUserBasicProfileInfo(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
+                .cloudfrontUrl(user.getProfileImgUrl().getCloudfrontUrl())
+                .s3Url(user.getProfileImgUrl().getS3Url())
+                .build();
+
+        int postcount = user.getPost().size();
+
+        return UserDto.UserBasicProfileInfoResponseDto.builder()
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .profileImgUrlDto(profileImgUrlDto)
+                .postCount(postcount)
+                .build();
+    }
+
+    @Override
+    public UserDto.UserMyProfileInfoResponseDto getUserMyProfileInfo(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
+                .cloudfrontUrl(user.getProfileImgUrl().getCloudfrontUrl())
+                .s3Url(user.getProfileImgUrl().getS3Url())
+                .build();
+
+        BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
+                .cloudfrontUrl(user.getBackgroundImgUrl().getCloudfrontUrl())
+                .s3Url(user.getBackgroundImgUrl().getS3Url())
+                .build();
+
+        return UserDto.UserMyProfileInfoResponseDto.builder()
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .statusMessage(user.getStatusMessage())
+                .profileImgUrlDto(profileImgUrlDto)
+                .backgroundImgUrlDto(backgroundImgUrlDto)
+                .build();
     }
 }

@@ -1,6 +1,6 @@
 package com.blackshoe.moongklheremobileapi.entity;
 
-import com.blackshoe.moongklheremobileapi.dto.SkinUrlDto;
+import com.blackshoe.moongklheremobileapi.dto.BackgroundImgUrlDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,11 +9,11 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.util.UUID;
 
+@Table(name = "background_img_urls")
 @Entity
-@Table(name = "skin_urls")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
-public class SkinUrl {
+public class BackgroundImgUrl{
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
@@ -27,17 +27,16 @@ public class SkinUrl {
     private String cloudfrontUrl;
 
     @Builder
-    public SkinUrl(UUID id, String s3Url, String cloudfrontUrl) {
+    public BackgroundImgUrl(UUID id, String s3Url, String cloudfrontUrl) {
         this.id = id;
         this.s3Url = s3Url;
         this.cloudfrontUrl = cloudfrontUrl;
     }
 
-    public static SkinUrl convertSkinUrlDtoToEntity(SkinUrlDto uploadedSkinUrl) {
-        return SkinUrl.builder()
-                .s3Url(uploadedSkinUrl.getS3Url())
-                .cloudfrontUrl(uploadedSkinUrl.getCloudfrontUrl())
+    public static BackgroundImgUrl convertBackgroundImgUrlDtoToEntity(BackgroundImgUrlDto uploadedBackgroundImgUrl) {
+        return BackgroundImgUrl.builder()
+                .s3Url(uploadedBackgroundImgUrl.getS3Url())
+                .cloudfrontUrl(uploadedBackgroundImgUrl.getCloudfrontUrl())
                 .build();
     }
-
 }

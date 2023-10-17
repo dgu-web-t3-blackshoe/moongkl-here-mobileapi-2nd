@@ -1,28 +1,21 @@
 package com.blackshoe.moongklheremobileapi.controller;
 
-import com.blackshoe.moongklheremobileapi.dto.MailDto;
-import com.blackshoe.moongklheremobileapi.dto.ResponseDto;
-import com.blackshoe.moongklheremobileapi.dto.SmsDto;
-import com.blackshoe.moongklheremobileapi.dto.UserDto;
+import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
-import com.blackshoe.moongklheremobileapi.exception.UserException;
 import com.blackshoe.moongklheremobileapi.security.UserPrincipal;
-import com.blackshoe.moongklheremobileapi.service.MailService;
-import com.blackshoe.moongklheremobileapi.service.SmsService;
-import com.blackshoe.moongklheremobileapi.service.UserService;
-import com.blackshoe.moongklheremobileapi.service.VerificationService;
+import com.blackshoe.moongklheremobileapi.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -42,12 +35,16 @@ public class UserController {
     private final VerificationService verificationService;
     private final MailService mailService;
     private final ObjectMapper objectMapper;
+
+    private final ProfileImgService profileService;
+    private final BackgroundImgService backgroundService;
     private String phoneNumberRegex = "^01(?:0|1|[6-9])(?:\\d{3}|\\d{4})\\d{4}$";
     private String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
     private String passwordRegex = "^(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,20}$";
 
     //닉네임 한글 포함 8자리 이하 특수문자X
     private String nicknameRegex = "^[가-힣a-zA-Z0-9]{1,8}$";
+
     @GetMapping("/test")
     public ResponseEntity<ResponseDto> test(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         User user = userPrincipal.getUser();
@@ -78,7 +75,7 @@ public class UserController {
 
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
-            if (!userService.userExistsByEmail(loginRequestDto.getEmail())){
+            if (!userService.userExistsByEmail(loginRequestDto.getEmail())) {
                 log.info("존재하지 않는 사용자");
                 UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -106,7 +103,7 @@ public class UserController {
                     .build();
 
             return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.info("로그인 실패");
             ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
 
@@ -115,7 +112,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDto> signIn(@RequestBody UserDto.SignInRequestDto signInRequestDto) throws Exception{
+    public ResponseEntity<ResponseDto> signIn(@RequestBody UserDto.SignInRequestDto signInRequestDto) throws Exception {
         try {
             if (signInRequestDto.getEmail() == null || signInRequestDto.getPassword() == null || signInRequestDto.getNickname() == null || signInRequestDto.getPhoneNumber() == null) {
                 log.info("필수값 누락");
@@ -153,7 +150,7 @@ public class UserController {
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
-            if(!verificationService.isVerified(signInRequestDto.getPhoneNumber())) {
+            if (!verificationService.isVerified(signInRequestDto.getPhoneNumber())) {
                 log.info("인증되지 않은 전화번호");
                 UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_PHONE_NUMBER;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -179,7 +176,7 @@ public class UserController {
                     .build();
 
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDto); //201
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.info("회원가입 실패");
             ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
 
@@ -192,7 +189,7 @@ public class UserController {
         try {
             String email = mailRequestDto.getEmail();
 
-            if(!email.matches(emailRegex)) {
+            if (!email.matches(emailRegex)) {
                 log.info("유효하지 않은 이메일");
                 UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -200,7 +197,7 @@ public class UserController {
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
-            if(!userService.userExistsByEmail(email)) {
+            if (!userService.userExistsByEmail(email)) {
                 log.info("존재하지 않는 회원");
                 UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
 
@@ -224,7 +221,7 @@ public class UserController {
             verificationService.saveCompletionCode(email, false);
 
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
-        }catch(Exception e){
+        } catch (Exception e) {
             log.info("이메일 인증코드 발송 실패");
             ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
 
@@ -237,7 +234,7 @@ public class UserController {
         try {
             String email = mailVerifyDto.getEmail();
 
-            if(!email.matches(emailRegex)) {
+            if (!email.matches(emailRegex)) {
                 log.info("유효하지 않은 이메일");
                 UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -259,7 +256,7 @@ public class UserController {
 
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
@@ -267,10 +264,10 @@ public class UserController {
     }
 
     @PutMapping("/sign-in/password")
-    public ResponseEntity<ResponseDto> updatePassword(@RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto){
-        try{
+    public ResponseEntity<ResponseDto> updatePassword(@RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
+        try {
             String email = updatePasswordRequestDto.getEmail();
-            if(!email.matches(emailRegex)) {
+            if (!email.matches(emailRegex)) {
                 log.info("유효하지 않은 이메일");
                 UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -278,7 +275,7 @@ public class UserController {
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
-            if(!verificationService.isVerified(email)){
+            if (!verificationService.isVerified(email)) {
                 log.info("검증되지 않은 이메일");
                 UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_EMAIL;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -303,7 +300,7 @@ public class UserController {
 
             return ResponseEntity.status(HttpStatus.OK).body(responseDto); //204
 
-        }catch(Exception e){
+        } catch (Exception e) {
             log.info("비밀번호 변경 실패");
             ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
 
@@ -316,7 +313,7 @@ public class UserController {
         try {
             String phoneNumber = validationRequestDto.getPhoneNumber();
 
-            if(!phoneNumber.matches(phoneNumberRegex)) {
+            if (!phoneNumber.matches(phoneNumberRegex)) {
                 log.info("유효하지 않은 전화번호");
                 UserErrorResult userErrorResult = UserErrorResult.INVALID_PHONE_NUMBER;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -337,18 +334,19 @@ public class UserController {
             verificationService.saveCompletionCode(phoneNumber, false);
 
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
-        }catch(Exception e){
+        } catch (Exception e) {
             ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
         }
     }
+
     @PostMapping("/sign-in/phone/verification")
     public ResponseEntity<ResponseDto> verificationPhoneNumber(@RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         try {
             String phoneNumber = verificationRequestDto.getPhoneNumber();
 
-            if(!phoneNumber.matches(phoneNumberRegex)) {
+            if (!phoneNumber.matches(phoneNumberRegex)) {
                 log.info("유효하지 않은 전화번호");
                 UserErrorResult userErrorResult = UserErrorResult.INVALID_PHONE_NUMBER;
                 ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -369,10 +367,112 @@ public class UserController {
 
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
         }
     }
+
+    @DeleteMapping //API-102
+    public ResponseEntity<ResponseDto> deleteUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        try {
+            UUID userId = userPrincipal.getUser().getId();
+            userService.deleteUser(userId);
+
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
+        } catch (Exception e) {
+            ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        }
+    }
+
+    @GetMapping //API - 133
+    public ResponseEntity<ResponseDto> getUserDetailProfileInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception{
+        try {
+            UserDto.UserProfileInfoResponseDto userProfileInfoResponseDto = userService.getUserProfileInfo(userPrincipal.getUser().getId());
+
+            ResponseDto responseDto = ResponseDto.builder()
+                    .payload(objectMapper.convertValue(userProfileInfoResponseDto, Map.class))
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
+        } catch (Exception e) {
+            ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
+            log.info("프로필 조회 실패");
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        }
+    }
+    @GetMapping("/general") //API - 120
+    public ResponseEntity<ResponseDto> getUserBasicProfileInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception{
+        try {
+            UserDto.UserBasicProfileInfoResponseDto userBasicProfileInfoResponseDto = userService.getUserBasicProfileInfo(userPrincipal.getUser().getId());
+
+            ResponseDto responseDto = ResponseDto.builder()
+                    .payload(objectMapper.convertValue(userBasicProfileInfoResponseDto, Map.class))
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
+        } catch (Exception e) {
+            ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
+            log.info("프로필 조회 실패");
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        }
+    }
+
+    @GetMapping("/profile") //API - 100
+    public ResponseEntity<ResponseDto> getUserMyProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception{
+        try {
+            UserDto.UserMyProfileInfoResponseDto userMyProfileInfoResponseDto = userService.getUserMyProfileInfo(userPrincipal.getUser().getId());
+
+            ResponseDto responseDto = ResponseDto.builder()
+                    .payload(objectMapper.convertValue(userMyProfileInfoResponseDto, Map.class))
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
+        } catch (Exception e) {
+            ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
+            log.info("프로필 조회 실패");
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        }
+    }
+
+
+    @PutMapping // API - 142
+    public ResponseEntity<ResponseDto> updateProfile(@RequestPart(name = "profile_img") MultipartFile profileImg,
+                                                     @RequestPart(name = "background_img") MultipartFile backgroundImg,
+                                                     @RequestBody UserDto.UpdateProfileRequestDto updateProfileRequestDto,
+                                                     @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
+        try {
+            final ProfileImgUrlDto profileImgUrlDto = profileService.uploadProfileImg(userPrincipal.getUser().getId(), profileImg);
+            final BackgroundImgUrlDto backgroundImgUrlDto = backgroundService.uploadBackgroundImg(userPrincipal.getUser().getId(), backgroundImg);
+
+            UserDto.UpdateProfileDto updateProfileDto = UserDto.UpdateProfileDto.builder()
+                    .userId(userPrincipal.getUser().getId())
+                    .profileImgUrlDto(profileImgUrlDto)
+                    .backgroundImgUrlDto(backgroundImgUrlDto)
+                    .nickname(updateProfileRequestDto.getNickname())
+                    .statusMessage(updateProfileRequestDto.getStatusMessage())
+                    .build();
+
+            UserDto.UpdateProfileResponseDto updateProfileResponseDto = userService.updateProfile(updateProfileDto);
+
+            ResponseDto responseDto = ResponseDto.builder()
+                    .payload(objectMapper.convertValue(updateProfileResponseDto, Map.class))
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
+
+        } catch (Exception e) {
+            ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
+            log.info("프로필 수정 실패");
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        }
+    }
+
 }

@@ -43,12 +43,12 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.print.Pageable;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,8 +56,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = PostController.class,
@@ -143,7 +142,7 @@ public class PostControllerTest {
     private final PostDto.PostCreateRequest postCreateRequest = PostDto.PostCreateRequest.builder()
             .location(skinLocationDto)
             .time(skinTimeDto)
-            .isPublic(true)
+            .isPublic("true")
             .build();
 
     private final String postCreateRequestString = objectMapper.writeValueAsString(postCreateRequest);
@@ -245,7 +244,7 @@ public class PostControllerTest {
         final PostDto.PostCreateRequest postCreateRequestWithoutLatitude = PostDto.PostCreateRequest.builder()
                 .location(skinLocationDtoWithoutLatitude)
                 .time(skinTimeDto)
-                .isPublic(true)
+                .isPublic("true")
                 .build();
 
         final String postCreateRequestStringWithoutLatitude =
@@ -280,7 +279,7 @@ public class PostControllerTest {
         //given
         final PostDto.PostCreateRequest postCreateRequestWithoutSkinLocation = PostDto.PostCreateRequest.builder()
                 .time(skinTimeDto)
-                .isPublic(true)
+                .isPublic("true")
                 .build();
 
         final String postCreateRequestStringWithoutSkinLocation =
@@ -791,6 +790,68 @@ public class PostControllerTest {
 
         // then
         MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void changePostIsPublic_whenSuccess_returns200() throws Exception {
+        // given
+        final UUID postId = UUID.randomUUID();
+        final Boolean isPublic = true;
+        final PostDto postDto = PostDto.builder()
+                .postId(postId)
+                .isPublic(isPublic)
+                .updatedAt(LocalDateTime.now())
+                .build();
+        final PostDto.PostIsPublicChangeRequest postIsPublicChangeRequest = PostDto.PostIsPublicChangeRequest.builder()
+                .isPublic("true")
+                .build();
+
+        // when
+        when(postService.changePostIsPublic(any(User.class), any(UUID.class), any(Boolean.class)))
+                .thenReturn(postDto);
+
+        final MvcResult mvcResult = mockMvc.perform(
+                        put("/posts/{postId}/is-public", postId)
+                                .content(objectMapper.writeValueAsBytes(postIsPublicChangeRequest))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isOk())
+                .andReturn();
+
+
+        // then
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void changePostIsPublic_whenInvalidParam_returns400() throws Exception {
+        // given
+        final UUID postId = UUID.randomUUID();
+        final PostDto.PostIsPublicChangeRequest postIsPublicChangeRequest = PostDto.PostIsPublicChangeRequest.builder()
+                .isPublic("invalid")
+                .build();
+
+        // when
+        final MvcResult mvcResult = mockMvc.perform(
+                put("/posts/{postId}/is-public", postId)
+                        .content(objectMapper.writeValueAsBytes(postIsPublicChangeRequest))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(csrf())
+                        .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        // then
+        MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(response.getContentAsString()).isNotEmpty();
         log.info("response: {}", response.getContentAsString());

@@ -7,7 +7,7 @@ import com.blackshoe.moongklheremobileapi.vo.PostPointFilter;
 import com.blackshoe.moongklheremobileapi.vo.PostTimeFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Spy;

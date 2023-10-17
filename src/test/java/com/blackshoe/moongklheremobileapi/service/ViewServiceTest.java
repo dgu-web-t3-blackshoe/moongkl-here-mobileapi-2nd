@@ -6,7 +6,7 @@ import com.blackshoe.moongklheremobileapi.repository.PostRepository;
 import com.blackshoe.moongklheremobileapi.repository.UserRepository;
 import com.blackshoe.moongklheremobileapi.repository.ViewRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

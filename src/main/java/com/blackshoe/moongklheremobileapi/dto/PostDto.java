@@ -1,16 +1,17 @@
 package com.blackshoe.moongklheremobileapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.joda.time.LocalDateTime;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -134,5 +135,17 @@ public class PostDto {
         private Long viewCount;
         private UUID userId;
         private LocalDateTime lastViewedAt;
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class LikePostDto {
+        private UUID postId;
+        private Long likeCount;
+        private UUID userId;
+        private LocalDateTime likedAt;
+        private LocalDateTime dislikedAt;
     }
 }

@@ -9,7 +9,7 @@ import com.blackshoe.moongklheremobileapi.repository.PostRepository;
 import com.blackshoe.moongklheremobileapi.repository.SkinLocationRepository;
 import com.blackshoe.moongklheremobileapi.repository.SkinTimeRepository;
 import com.blackshoe.moongklheremobileapi.vo.*;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

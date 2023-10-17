@@ -42,7 +42,7 @@ public class PostServiceImpl implements PostService {
 
         final SkinTime skinTime = getSkinTimeFromPostCreateRequest(postCreateRequest);
 
-        final Boolean isPublic = postCreateRequest.getIsPublic();
+        final Boolean isPublic = Boolean.valueOf(postCreateRequest.getIsPublic());
 
         final Post post = Post.builder()
                 .user(user)

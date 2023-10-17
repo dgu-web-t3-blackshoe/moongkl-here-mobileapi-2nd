@@ -2,12 +2,15 @@ package com.blackshoe.moongklheremobileapi.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.joda.time.LocalDateTime;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +40,8 @@ public class PostDto {
         @NotNull(message = "time is required")
         private @Valid SkinTimeDto time;
         @NotNull(message = "is_public is required")
-        private Boolean isPublic;
+        @Pattern(regexp = "^(true|false)$", message = "is_public must be true or false")
+        private String isPublic;
     }
 
     @Data
@@ -54,6 +58,17 @@ public class PostDto {
     public static class PostUpdateResponse {
         private String postId;
         private String updatedAt;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class PostIsPublicChangeRequest {
+        @NotNull(message = "is_public is required")
+        @Pattern(regexp = "^(true|false)$", message = "is_public must be true or false")
+        private String isPublic;
     }
 
     @Data

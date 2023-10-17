@@ -110,7 +110,7 @@ public class PostServiceTest {
     private final PostDto.PostCreateRequest postCreateRequest = PostDto.PostCreateRequest.builder()
             .location(skinLocationDto)
             .time(skinTimeDto)
-            .isPublic(true)
+            .isPublic("true")
             .build();
 
     @Test

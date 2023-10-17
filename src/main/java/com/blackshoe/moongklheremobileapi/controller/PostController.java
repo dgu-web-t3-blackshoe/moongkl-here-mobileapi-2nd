@@ -73,6 +73,29 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
+    @PutMapping("/{postId}/is-public")
+    public ResponseEntity<ResponseDto> changePostIsPublic(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                          @PathVariable("postId") UUID postId,
+                                                          @RequestBody @Valid PostDto.PostIsPublicChangeRequest postIsPublicChangeRequest) {
+
+        final Boolean newIsPublic = Boolean.valueOf(postIsPublicChangeRequest.getIsPublic());
+
+        final User user = userPrincipal.getUser();
+
+        final PostDto postDto = postService.changePostIsPublic(user, postId, newIsPublic);
+
+        final PostDto.PostUpdateResponse postUpdateResponse = PostDto.PostUpdateResponse.builder()
+                .postId(postDto.getPostId().toString())
+                .updatedAt(postDto.getUpdatedAt().toString())
+                .build();
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(postUpdateResponse, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
     @GetMapping("/{postId}")
     public ResponseEntity<ResponseDto> getPost(@PathVariable("postId") UUID postId) {
 

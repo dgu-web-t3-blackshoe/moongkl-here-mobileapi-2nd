@@ -46,7 +46,7 @@ public class LikeServiceImpl implements LikeService {
                 .postId(post.getId())
                 .likeCount(post.getLikeCount())
                 .userId(user.getId())
-                .likedAt(savedLike.getCreatedAt())
+                .createdAt(savedLike.getCreatedAt())
                 .build();
 
          return likePostDto;
@@ -54,6 +54,7 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public PostDto.LikePostDto dislikePost(UUID postId, User user) {
+
         final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
 
         final LikePk likePk = LikePk.builder()
@@ -71,7 +72,7 @@ public class LikeServiceImpl implements LikeService {
                 .postId(post.getId())
                 .likeCount(post.getLikeCount())
                 .userId(user.getId())
-                .dislikedAt(LocalDateTime.now())
+                .deletedAt(LocalDateTime.now())
                 .build();
 
         return likePostDto;

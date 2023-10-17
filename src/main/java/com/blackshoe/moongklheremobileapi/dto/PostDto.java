@@ -145,7 +145,19 @@ public class PostDto {
         private UUID postId;
         private Long likeCount;
         private UUID userId;
-        private LocalDateTime likedAt;
-        private LocalDateTime dislikedAt;
+        private LocalDateTime createdAt;
+        private LocalDateTime deletedAt;
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class FavoritePostDto {
+        private UUID postId;
+        private Long favoriteCount;
+        private UUID userId;
+        private LocalDateTime createdAt;
+        private LocalDateTime deletedAt;
     }
 }

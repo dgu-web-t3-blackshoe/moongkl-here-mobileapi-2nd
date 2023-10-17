@@ -23,7 +23,8 @@ public enum PostErrorResult {
     USER_NOT_MATCH(HttpStatus.FORBIDDEN, "게시글 작성자가 아닙니다."),
     INVALID_PARAMETER_FOR_GET_POST_LIST(HttpStatus.BAD_REQUEST, "유효하지 않은 파라미터입니다."),
     USER_ALREADY_LIKED_POST(HttpStatus.BAD_REQUEST, "이미 좋아요를 누른 게시글입니다."),
-    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요가 등록되지 않은 게시글입니다.");
+    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요가 등록되지 않은 게시글입니다."),
+    FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "즐겨찾기가 등록되지 않은 게시글입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

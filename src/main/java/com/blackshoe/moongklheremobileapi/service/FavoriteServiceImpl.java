@@ -5,6 +5,8 @@ import com.blackshoe.moongklheremobileapi.entity.Favorite;
 import com.blackshoe.moongklheremobileapi.entity.FavoritePk;
 import com.blackshoe.moongklheremobileapi.entity.Post;
 import com.blackshoe.moongklheremobileapi.entity.User;
+import com.blackshoe.moongklheremobileapi.exception.InteractionErrorResult;
+import com.blackshoe.moongklheremobileapi.exception.InteractionException;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.FavoriteRepository;
@@ -62,7 +64,7 @@ public class FavoriteServiceImpl implements FavoriteService {
                 .user(user)
                 .build();
 
-        final Favorite favorite = favoriteRepository.findById(favoritePk).orElseThrow(() -> new PostException(PostErrorResult.FAVORITE_NOT_FOUND));
+        final Favorite favorite = favoriteRepository.findById(favoritePk).orElseThrow(() -> new InteractionException(InteractionErrorResult.FAVORITE_NOT_FOUND));
 
         favoriteRepository.delete(favorite);
 

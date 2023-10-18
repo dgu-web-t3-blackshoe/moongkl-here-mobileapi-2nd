@@ -44,4 +44,26 @@ public class ControllerExceptionAdvice {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
     }
+
+    @ExceptionHandler(PostException.class)
+    public ResponseEntity<ResponseDto> handlePostException(PostException e) {
+        final PostErrorResult errorResult = e.getPostErrorResult();
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .error(errorResult.getMessage())
+                .build();
+
+        return ResponseEntity.status(errorResult.getHttpStatus()).body(responseDto);
+    }
+
+    @ExceptionHandler(InteractionException.class)
+    public ResponseEntity<ResponseDto> handleInteractionException(InteractionException e) {
+        final InteractionErrorResult errorResult = e.getInteractionErrorResult();
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .error(errorResult.getMessage())
+                .build();
+
+        return ResponseEntity.status(errorResult.getHttpStatus()).body(responseDto);
+    }
 }

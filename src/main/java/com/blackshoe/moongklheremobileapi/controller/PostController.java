@@ -219,15 +219,4 @@ public class PostController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
-
-    @ExceptionHandler(PostException.class)
-    public ResponseEntity<ResponseDto> handlePostException(PostException e) {
-        final PostErrorResult errorResult = e.getPostErrorResult();
-
-        final ResponseDto responseDto = ResponseDto.builder()
-                .error(errorResult.getMessage())
-                .build();
-
-        return ResponseEntity.status(errorResult.getHttpStatus()).body(responseDto);
-    }
 }

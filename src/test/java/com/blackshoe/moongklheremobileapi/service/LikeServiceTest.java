@@ -12,8 +12,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -150,4 +154,19 @@ public class LikeServiceTest {
         assertThat(dilikePostDto.getLikeCount()).isEqualTo(0);
     }
 
+    @Test
+    public void getLikedPostList_whenSuccess_returnsFavoritePostPage() {
+        // given
+        final Page mockPage = new PageImpl(new ArrayList());
+        final int size = 10;
+        final int page = 0;
+
+        // when
+        when(likeRepository.findAllLikedPostByUser(any(User.class), any(Pageable.class))).thenReturn(mockPage);
+        final Page<PostDto.PostListReadResponse> userFavoritePostResponse
+                = likeService.getUserLikedPostList(user, size, page);
+
+        // then
+        assertThat(userFavoritePostResponse).isNotNull();
+    }
 }

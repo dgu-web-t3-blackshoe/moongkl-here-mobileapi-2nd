@@ -1,10 +1,19 @@
 package com.blackshoe.moongklheremobileapi.repository;
 
+import com.blackshoe.moongklheremobileapi.dto.PostDto;
 import com.blackshoe.moongklheremobileapi.entity.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.UUID;
 
@@ -21,6 +30,13 @@ public class InteractionEntityRepositoryIntegrationTest {
 
     @Autowired
     private ViewRepository viewRepository;
+
+    @Autowired
+    private FavoriteRepository favoriteRepository;
+
+    private final Logger log = LoggerFactory.getLogger(InteractionEntityRepositoryIntegrationTest.class);
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     final SkinUrl skinUrl = SkinUrl.builder()
             .s3Url("test")
@@ -48,10 +64,10 @@ public class InteractionEntityRepositoryIntegrationTest {
             .city("test")
             .build();
 
-    final UUID userId = UUID.randomUUID();
+//    final UUID userId = UUID.randomUUID();
 
     final User user = User.builder()
-            .id(userId)
+//            .id(userId)
             .email("test")
             .password("test")
             .nickname("test")
@@ -75,7 +91,7 @@ public class InteractionEntityRepositoryIntegrationTest {
             .build();
 
     @Test
-    public void findByPostAndUser_returns_isNotNull() {
+    public void findByPostAndUserInViewRepository_returns_isNotNull() {
 
         //given
         final User savedUser = userRepository.save(user);
@@ -95,5 +111,48 @@ public class InteractionEntityRepositoryIntegrationTest {
         assertThat(foundView).isNotNull();
         assertThat(foundView.getPost()).isNotNull();
         assertThat(foundView.getUser()).isNotNull();
+    }
+
+    @Test
+    public void findAllFavoritePostByUserInFavoriteRepository_returns_isNotNull() throws JsonProcessingException {
+
+        //given
+        final User savedUser = userRepository.save(user);
+
+        for (int idx = 0; idx < 50; idx++) {
+            final Post postToBeSaved = Post.builder()
+                    .skinUrl(skinUrl)
+                    .storyUrl(storyUrl)
+                    .storyUrl(storyUrl)
+                    .skinTime(skinTime)
+                    .skinLocation(skinLocation)
+                    .user(user)
+                    .likeCount(10)
+                    .favoriteCount(100)
+                    .viewCount(20)
+                    .isPublic(true)
+                    .build();
+
+            final Post savedPost = postRepository.save(postToBeSaved);
+
+            final Favorite favorite = Favorite.builder()
+                    .post(savedPost)
+                    .user(savedUser)
+                    .build();
+
+            final Favorite savedFavorite = favoriteRepository.save(favorite);
+        }
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+        final Integer page = 0;
+        final Integer size = 10;
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        //when
+        final Page<PostDto.PostListReadResponse> foundViewPage = favoriteRepository.findAllFavoritePostByUser(savedUser, pageable);
+
+        //then
+        assertThat(foundViewPage.getContent()).isNotNull();
+        log.info("foundViewPage: {}", objectMapper.writeValueAsString(foundViewPage));
     }
 }

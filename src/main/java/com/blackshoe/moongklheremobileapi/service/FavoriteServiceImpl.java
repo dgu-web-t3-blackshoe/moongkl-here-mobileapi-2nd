@@ -12,6 +12,9 @@ import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.FavoriteRepository;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -78,5 +81,16 @@ public class FavoriteServiceImpl implements FavoriteService {
                 .build();
 
         return favoritePostDto;
+    }
+
+    @Override
+    public Page<PostDto.PostListReadResponse> getUserFavoritePostList(User user, Integer size, Integer page) {
+
+        final Pageable pageable = PageRequest.of(page, size);
+
+        final Page<PostDto.PostListReadResponse> userFavoritePostResponse
+                = favoriteRepository.findAllFavoritePostByUser(user, pageable);
+
+        return userFavoritePostResponse;
     }
 }

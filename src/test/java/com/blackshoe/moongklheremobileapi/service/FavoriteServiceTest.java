@@ -6,6 +6,7 @@ import com.blackshoe.moongklheremobileapi.repository.FavoriteRepository;
 import com.blackshoe.moongklheremobileapi.repository.LikeRepository;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.models.auth.In;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,8 +14,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -153,4 +158,19 @@ public class FavoriteServiceTest {
         assertThat(deleteFavoritePostDto.getFavoriteCount()).isEqualTo(0);
     }
 
+    @Test
+    public void getFavoritePostList_whenSuccess_returnsFavoritePostPage() {
+        // given
+        final Page mockPage = new PageImpl(new ArrayList());
+        final int size = 10;
+        final int page = 0;
+
+        // when
+        when(favoriteRepository.findAllFavoritePostByUser(any(User.class), any(Pageable.class))).thenReturn(mockPage);
+        final Page<PostDto.PostListReadResponse> userFavoritePostResponse
+                = favoriteService.getUserFavoritePostList(user, size, page);
+
+        // then
+        assertThat(userFavoritePostResponse).isNotNull();
+    }
 }

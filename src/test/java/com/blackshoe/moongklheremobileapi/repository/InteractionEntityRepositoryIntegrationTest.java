@@ -35,6 +35,9 @@ public class InteractionEntityRepositoryIntegrationTest {
     @Autowired
     private FavoriteRepository favoriteRepository;
 
+    @Autowired
+    private LikeRepository likeRepository;
+
     private final Logger log = LoggerFactory.getLogger(InteractionEntityRepositoryIntegrationTest.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -115,7 +118,7 @@ public class InteractionEntityRepositoryIntegrationTest {
     }
 
     @Test
-    public void findAllFavoritePostByUserInFavoriteRepository_returns_isNotNull() throws JsonProcessingException {
+    public void findAllFavoritePostByUserInFavoriteRepository_isNotNull() throws JsonProcessingException {
 
         //given
         final User savedUser = userRepository.save(user);
@@ -148,10 +151,51 @@ public class InteractionEntityRepositoryIntegrationTest {
         final Pageable pageable = PageRequest.of(page, size);
 
         //when
-        final Page<PostDto.PostListReadResponse> foundViewPage = favoriteRepository.findAllFavoritePostByUser(savedUser, pageable);
+        final Page<PostDto.PostListReadResponse> foundFavoritePostPage = favoriteRepository.findAllFavoritePostByUser(savedUser, pageable);
 
         //then
-        assertThat(foundViewPage.getContent()).isNotNull();
-        log.info("foundViewPage: {}", objectMapper.writeValueAsString(foundViewPage));
+        assertThat(foundFavoritePostPage.getContent()).isNotNull();
+        log.info("foundViewPage: {}", objectMapper.writeValueAsString(foundFavoritePostPage));
+    }
+
+    @Test
+    public void findAllByLikedPostByUserInLikeRepository_whenSuccess_isNotNull() throws JsonProcessingException {
+
+        //given
+        final User savedUser = userRepository.save(user);
+
+        for (int idx = 0; idx < 20; idx++) {
+            final Post postToBeSaved = Post.builder()
+                    .skinUrl(skinUrl)
+                    .storyUrl(storyUrl)
+                    .skinTime(skinTime)
+                    .skinLocation(skinLocation)
+                    .user(user)
+                    .likeCount(10)
+                    .favoriteCount(100)
+                    .viewCount(20)
+                    .isPublic(true)
+                    .build();
+
+            final Post savedPost = postRepository.save(postToBeSaved);
+
+            final Like like = Like.builder()
+                    .post(savedPost)
+                    .user(savedUser)
+                    .build();
+
+            final Like savedLike = likeRepository.save(like);
+        }
+
+        final Integer page = 0;
+        final Integer size = 10;
+        final Pageable pageable = PageRequest.of(page, size);
+
+        //when
+        final Page<PostDto.PostListReadResponse> foundLikedPostPage = likeRepository.findAllLikedPostByUser(savedUser, pageable);
+
+        //then
+        assertThat(foundLikedPostPage.getContent()).isNotNull();
+        log.info("foundViewPage: {}", objectMapper.writeValueAsString(foundLikedPostPage));
     }
 }

@@ -12,6 +12,9 @@ import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.LikeRepository;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -87,5 +90,16 @@ public class LikeServiceImpl implements LikeService {
                 .build();
 
         return likePostDto;
+    }
+
+    @Override
+    public Page<PostDto.PostListReadResponse> getUserLikedPostList(User user, int size, int page) {
+
+        final Pageable pageable = PageRequest.of(page, size);
+
+        final Page<PostDto.PostListReadResponse> userLikedPostResponse
+                = likeRepository.findAllLikedPostByUser(user, pageable);
+
+        return userLikedPostResponse;
     }
 }

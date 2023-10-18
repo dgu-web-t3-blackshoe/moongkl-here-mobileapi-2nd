@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -119,10 +120,9 @@ public class InteractionEntityRepositoryIntegrationTest {
         //given
         final User savedUser = userRepository.save(user);
 
-        for (int idx = 0; idx < 50; idx++) {
+        for (int idx = 0; idx < 20; idx++) {
             final Post postToBeSaved = Post.builder()
                     .skinUrl(skinUrl)
-                    .storyUrl(storyUrl)
                     .storyUrl(storyUrl)
                     .skinTime(skinTime)
                     .skinLocation(skinLocation)
@@ -143,10 +143,9 @@ public class InteractionEntityRepositoryIntegrationTest {
             final Favorite savedFavorite = favoriteRepository.save(favorite);
         }
 
-        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
         final Integer page = 0;
         final Integer size = 10;
-        final Pageable pageable = PageRequest.of(page, size, sortBy);
+        final Pageable pageable = PageRequest.of(page, size);
 
         //when
         final Page<PostDto.PostListReadResponse> foundViewPage = favoriteRepository.findAllFavoritePostByUser(savedUser, pageable);

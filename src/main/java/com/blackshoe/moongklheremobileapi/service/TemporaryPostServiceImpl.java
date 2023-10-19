@@ -5,6 +5,10 @@ import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.repository.TemporaryPostRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -109,5 +113,18 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
                 .build();
 
         return skinLocation;
+    }
+
+    @Override
+    public Page<TemporaryPostDto.TemporaryPostListReadResponse> getUserTemporaryPostList(User user, Integer size, Integer page) {
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        final Page<TemporaryPostDto.TemporaryPostListReadResponse> temporaryPostListReadResponsePage
+                = temporaryPostRepository.findAllByUser(user, pageable);
+
+        return temporaryPostListReadResponsePage;
     }
 }

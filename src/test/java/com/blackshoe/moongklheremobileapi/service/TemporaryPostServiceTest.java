@@ -143,4 +143,23 @@ public class TemporaryPostServiceTest {
         assertThat(temporaryPostListReadResponsePage).isNotNull();
     }
 
+    @Test
+    public void getTemporaryPost_whenSuccess_isNotNull() {
+        //given
+        final TemporaryPost temporaryPost = TemporaryPost.builder()
+                .skinUrl(skinUrl)
+                .storyUrl(storyUrl)
+                .skinLocation(skinLocation)
+                .skinTime(skinTime)
+                .user(user)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        //when
+        when(temporaryPostRepository.findById(any(UUID.class))).thenReturn(java.util.Optional.of(temporaryPost));
+        final TemporaryPostDto temporaryPostDto = temporaryPostService.getTemporaryPost(UUID.randomUUID());
+
+        //then
+        assertThat(temporaryPostDto).isNotNull();
+    }
 }

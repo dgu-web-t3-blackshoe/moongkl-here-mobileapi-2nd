@@ -155,7 +155,7 @@ public class LikeServiceTest {
     }
 
     @Test
-    public void getLikedPostList_whenSuccess_returnsFavoritePostPage() {
+    public void getUserLikedPostList_whenSuccess_returnsFavoritePostPage() {
         // given
         final Page mockPage = new PageImpl(new ArrayList());
         final int size = 10;

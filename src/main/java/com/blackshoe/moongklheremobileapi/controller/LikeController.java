@@ -3,9 +3,12 @@ package com.blackshoe.moongklheremobileapi.controller;
 import com.blackshoe.moongklheremobileapi.dto.PostDto;
 import com.blackshoe.moongklheremobileapi.dto.ResponseDto;
 import com.blackshoe.moongklheremobileapi.entity.User;
+import com.blackshoe.moongklheremobileapi.exception.InteractionErrorResult;
+import com.blackshoe.moongklheremobileapi.exception.InteractionException;
 import com.blackshoe.moongklheremobileapi.security.UserPrincipal;
 import com.blackshoe.moongklheremobileapi.service.LikeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -55,5 +58,27 @@ public class LikeController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<ResponseDto> getUserLikedPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                            @PathVariable UUID userId,
+                                                            @RequestParam(defaultValue = "10") Integer size,
+                                                            @RequestParam(defaultValue = "0") Integer page) {
+        final User user = userPrincipal.getUser();
+
+        if (!user.getId().equals(userId)) {
+            throw new InteractionException(InteractionErrorResult.LIKE_USER_NOT_MATCH);
+        }
+
+        final Page<PostDto.PostListReadResponse> userLikedPostList =
+                likeService.getUserLikedPostList(user, size, page);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(userLikedPostList, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+
     }
 }

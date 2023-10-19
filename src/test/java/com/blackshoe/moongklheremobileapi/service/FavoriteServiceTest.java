@@ -159,7 +159,7 @@ public class FavoriteServiceTest {
     }
 
     @Test
-    public void getFavoritePostList_whenSuccess_returnsFavoritePostPage() {
+    public void getUserFavoritePostList_whenSuccess_returnsFavoritePostPage() {
         // given
         final Page mockPage = new PageImpl(new ArrayList());
         final int size = 10;

@@ -143,7 +143,7 @@ public class TemporaryPostControllerTest {
                     "application/json", temporaryPostCreateRequestString.getBytes());
 
     private final TemporaryPostDto temporaryPostDto = TemporaryPostDto.builder()
-            .postId(UUID.randomUUID())
+            .temporaryPostId(UUID.randomUUID())
             .userId(UUID.randomUUID())
             .skin("test")
             .story("test")

@@ -13,7 +13,7 @@ import java.util.UUID;
 @Data
 @Builder
 public class TemporaryPostDto {
-    private UUID postId;
+    private UUID temporaryPostId;
     private UUID userId;
     private String skin;
     private String story;
@@ -35,7 +35,24 @@ public class TemporaryPostDto {
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class TemporaryPostCreateResponse {
-        private String postId;
+        private String temporaryPostId;
         private String createdAt;
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class TemporaryPostListReadResponse {
+        private UUID temporaryPostId;
+        private UUID userId;
+        private String skin;
+        private String story;
+
+        public TemporaryPostListReadResponse(UUID temporaryPostId, UUID userId, String skin, String story) {
+            this.temporaryPostId = temporaryPostId;
+            this.userId = userId;
+            this.skin = skin;
+            this.story = story;
+        }
     }
 }

@@ -67,7 +67,7 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
                 .build();
 
         final TemporaryPostDto temporaryPostDto = TemporaryPostDto.builder()
-                .postId(savedTemporaryPost.getId())
+                .temporaryPostId(savedTemporaryPost.getId())
                 .userId(savedTemporaryPost.getUser().getId())
                 .skin(skinUrl.getCloudfrontUrl())
                 .story(storyUrl.getCloudfrontUrl())

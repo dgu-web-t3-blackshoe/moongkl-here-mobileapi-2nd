@@ -54,26 +54,15 @@ public class TemporaryPostController {
 
         final TemporaryPostDto temporaryPostDto = temporaryPostService.createTemporaryPost(user, skinUrlDto, storyUrlDto, temporaryPostCreateRequest);
 
-        final TemporaryPostDto.TemporaryPostCreateResponse postCreateResponse = TemporaryPostDto.TemporaryPostCreateResponse.builder()
-                .postId(temporaryPostDto.getPostId().toString())
+        final TemporaryPostDto.TemporaryPostCreateResponse temporaryPostCreateResponse = TemporaryPostDto.TemporaryPostCreateResponse.builder()
+                .temporaryPostId(temporaryPostDto.getTemporaryPostId().toString())
                 .createdAt(temporaryPostDto.getCreatedAt().toString())
                 .build();
 
         final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postCreateResponse, Map.class))
+                .payload(objectMapper.convertValue(temporaryPostCreateResponse, Map.class))
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
-    }
-
-    @ExceptionHandler(PostException.class)
-    public ResponseEntity<ResponseDto> handlePostException(PostException e) {
-        final PostErrorResult errorResult = e.getPostErrorResult();
-
-        final ResponseDto responseDto = ResponseDto.builder()
-                .error(errorResult.getMessage())
-                .build();
-
-        return ResponseEntity.status(errorResult.getHttpStatus()).body(responseDto);
     }
 }

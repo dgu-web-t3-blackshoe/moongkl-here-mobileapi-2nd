@@ -28,6 +28,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -40,6 +42,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,6 +51,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -91,24 +95,23 @@ public class TemporaryPostControllerTest {
 
     @BeforeEach
     public void setUp() {
-        final User user = User.builder()
-                .id(UUID.randomUUID())
-                .email("test")
-                .password("test")
-                .nickname("test")
-                .phoneNumber("test")
-                .role(Role.USER)
-                .build();
-
-        when(userRepository.findByEmail(any())).thenReturn(Optional.of(user));
-
-        when(userDetailService.loadUserByUsername(any())).thenReturn(UserPrincipal.create(user));
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
+        when(userDetailService.loadUserByUsername(any(String.class))).thenReturn(new UserPrincipal(user));
     }
 
     private final Logger log = LoggerFactory.getLogger(TemporaryPostControllerTest.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    final UUID userId = UUID.randomUUID();
+    final User user = User.builder()
+            .id(userId)
+            .email("test")
+            .password("test")
+            .nickname("test")
+            .phoneNumber("test")
+            .role(Role.USER)
+            .build();
 
     private final MockMultipartFile skin = new MockMultipartFile("skin", "test", "image/png", "test".getBytes());
 
@@ -294,6 +297,58 @@ public class TemporaryPostControllerTest {
         //then
         MockHttpServletResponse response = result.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getUserTemporaryPostList_whenSuccess_returns200() throws Exception {
+        //given
+        final Page mockPage = new PageImpl(new ArrayList<>());
+        when(temporaryPostService.getUserTemporaryPostList(any(User.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPage);
+
+        //when
+        final MvcResult result = mockMvc.perform(
+                get("/temporary-posts/{userId}", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("size", "10")
+                        .param("page", "0")
+                        .with(csrf())
+                        .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getUserTemporaryPostList_whenInvalidUser_return403() throws Exception {
+        //given
+        final Page mockPage = new PageImpl(new ArrayList<>());
+        when(temporaryPostService.getUserTemporaryPostList(any(User.class), any(Integer.class), any(Integer.class)))
+                .thenReturn(mockPage);
+
+        //when
+        final MvcResult result = mockMvc.perform(
+                        get("/temporary-posts/{userId}", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .param("size", "10")
+                                .param("page", "0")
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
         assertThat(response.getContentAsString()).isNotEmpty();
         log.info("response: {}", response.getContentAsString());
     }

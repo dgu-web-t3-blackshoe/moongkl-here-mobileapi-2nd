@@ -2,6 +2,8 @@ package com.blackshoe.moongklheremobileapi.service;
 
 import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.*;
+import com.blackshoe.moongklheremobileapi.exception.TemporaryPostErrorResult;
+import com.blackshoe.moongklheremobileapi.exception.TemporaryPostException;
 import com.blackshoe.moongklheremobileapi.repository.TemporaryPostRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,5 +128,20 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
                 = temporaryPostRepository.findAllByUser(user, pageable);
 
         return temporaryPostListReadResponsePage;
+    }
+
+    @Override
+    public TemporaryPostDto getTemporaryPost(UUID temporaryPostId) {
+
+        final TemporaryPost temporaryPost = temporaryPostRepository.findById(temporaryPostId)
+                .orElseThrow(() -> new TemporaryPostException(TemporaryPostErrorResult.TEMPORARY_POST_NOT_FOUND));
+
+        final SkinUrl skinUrl = temporaryPost.getSkinUrl();
+
+        final StoryUrl storyUrl = temporaryPost.getStoryUrl();
+
+        final TemporaryPostDto temporaryPostDto = convertTemporaryPostEntityToDto(skinUrl, storyUrl, temporaryPost);
+
+        return temporaryPostDto;
     }
 }

@@ -66,4 +66,15 @@ public class ControllerExceptionAdvice {
 
         return ResponseEntity.status(errorResult.getHttpStatus()).body(responseDto);
     }
+
+    @ExceptionHandler(TemporaryPostException.class)
+    public ResponseEntity<ResponseDto> handleTemporaryPostException(TemporaryPostException e) {
+        final TemporaryPostErrorResult errorResult = e.getTemporaryPostErrorResult();
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .error(errorResult.getMessage())
+                .build();
+
+        return ResponseEntity.status(errorResult.getHttpStatus()).body(responseDto);
+    }
 }

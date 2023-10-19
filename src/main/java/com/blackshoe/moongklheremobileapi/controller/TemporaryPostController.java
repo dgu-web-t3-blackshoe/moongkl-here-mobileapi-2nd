@@ -4,6 +4,8 @@ import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
+import com.blackshoe.moongklheremobileapi.exception.TemporaryPostErrorResult;
+import com.blackshoe.moongklheremobileapi.exception.TemporaryPostException;
 import com.blackshoe.moongklheremobileapi.security.UserPrincipal;
 import com.blackshoe.moongklheremobileapi.service.PostService;
 import com.blackshoe.moongklheremobileapi.service.SkinService;
@@ -76,7 +78,7 @@ public class TemporaryPostController {
         final User user = userPrincipal.getUser();
 
         if (!user.getId().equals(userId)) {
-            throw new PostException(PostErrorResult.USER_NOT_MATCH);
+            throw new TemporaryPostException(TemporaryPostErrorResult.USER_NOT_MATCH);
         }
 
         final Page<TemporaryPostDto.TemporaryPostListReadResponse> temporaryPostListReadResponsePage

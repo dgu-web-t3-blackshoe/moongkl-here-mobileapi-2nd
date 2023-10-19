@@ -10,6 +10,7 @@ import com.blackshoe.moongklheremobileapi.service.SkinService;
 import com.blackshoe.moongklheremobileapi.service.StoryService;
 import com.blackshoe.moongklheremobileapi.service.TemporaryPostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -64,5 +65,27 @@ public class TemporaryPostController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<ResponseDto> getUserTemporaryPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                @PathVariable UUID userId,
+                                                                @RequestParam Integer size,
+                                                                @RequestParam Integer page) {
+
+        final User user = userPrincipal.getUser();
+
+        if (!user.getId().equals(userId)) {
+            throw new PostException(PostErrorResult.USER_NOT_MATCH);
+        }
+
+        final Page<TemporaryPostDto.TemporaryPostListReadResponse> temporaryPostListReadResponsePage
+                = temporaryPostService.getUserTemporaryPostList(user, size, page);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(temporaryPostListReadResponsePage, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 }

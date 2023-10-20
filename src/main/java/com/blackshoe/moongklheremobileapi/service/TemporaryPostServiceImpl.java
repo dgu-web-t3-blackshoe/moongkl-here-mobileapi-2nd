@@ -160,4 +160,35 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
 
         temporaryPostRepository.delete(temporaryPost);
     }
+
+    @Override
+    public TemporaryPostDto.TemporaryPostToSave getAndDeleteTemporaryPostToSave(UUID temporaryPostId, User user) {
+        final TemporaryPost temporaryPost = temporaryPostRepository.findById(temporaryPostId)
+                .orElseThrow(() -> new TemporaryPostException(TemporaryPostErrorResult.TEMPORARY_POST_NOT_FOUND));
+
+        if (!temporaryPost.getUser().getId().equals(user.getId())) {
+            throw new TemporaryPostException(TemporaryPostErrorResult.USER_NOT_MATCH);
+        }
+
+        final TemporaryPostDto.TemporaryPostToSave temporaryPostDtoToSave
+                = convertTemporaryPostEntityToTemporaryPostToSaveDto(temporaryPost);
+
+        temporaryPost.emptyFk();
+
+        temporaryPostRepository.delete(temporaryPost);
+
+        return temporaryPostDtoToSave;
+    }
+
+    private TemporaryPostDto.TemporaryPostToSave convertTemporaryPostEntityToTemporaryPostToSaveDto(TemporaryPost temporaryPost) {
+
+        final TemporaryPostDto.TemporaryPostToSave temporaryPostDtoToSave = TemporaryPostDto.TemporaryPostToSave.builder()
+                .skinUrlId(temporaryPost.getSkinUrl().getId())
+                .storyUrlId(temporaryPost.getStoryUrl().getId())
+                .skinLocationId(temporaryPost.getSkinLocation().getId())
+                .skinTimeId(temporaryPost.getSkinTime().getId())
+                .build();
+
+        return temporaryPostDtoToSave;
+    }
 }

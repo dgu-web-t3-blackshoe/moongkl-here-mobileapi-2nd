@@ -19,4 +19,6 @@ public interface TemporaryPostService {
     TemporaryPostDto getTemporaryPost(UUID temporaryPostId, User user);
 
     void deleteTemporaryPost(UUID uuid, User user);
+
+    TemporaryPostDto.TemporaryPostToSave getAndDeleteTemporaryPostToSave(UUID temporaryPostId, User user);
 }

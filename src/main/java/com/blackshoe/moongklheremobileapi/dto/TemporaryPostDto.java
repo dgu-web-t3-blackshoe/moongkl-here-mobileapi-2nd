@@ -63,4 +63,14 @@ public class TemporaryPostDto {
         private String temporaryPostId;
         private String deletedAt;
     }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class TemporaryPostToSave {
+        private UUID skinUrlId;
+        private UUID storyUrlId;
+        private UUID skinLocationId;
+        private UUID skinTimeId;
+    }
 }

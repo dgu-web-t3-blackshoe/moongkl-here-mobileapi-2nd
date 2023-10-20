@@ -40,6 +40,9 @@ public class PostEntityRelatedIntegrationTest {
     @Autowired
     private FavoriteRepository favoriteRepository;
 
+    @Autowired
+    private ViewRepository viewRepository;
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @BeforeEach
@@ -300,5 +303,68 @@ public class PostEntityRelatedIntegrationTest {
         assertThat(foundFavorite).isNotNull();
         assertThat(foundFavorite.getPost()).isNotNull();
         assertThat(foundFavorite.getUser()).isNotNull();
+    }
+
+    @Test
+    public void deleteLikeByUser_whenSuccess_isEmpty() {
+        //given
+        final User foundUser = userRepository.findByEmail("user1").get();
+
+        final Post foundPost = postRepository.findAll().get(0);
+
+        final Like like = Like.builder()
+                .post(foundPost)
+                .user(foundUser)
+                .build();
+
+        final Like savedLike = likeRepository.save(like);
+
+        //when
+        likeRepository.deleteAllByUser(foundUser);
+
+        //then
+        assertThat(likeRepository.findByPostAndUser(foundPost, foundUser)).isEmpty();
+    }
+
+    @Test
+    public void deleteFavoriteByUser_whenSuccess_isEmpty() {
+        //given
+        final User foundUser = userRepository.findByEmail("user1").get();
+
+        final Post foundPost = postRepository.findAll().get(0);
+
+        final Favorite favorite = Favorite.builder()
+                .post(foundPost)
+                .user(foundUser)
+                .build();
+
+        final Favorite savedFavorite = favoriteRepository.save(favorite);
+
+        //when
+        favoriteRepository.deleteAllByUser(foundUser);
+
+        //then
+        assertThat(favoriteRepository.findByPostAndUser(foundPost, foundUser)).isEmpty();
+    }
+
+    @Test
+    public void deleteViewByUser_whenSuccess_isEmpty() {
+        //given
+        final User foundUser = userRepository.findByEmail("user1").get();
+
+        final Post foundPost = postRepository.findAll().get(0);
+
+        final View view = View.builder()
+                .post(foundPost)
+                .user(foundUser)
+                .build();
+
+        final View savedView = viewRepository.save(view);
+
+        //when
+        viewRepository.deleteAllByUser(foundUser);
+
+        //then
+        assertThat(viewRepository.findByPostAndUser(foundPost, foundUser)).isEmpty();
     }
 }

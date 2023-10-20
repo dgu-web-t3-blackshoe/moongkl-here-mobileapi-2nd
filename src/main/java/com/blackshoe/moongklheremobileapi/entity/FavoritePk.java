@@ -5,28 +5,29 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Embeddable;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.UUID;
 
 @Embeddable
 @Getter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @EqualsAndHashCode
 public class FavoritePk implements Serializable {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "post_id", columnDefinition = "BINARY(16)")
+    private UUID postId;
 
-    @Builder
+    @Column(name = "user_id", columnDefinition = "BINARY(16)")
+    private UUID userId;
+
     public FavoritePk(Post post, User user) {
-        this.post = post;
-        this.user = user;
+        this.postId = post.getId();
+        this.userId = user.getId();
+    }
+
+    public FavoritePk(UUID postId, UUID userId) {
+        this.postId = postId;
+        this.userId = userId;
     }
 }

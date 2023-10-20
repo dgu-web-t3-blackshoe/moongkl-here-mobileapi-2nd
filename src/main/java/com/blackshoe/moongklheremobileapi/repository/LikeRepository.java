@@ -15,8 +15,8 @@ public interface LikeRepository extends JpaRepository<Like, LikePk> {
     @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +
             "p.id, p.user.id, p.skinUrl.cloudfrontUrl, p.storyUrl.cloudfrontUrl) " +
             "FROM Post p " +
-            "INNER JOIN Like l ON p.id = l.likePk.post.id " +
-            "WHERE l.likePk.user = :user AND p.isPublic = true " +
+            "INNER JOIN Like l ON p.id = l.post.id " +
+            "WHERE l.user = :user AND p.isPublic = true " +
             "ORDER BY l.createdAt DESC")
     Page<PostDto.PostListReadResponse> findAllLikedPostByUser(User user, Pageable pageable);
 }

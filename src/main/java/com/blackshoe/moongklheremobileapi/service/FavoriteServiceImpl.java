@@ -62,10 +62,7 @@ public class FavoriteServiceImpl implements FavoriteService {
 
         final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
 
-        final FavoritePk favoritePk = FavoritePk.builder()
-                .post(post)
-                .user(user)
-                .build();
+        final FavoritePk favoritePk = new FavoritePk(post, user);
 
         final Favorite favorite = favoriteRepository.findById(favoritePk).orElseThrow(() -> new InteractionException(InteractionErrorResult.FAVORITE_NOT_FOUND));
 

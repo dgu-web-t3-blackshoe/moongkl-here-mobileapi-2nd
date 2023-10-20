@@ -2,28 +2,28 @@ package com.blackshoe.moongklheremobileapi.entity;
 
 import lombok.*;
 
-import javax.persistence.Embeddable;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.UUID;
 
 @Embeddable
 @Getter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @EqualsAndHashCode
 public class LikePk implements Serializable {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
+    @Column(name = "post_id", columnDefinition = "BINARY(16)")
+    private UUID postId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", columnDefinition = "BINARY(16)")
+    private UUID userId;
 
-    @Builder
     public LikePk(Post post, User user) {
-        this.post = post;
-        this.user = user;
+        this.postId = post.getId();
+        this.userId = user.getId();
+    }
+
+    public LikePk(UUID postId, UUID userId) {
+        this.postId = postId;
+        this.userId = userId;
     }
 }

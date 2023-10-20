@@ -38,10 +38,7 @@ public class LikeServiceImpl implements LikeService {
 
         final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
 
-        final LikePk tempLikePk = LikePk.builder()
-                .post(post)
-                .user(user)
-                .build();
+        final LikePk tempLikePk = new LikePk(post, user);
 
         if (likeRepository.existsById(tempLikePk)) {
             throw new InteractionException(InteractionErrorResult.USER_ALREADY_LIKED_POST);
@@ -71,10 +68,7 @@ public class LikeServiceImpl implements LikeService {
 
         final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
 
-        final LikePk likePk = LikePk.builder()
-                .post(post)
-                .user(user)
-                .build();
+        final LikePk likePk = new LikePk(post, user);
 
         final Like like = likeRepository.findById(likePk).orElseThrow(() -> new InteractionException(InteractionErrorResult.LIKE_NOT_FOUND));
 

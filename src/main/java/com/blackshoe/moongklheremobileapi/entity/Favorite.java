@@ -4,12 +4,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,24 +15,45 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 @EntityListeners(AuditingEntityListener.class)
-public class Favorite {
+public class Favorite implements Persistable<FavoritePk> {
     @EmbeddedId
-    private FavoritePk favoritePk;
+    private FavoritePk favoritePk = new FavoritePk();
+
+    @MapsId("postId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id",  foreignKey = @ForeignKey(name = "favorite_fk_post_id"), referencedColumnName = "id")
+    private Post post;
+
+    @MapsId("userId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "favorite_fk_user_id"), referencedColumnName = "id")
+    private User user;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
     @Builder
     public Favorite(Post post, User user, LocalDateTime createdAt) {
-        this.favoritePk = FavoritePk.builder().post(post).user(user).build();
+        this.post = post;
+        this.user = user;
         this.createdAt = createdAt;
     }
 
     public Post getPost() {
-        return this.favoritePk.getPost();
+        return this.post;
     }
 
     public User getUser() {
-        return this.favoritePk.getUser();
+        return this.user;
+    }
+
+    @Override
+    public FavoritePk getId() {
+        return this.favoritePk;
+    }
+
+    @Override
+    public boolean isNew() {
+        return this.createdAt == null;
     }
 }

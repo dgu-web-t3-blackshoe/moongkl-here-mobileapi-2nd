@@ -21,6 +21,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -161,5 +162,25 @@ public class TemporaryPostServiceTest {
 
         //then
         assertThat(temporaryPostDto).isNotNull();
+    }
+
+    @Test
+    public void deleteTemporaryPost_whenSuccess_callDelete() {
+        //given
+        final TemporaryPost temporaryPost = TemporaryPost.builder()
+                .skinUrl(skinUrl)
+                .storyUrl(storyUrl)
+                .skinLocation(skinLocation)
+                .skinTime(skinTime)
+                .user(user)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        //when
+        when(temporaryPostRepository.findById(any(UUID.class))).thenReturn(java.util.Optional.of(temporaryPost));
+        temporaryPostService.deleteTemporaryPost(UUID.randomUUID(), user);
+
+        //then
+        verify(temporaryPostRepository).delete(any(TemporaryPost.class));
     }
 }

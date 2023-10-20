@@ -4,9 +4,7 @@ import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
-import com.blackshoe.moongklheremobileapi.repository.PostRepository;
-import com.blackshoe.moongklheremobileapi.repository.SkinLocationRepository;
-import com.blackshoe.moongklheremobileapi.repository.SkinTimeRepository;
+import com.blackshoe.moongklheremobileapi.repository.*;
 import com.blackshoe.moongklheremobileapi.vo.*;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
@@ -41,6 +39,12 @@ public class PostServiceTest {
 
     @Mock
     private SkinTimeRepository skinTimeRepository;
+
+    @Mock
+    private SkinUrlRepository skinUrlRepository;
+
+    @Mock
+    private StoryUrlRepository storyUrlRepository;
 
     private Logger log = LoggerFactory.getLogger(PostServiceTest.class);
 
@@ -450,5 +454,79 @@ public class PostServiceTest {
 
         // then
         assertThat(userSkinTimePostListReadResponsePage).isNotNull();
+    }
+
+    @Test
+    public void saveTemporaryPost_whenSuccess_isNotNull() {
+        // given
+        final UUID skinUrlId = UUID.randomUUID();
+        final UUID storyUrlId = UUID.randomUUID();
+        final UUID skinLocationId = UUID.randomUUID();
+        final UUID skinTimeId = UUID.randomUUID();
+
+        final SkinUrl skinUrlWithId = SkinUrl.builder()
+                .id(skinUrlId)
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        final StoryUrl storyUrlWithId = StoryUrl.builder()
+                .id(storyUrlId)
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        final SkinLocation skinLocationWithId = SkinLocation.builder()
+                .id(skinLocationId)
+                .latitude(1.0)
+                .longitude(1.0)
+                .country("test")
+                .state("test")
+                .city("test")
+                .build();
+
+        final SkinTime skinTimeWithId = SkinTime.builder()
+                .id(skinTimeId)
+                .year(2021)
+                .month(1)
+                .day(1)
+                .hour(1)
+                .minute(1)
+                .build();
+
+        final TemporaryPostDto.TemporaryPostToSave temporaryPostToSave = TemporaryPostDto.TemporaryPostToSave.builder()
+                .skinUrlId(skinUrlId)
+                .storyUrlId(storyUrlId)
+                .skinLocationId(skinLocationId)
+                .skinTimeId(skinTimeId)
+                .build();
+
+        final Post post = Post.builder()
+                .skinUrl(skinUrlWithId)
+                .storyUrl(storyUrlWithId)
+                .skinLocation(skinLocationWithId)
+                .skinTime(skinTimeWithId)
+                .user(user)
+                .isPublic(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        // when
+        when(postRepository.save(any(Post.class))).thenReturn(post);
+        when(skinUrlRepository.findById(skinUrlId)).thenReturn(java.util.Optional.of(skinUrlWithId));
+        when(storyUrlRepository.findById(storyUrlId)).thenReturn(java.util.Optional.of(storyUrlWithId));
+        when(skinLocationRepository.findById(skinLocationId)).thenReturn(java.util.Optional.of(skinLocationWithId));
+        when(skinTimeRepository.findById(skinTimeId)).thenReturn(java.util.Optional.of(skinTimeWithId));
+        final PostDto postDto = postService.saveTemporaryPost(user, temporaryPostToSave, true);
+
+        // then
+        assertThat(postDto).isNotNull();
+        assertThat(postDto.getUserId()).isNotNull();
+        assertThat(postDto.getSkin()).isEqualTo(skinUrlWithId.getCloudfrontUrl());
+        assertThat(postDto.getStory()).isEqualTo(storyUrlWithId.getCloudfrontUrl());
+        assertThat(postDto.getLocation().getCity()).isEqualTo(skinLocationWithId.getCity());
+        assertThat(postDto.getTime().getYear()).isEqualTo(skinTimeWithId.getYear());
+        assertThat(postDto.getIsPublic()).isTrue();
+        assertThat(postDto.getCreatedAt()).isNotNull();
     }
 }

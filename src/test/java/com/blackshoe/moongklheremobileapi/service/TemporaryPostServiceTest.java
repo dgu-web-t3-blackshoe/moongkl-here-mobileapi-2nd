@@ -183,4 +183,64 @@ public class TemporaryPostServiceTest {
         //then
         verify(temporaryPostRepository).delete(any(TemporaryPost.class));
     }
+
+    @Test
+    public void getAndDeleteTemporaryPostToSave_whenSuccess_isNotNull() {
+        //given
+        final SkinUrl skinUrlWithId = SkinUrl.builder()
+                .id(UUID.randomUUID())
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        final StoryUrl storyUrlWithId = StoryUrl.builder()
+                .id(UUID.randomUUID())
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        final SkinLocation skinLocationWithId = SkinLocation.builder()
+                .id(UUID.randomUUID())
+                .latitude(1.0)
+                .longitude(1.0)
+                .country("test")
+                .state("test")
+                .city("test")
+                .build();
+
+        final SkinTime skinTimeWithId = SkinTime.builder()
+                .id(UUID.randomUUID())
+                .year(2021)
+                .month(1)
+                .day(1)
+                .hour(1)
+                .minute(1)
+                .build();
+
+        final TemporaryPost temporaryPost = TemporaryPost.builder()
+                .skinUrl(skinUrlWithId)
+                .storyUrl(storyUrlWithId)
+                .skinLocation(skinLocationWithId)
+                .skinTime(skinTimeWithId)
+                .user(user)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        final UUID skinUrlId = skinUrlWithId.getId();
+        final UUID storyUrlId = storyUrlWithId.getId();
+        final UUID skinLocationId = skinLocationWithId.getId();
+        final UUID skinTimeId = skinTimeWithId.getId();
+
+        //when
+        when(temporaryPostRepository.findById(any(UUID.class))).thenReturn(java.util.Optional.of(temporaryPost));
+        final TemporaryPostDto.TemporaryPostToSave temporaryPostToSave
+                = temporaryPostService.getAndDeleteTemporaryPostToSave(UUID.randomUUID(), user);
+
+        //then
+        assertThat(temporaryPostToSave).isNotNull();
+        assertThat(temporaryPostToSave.getSkinUrlId()).isEqualTo(skinUrlId);
+        assertThat(temporaryPostToSave.getStoryUrlId()).isEqualTo(storyUrlId);
+        assertThat(temporaryPostToSave.getSkinLocationId()).isEqualTo(skinLocationId);
+        assertThat(temporaryPostToSave.getSkinTimeId()).isEqualTo(skinTimeId);
+    }
 }

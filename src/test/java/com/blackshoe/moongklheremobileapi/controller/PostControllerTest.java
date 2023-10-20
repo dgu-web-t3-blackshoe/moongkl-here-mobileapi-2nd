@@ -83,6 +83,9 @@ public class PostControllerTest {
     private PostService postService;
 
     @MockBean
+    private TemporaryPostService temporaryPostService;
+
+    @MockBean
     private SkinService skinService;
 
     @MockBean
@@ -841,16 +844,181 @@ public class PostControllerTest {
 
         // when
         final MvcResult mvcResult = mockMvc.perform(
-                put("/posts/{postId}/is-public", postId)
-                        .content(objectMapper.writeValueAsBytes(postIsPublicChangeRequest))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .with(csrf())
-                        .with(user(userDetailService.loadUserByUsername("test"))))
+                        put("/posts/{postId}/is-public", postId)
+                                .content(objectMapper.writeValueAsBytes(postIsPublicChangeRequest))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
         // then
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void saveTemporaryPost_whenSuccess_returns201() throws Exception {
+        // given
+        final UUID postId = UUID.randomUUID();
+
+        final TemporaryPostDto.TemporaryPostToSave temporaryPostToSave = TemporaryPostDto.TemporaryPostToSave.builder()
+                .skinUrlId(UUID.randomUUID())
+                .storyUrlId(UUID.randomUUID())
+                .skinLocationId(UUID.randomUUID())
+                .skinTimeId(UUID.randomUUID())
+                .build();
+
+        final PostDto postDto = PostDto.builder()
+                .postId(postId)
+                .userId(UUID.randomUUID())
+                .skin("test")
+                .story("test")
+                .commentCount(0)
+                .likeCount(0)
+                .viewCount(0)
+                .favoriteCount(0)
+                .isPublic(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        final PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest = PostDto.SaveTemporaryPostRequest.builder()
+                .temporaryPostId(UUID.randomUUID())
+                .isPublic("true")
+                .build();
+
+        // when
+        when(temporaryPostService.getAndDeleteTemporaryPostToSave(any(UUID.class), any(User.class)))
+                .thenReturn(temporaryPostToSave);
+
+        when(postService.saveTemporaryPost(any(User.class), any(TemporaryPostDto.TemporaryPostToSave.class), any(Boolean.class)))
+                .thenReturn(postDto);
+
+        final MvcResult mvcResult = mockMvc.perform(
+                        post("/posts")
+                                .param("save-temporary-post", "true")
+                                .content(objectMapper.writeValueAsBytes(saveTemporaryPostRequest))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void saveTemporaryPost_whenInvalidParam_returns400() throws Exception {
+        // given
+        final UUID postId = UUID.randomUUID();
+
+        final TemporaryPostDto.TemporaryPostToSave temporaryPostToSave = TemporaryPostDto.TemporaryPostToSave.builder()
+                .skinUrlId(UUID.randomUUID())
+                .storyUrlId(UUID.randomUUID())
+                .skinLocationId(UUID.randomUUID())
+                .skinTimeId(UUID.randomUUID())
+                .build();
+
+        final PostDto postDto = PostDto.builder()
+                .postId(postId)
+                .userId(UUID.randomUUID())
+                .skin("test")
+                .story("test")
+                .commentCount(0)
+                .likeCount(0)
+                .viewCount(0)
+                .favoriteCount(0)
+                .isPublic(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        final PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest = PostDto.SaveTemporaryPostRequest.builder()
+                .temporaryPostId(UUID.randomUUID())
+                .isPublic("true")
+                .build();
+
+        // when
+        when(temporaryPostService.getAndDeleteTemporaryPostToSave(any(UUID.class), any(User.class)))
+                .thenReturn(temporaryPostToSave);
+
+        when(postService.saveTemporaryPost(any(User.class), any(TemporaryPostDto.TemporaryPostToSave.class), any(Boolean.class)))
+                .thenReturn(postDto);
+
+        final MvcResult mvcResult = mockMvc.perform(
+                        post("/posts")
+                                .param("save-temporary-post", "false")
+                                .content(objectMapper.writeValueAsBytes(saveTemporaryPostRequest))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void saveTemporaryPost_whenInvalidRequestBody_returns400() throws Exception {
+        // given
+        final UUID postId = UUID.randomUUID();
+
+        final TemporaryPostDto.TemporaryPostToSave temporaryPostToSave = TemporaryPostDto.TemporaryPostToSave.builder()
+                .skinUrlId(UUID.randomUUID())
+                .storyUrlId(UUID.randomUUID())
+                .skinLocationId(UUID.randomUUID())
+                .skinTimeId(UUID.randomUUID())
+                .build();
+
+        final PostDto postDto = PostDto.builder()
+                .postId(postId)
+                .userId(UUID.randomUUID())
+                .skin("test")
+                .story("test")
+                .commentCount(0)
+                .likeCount(0)
+                .viewCount(0)
+                .favoriteCount(0)
+                .isPublic(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        final PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest = PostDto.SaveTemporaryPostRequest.builder()
+                .temporaryPostId(UUID.randomUUID())
+                .isPublic("td")
+                .build();
+
+        // when
+        when(temporaryPostService.getAndDeleteTemporaryPostToSave(any(UUID.class), any(User.class)))
+                .thenReturn(temporaryPostToSave);
+
+        when(postService.saveTemporaryPost(any(User.class), any(TemporaryPostDto.TemporaryPostToSave.class), any(Boolean.class)))
+                .thenReturn(postDto);
+
+        final MvcResult mvcResult = mockMvc.perform(
+                        post("/posts")
+                                .param("save-temporary-post", "true")
+                                .content(objectMapper.writeValueAsBytes(saveTemporaryPostRequest))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        //then
         MockHttpServletResponse response = mvcResult.getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(response.getContentAsString()).isNotEmpty();

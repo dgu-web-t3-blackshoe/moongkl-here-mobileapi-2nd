@@ -148,4 +148,17 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
 
         return temporaryPostDto;
     }
+
+    @Override
+    public void deleteTemporaryPost(UUID uuid, User user) {
+
+        final TemporaryPost temporaryPost = temporaryPostRepository.findById(uuid)
+                .orElseThrow(() -> new TemporaryPostException(TemporaryPostErrorResult.TEMPORARY_POST_NOT_FOUND));
+
+        if (!temporaryPost.getUser().getId().equals(user.getId())) {
+            throw new TemporaryPostException(TemporaryPostErrorResult.USER_NOT_MATCH);
+        }
+
+        temporaryPostRepository.delete(temporaryPost);
+    }
 }

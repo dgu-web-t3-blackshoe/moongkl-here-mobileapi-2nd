@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService{
         final ProfileImgUrl profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(updateProfileDto.getProfileImgUrlDto());
         final BackgroundImgUrl backgroundImgUrl = BackgroundImgUrl.convertBackgroundImgUrlDtoToEntity(updateProfileDto.getBackgroundImgUrlDto());
 
-        user = user.toBuilder()
+        user = User.builder()
                 .nickname(updateProfileDto.getNickname())
                 .statusMessage(updateProfileDto.getStatusMessage())
                 .profileImgUrl(profileImgUrl)
@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService{
                 .s3Url(user.getBackgroundImgUrl().getS3Url())
                 .build();
 
-        int postcount = user.getPost().size();
+        int postCount = user.getPosts().size();
 
         return UserDto.UserProfileInfoResponseDto.builder()
                 .userId(user.getId())
@@ -165,7 +165,7 @@ public class UserServiceImpl implements UserService{
                 .backgroundImgUrlDto(backgroundImgUrlDto)
                 .likeCount(user.getLikeCount())
                 .favoriteCount(user.getFavoriteCount())
-                .postCount(postcount)
+                .postCount(postCount)
                 .build();
     }
 
@@ -179,13 +179,13 @@ public class UserServiceImpl implements UserService{
                 .s3Url(user.getProfileImgUrl().getS3Url())
                 .build();
 
-        int postcount = user.getPost().size();
+        int postCount = user.getPosts().size();
 
         return UserDto.UserBasicProfileInfoResponseDto.builder()
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .profileImgUrlDto(profileImgUrlDto)
-                .postCount(postcount)
+                .postCount(postCount)
                 .build();
     }
 

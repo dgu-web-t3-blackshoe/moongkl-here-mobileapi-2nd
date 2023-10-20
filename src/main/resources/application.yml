@@ -1,5 +1,6 @@
 server:
   port: 8080
+
 spring:
   application:
     name: moongkl-here-mobile-api
@@ -25,7 +26,7 @@ spring:
     generate-ddl: true
     show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         jdbc:

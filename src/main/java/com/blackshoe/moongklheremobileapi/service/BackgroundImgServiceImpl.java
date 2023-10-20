@@ -27,8 +27,8 @@ public class BackgroundImgServiceImpl implements BackgroundImgService {
     private String DISTRIBUTION_DOMAIN;
     @Value("${cloud.aws.s3.root-directory}")
     private String ROOT_DIRECTORY;
-    @Value("${cloud.aws.s3.background-img-directory}")
-    private String BACKGROUNDIMG_DIRECTORY;
+    @Value("${cloud.aws.s3.background-directory}")
+    private String BACKGROUND_DIRECTORY;
 
     @Override
     public BackgroundImgUrlDto uploadBackgroundImg(UUID userId, MultipartFile backgroundImg) {
@@ -36,7 +36,7 @@ public class BackgroundImgServiceImpl implements BackgroundImgService {
             throw new UserException(UserErrorResult.EMPTY_BACKGROUNDIMG);
         }
 
-        String s3FilePath = userId + "/" + BACKGROUNDIMG_DIRECTORY;
+        String s3FilePath = userId + "/" + BACKGROUND_DIRECTORY;
 
         String fileExtension = backgroundImg.getOriginalFilename().substring(backgroundImg.getOriginalFilename().lastIndexOf("."));
 

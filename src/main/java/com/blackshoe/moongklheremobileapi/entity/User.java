@@ -101,6 +101,9 @@ public class User {
                 String phoneNumber,
                 Role role,
                 String provider,
+                ProfileImgUrl profileImgUrl,
+                BackgroundImgUrl backgroundImgUrl,
+                String statusMessage,
                 LocalDateTime createdAt,
                 LocalDateTime updatedAt) {
         this.id = id;
@@ -110,6 +113,9 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.role = role;
         this.provider = provider;
+        this.profileImgUrl = profileImgUrl;
+        this.backgroundImgUrl = backgroundImgUrl;
+        this.statusMessage = statusMessage;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.posts = new ArrayList<>();

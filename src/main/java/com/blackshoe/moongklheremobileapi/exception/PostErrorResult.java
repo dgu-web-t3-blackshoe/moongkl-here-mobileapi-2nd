@@ -21,7 +21,11 @@ public enum PostErrorResult {
     INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "날짜 형식이 유효하지 않습니다."),
     INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 타입입니다."),
     USER_NOT_MATCH(HttpStatus.FORBIDDEN, "게시글 작성자가 아닙니다."),
-    INVALID_PARAMETER_FOR_GET_POST_LIST(HttpStatus.BAD_REQUEST, "유효하지 않은 파라미터입니다.");
+    INVALID_PARAMETER_FOR_GET_POST_LIST(HttpStatus.BAD_REQUEST, "유효하지 않은 파라미터입니다."),
+    SKIN_URL_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "스킨을 찾을 수 없습니다."),
+    STORY_URL_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "스토리를 찾을 수 없습니다."),
+    SKIN_TIME_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "스킨 시간을 찾을 수 없습니다."),
+    SKIN_LOCATION_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "스킨 위치를 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

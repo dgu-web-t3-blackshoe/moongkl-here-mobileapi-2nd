@@ -160,4 +160,12 @@ public class PostDto {
         private LocalDateTime createdAt;
         private LocalDateTime deletedAt;
     }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class SaveTemporaryPostRequest {
+        private UUID temporaryPostId;
+        private String isPublic;
+    }
 }

@@ -4,7 +4,7 @@ import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
-import com.blackshoe.moongklheremobileapi.repository.PostRepository;
+import com.blackshoe.moongklheremobileapi.repository.*;
 import com.blackshoe.moongklheremobileapi.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
@@ -23,8 +23,24 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
 
-    public PostServiceImpl(PostRepository postRepository) {
+    private final SkinUrlRepository skinUrlRepository;
+
+    private final StoryUrlRepository storyUrlRepository;
+
+    private final SkinLocationRepository skinLocationRepository;
+
+    private final SkinTimeRepository skinTimeRepository;
+
+    public PostServiceImpl(PostRepository postRepository,
+                           SkinUrlRepository skinUrlRepository,
+                           StoryUrlRepository storyUrlRepository,
+                           SkinLocationRepository skinLocationRepository,
+                           SkinTimeRepository skinTimeRepository) {
         this.postRepository = postRepository;
+        this.skinUrlRepository = skinUrlRepository;
+        this.storyUrlRepository = storyUrlRepository;
+        this.skinLocationRepository = skinLocationRepository;
+        this.skinTimeRepository = skinTimeRepository;
     }
 
     @Override
@@ -280,5 +296,36 @@ public class PostServiceImpl implements PostService {
                 = postRepository.findAllUserPostBySkinTime(user, postTimeFilter, pageable);
 
         return userSkinTimePostReadResponsePage;
+    }
+
+    @Override
+    public PostDto saveTemporaryPost(User user, TemporaryPostDto.TemporaryPostToSave temporaryPostToSave, Boolean isPublic) {
+
+        final SkinUrl skinUrl = skinUrlRepository.findById(temporaryPostToSave.getSkinUrlId())
+                .orElseThrow(() -> new PostException(PostErrorResult.SKIN_URL_NOT_FOUND));
+
+        final StoryUrl storyUrl = storyUrlRepository.findById(temporaryPostToSave.getStoryUrlId())
+                .orElseThrow(() -> new PostException(PostErrorResult.STORY_URL_NOT_FOUND));
+
+        final SkinLocation skinLocation = skinLocationRepository.findById(temporaryPostToSave.getSkinLocationId())
+                .orElseThrow(() -> new PostException(PostErrorResult.SKIN_LOCATION_NOT_FOUND));
+
+        final SkinTime skinTime = skinTimeRepository.findById(temporaryPostToSave.getSkinTimeId())
+                .orElseThrow(() -> new PostException(PostErrorResult.SKIN_TIME_NOT_FOUND));
+
+        final Post post = Post.builder()
+                .user(user)
+                .skinUrl(skinUrl)
+                .storyUrl(storyUrl)
+                .skinLocation(skinLocation)
+                .skinTime(skinTime)
+                .isPublic(isPublic)
+                .build();
+
+        final Post savedPost = postRepository.save(post);
+
+        final PostDto postDto = convertPostEntityToDto(skinUrl, storyUrl, savedPost);
+
+        return postDto;
     }
 }

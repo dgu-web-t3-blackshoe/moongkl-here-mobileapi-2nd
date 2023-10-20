@@ -7,6 +7,9 @@ import com.blackshoe.moongklheremobileapi.dto.UserDto;
 import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.UserException;
+import com.blackshoe.moongklheremobileapi.repository.FavoriteRepository;
+import com.blackshoe.moongklheremobileapi.repository.LikeRepository;
+import com.blackshoe.moongklheremobileapi.repository.ViewRepository;
 import com.blackshoe.moongklheremobileapi.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +28,9 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
+    private final LikeRepository likeRepository;
+    private final FavoriteRepository favoriteRepository;
+    private final ViewRepository viewRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -111,6 +117,16 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void deleteUser(UUID userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        likeRepository.deleteAllByUser(user);
+
+        favoriteRepository.deleteAllByUser(user);
+
+        viewRepository.deleteAllByUser(user);
+
         userRepository.deleteById(userId);
     }
 

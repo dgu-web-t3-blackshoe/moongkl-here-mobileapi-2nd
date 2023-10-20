@@ -1,4 +1,4 @@
-package com.blackshoe.moongklheremobileapi.configuration;
+package com.blackshoe.moongklheremobileapi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

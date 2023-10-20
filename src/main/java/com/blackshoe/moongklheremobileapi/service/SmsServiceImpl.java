@@ -32,20 +32,19 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SmsServiceImpl implements SmsService{
-
     private final StringRedisTemplate redisTemplate;
     private final VerificationService verificationService;
 
-    @Value("${naverCloudSms.accessKey}")
+    @Value("${SMS_ACCESS_KEY}")
     private String accessKey;
 
-    @Value("${naverCloudSms.secretKey}")
+    @Value("${SMS_SECRET_KEY}")
     private String secretKey;
 
-    @Value("${naverCloudSms.serviceId}")
+    @Value("${SMS_SERVICE_ID}")
     private String serviceId;
 
-    @Value("${naverCloudSms.senderPhoneNumber}")
+    @Value("${SMS_SENDER_NUMBER}")
     private String senderPhone;
 
     public String makeSignature(Long time) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {

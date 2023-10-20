@@ -22,6 +22,15 @@ public enum UserErrorResult {
     NOT_FOUND_JWT(HttpStatus.UNAUTHORIZED, "존재하지 않는 JWT입니다."), //401
     USER_PARTIALLY_CREATED(HttpStatus.ACCEPTED, "사용자 정보가 부분적으로 생성되었습니다. 사용자 정보를 다시 생성해주세요."), //202
     USER_HAVE_TO_SIGN_IN(HttpStatus.UNAUTHORIZED, "사용자 정보가 부족합니다. 사용자 정보를 다시 생성해주세요."), //401
+    DUPLICATED_NICKNAME(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."), //409
+    EMPTY_PROFILEIMG(HttpStatus.BAD_REQUEST, "프로필 이미지가 없습니다."), //400
+    INVALID_PROFILEIMG_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 프로필 이미지 타입입니다."), //400
+    INVALID_PROFILEIMG_SIZE(HttpStatus.BAD_REQUEST, "유효하지 않은 프로필 이미지 크기입니다."), //400
+    PROFILEIMG_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 이미지 업로드에 실패했습니다."), //500
+    EMPTY_BACKGROUNDIMG(HttpStatus.BAD_REQUEST, "배경 이미지가 없습니다."), //400
+    INVALID_BACKGROUNDIMG_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 배경 이미지 타입입니다."), //400
+    INVALID_BACKGROUNDIMG_SIZE(HttpStatus.BAD_REQUEST, "유효하지 않은 배경 이미지 크기입니다."), //400
+    BACKGROUNDIMG_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "배경 이미지 업로드에 실패했습니다."), //500
     ;
     private final HttpStatus httpStatus;
     private final String message;

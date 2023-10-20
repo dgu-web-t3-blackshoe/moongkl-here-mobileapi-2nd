@@ -68,4 +68,11 @@ public class TemporaryPost {
         this.user = user;
         user.addTemporaryPost(this);
     }
+
+    public void emptyFk() {
+        this.skinUrl = null;
+        this.storyUrl = null;
+        this.skinTime = null;
+        this.skinLocation = null;
+    }
 }

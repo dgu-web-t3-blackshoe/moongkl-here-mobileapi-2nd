@@ -1,9 +1,6 @@
 package com.blackshoe.moongklheremobileapi.controller;
 
-import com.blackshoe.moongklheremobileapi.dto.PostDto;
-import com.blackshoe.moongklheremobileapi.dto.ResponseDto;
-import com.blackshoe.moongklheremobileapi.dto.SkinUrlDto;
-import com.blackshoe.moongklheremobileapi.dto.StoryUrlDto;
+import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
@@ -11,6 +8,8 @@ import com.blackshoe.moongklheremobileapi.security.UserPrincipal;
 import com.blackshoe.moongklheremobileapi.service.PostService;
 import com.blackshoe.moongklheremobileapi.service.SkinService;
 import com.blackshoe.moongklheremobileapi.service.StoryService;
+import com.blackshoe.moongklheremobileapi.service.TemporaryPostService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,12 +33,18 @@ public class PostController {
     private final SkinService skinService;
     private final StoryService storyService;
     private final PostService postService;
+    private final TemporaryPostService temporaryPostService;
     private final ObjectMapper objectMapper;
 
-    public PostController(SkinService skinService, StoryService storyService, PostService postService, ObjectMapper objectMapper) {
+    public PostController(SkinService skinService,
+                          StoryService storyService,
+                          PostService postService,
+                          TemporaryPostService temporaryPostService,
+                          ObjectMapper objectMapper) {
         this.skinService = skinService;
         this.storyService = storyService;
         this.postService = postService;
+        this.temporaryPostService = temporaryPostService;
         this.objectMapper = objectMapper;
     }
 
@@ -148,7 +153,7 @@ public class PostController {
         log.info("get user post list grouped by city, user: {}, latitude: {}, longitude: {}, radius: {}, size: {}, page: {}",
                 userId, latitude, longitude, radius, size, page);
 
-        User user = userPrincipal.getUser();
+        final User user = userPrincipal.getUser();
 
         if (!user.getId().equals(userId)) {
             throw new PostException(PostErrorResult.USER_NOT_MATCH);
@@ -176,7 +181,7 @@ public class PostController {
         log.info("get user city post list, user: {}, country: {}, state: {}, city: {}, sort: {}, size: {}, page: {}",
                 userId, country, state, city, sort, size, page);
 
-        User user = userPrincipal.getUser();
+        final User user = userPrincipal.getUser();
 
         if (!user.getId().equals(userId)) {
             throw new PostException(PostErrorResult.USER_NOT_MATCH);
@@ -204,7 +209,7 @@ public class PostController {
         log.info("get user skin time post list, user: {}, from: {}, to: {}, sort: {}, size: {}, page: {}",
                 userId, from, to, sort, size, page);
 
-        User user = userPrincipal.getUser();
+        final User user = userPrincipal.getUser();
 
         if (!user.getId().equals(userId)) {
             throw new PostException(PostErrorResult.USER_NOT_MATCH);
@@ -218,5 +223,38 @@ public class PostController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
+    @PostMapping(params = {"save-temporary-post"})
+    public ResponseEntity<ResponseDto> saveTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                         @RequestParam(name = "save-temporary-post") Boolean saveTemporaryPost,
+                                                         @RequestBody @Valid PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest) throws JsonProcessingException {
+
+        if (!saveTemporaryPost) {
+            throw new PostException(PostErrorResult.INVALID_PARAMETER_VALUE_FOR_SAVE_TEMPORARY_POST);
+        }
+
+        log.info("save temporary post, save-temporary-post: {}, saveTemporaryPostRequest: {}", saveTemporaryPost, objectMapper.writeValueAsString(saveTemporaryPostRequest));
+
+        final User user = userPrincipal.getUser();
+
+        final UUID temporaryPostId = saveTemporaryPostRequest.getTemporaryPostId();
+
+        final TemporaryPostDto.TemporaryPostToSave temporaryPostToSave = temporaryPostService.getAndDeleteTemporaryPostToSave(temporaryPostId, user);
+
+        final Boolean isPublic = Boolean.valueOf(saveTemporaryPostRequest.getIsPublic());
+
+        final PostDto postDto = postService.saveTemporaryPost(user, temporaryPostToSave, isPublic);
+
+        final PostDto.PostCreateResponse postCreateResponse = PostDto.PostCreateResponse.builder()
+                .postId(postDto.getPostId().toString())
+                .createdAt(postDto.getCreatedAt().toString())
+                .build();
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(postCreateResponse, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 }

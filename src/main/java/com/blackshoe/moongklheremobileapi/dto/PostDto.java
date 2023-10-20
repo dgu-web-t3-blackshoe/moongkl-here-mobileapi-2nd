@@ -165,7 +165,10 @@ public class PostDto {
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class SaveTemporaryPostRequest {
+        @NotNull(message = "temporary_post_id is required")
         private UUID temporaryPostId;
+        @NotNull(message = "is_public is required")
+        @Pattern(regexp = "^(true|false)$", message = "is_public must be true or false")
         private String isPublic;
     }
 }

@@ -123,6 +123,15 @@ public class PostRepositoryTest {
     @Test
     public void findById_returns_savedPost() {
         //given
+        final User user = User.builder()
+                .email("test")
+                .password("test")
+                .nickname("test")
+                .phoneNumber("test")
+                .build();
+
+        final User savedUser = userRepository.save(user);
+
         final SkinUrl skinUrl = SkinUrl.builder()
                 .s3Url("test")
                 .cloudfrontUrl("test")
@@ -149,25 +158,19 @@ public class PostRepositoryTest {
                 .city("test")
                 .build();
 
-        final User user = User.builder()
-                .email("test")
-                .password("test")
-                .nickname("test")
-                .phoneNumber("test")
-                .build();
-
         final Post post = Post.builder()
                 .skinUrl(skinUrl)
                 .storyUrl(storyUrl)
                 .storyUrl(storyUrl)
                 .skinTime(skinTime)
                 .skinLocation(skinLocation)
-                .user(user)
                 .likeCount(10)
                 .favoriteCount(100)
                 .viewCount(20)
                 .isPublic(true)
                 .build();
+
+        post.setUser(savedUser);
 
         final Post savedPost = postRepository.save(post);
 
@@ -231,6 +234,8 @@ public class PostRepositoryTest {
                 .phoneNumber("test")
                 .build();
 
+        final User savedUser = userRepository.save(user);
+
         final SkinUrl skinUrl = SkinUrl.builder()
                 .s3Url("test")
                 .cloudfrontUrl("test")
@@ -247,12 +252,14 @@ public class PostRepositoryTest {
                     .storyUrl(storyUrl)
                     .skinLocation(idx % 2 == 0 ? domestic : foreign)
                     .skinTime(idx % 2 == 0 ? year2023 : year2020)
-                    .user(user)
                     .likeCount((long) (Math.random() * 100))
                     .viewCount((long) (Math.random() * 100))
                     .isPublic(true)
                     .createdAt(LocalDateTime.now())
                     .build();
+
+            post.setUser(savedUser);
+
             postRepository.save(post);
         }
 
@@ -316,6 +323,8 @@ public class PostRepositoryTest {
                 .phoneNumber("test")
                 .build();
 
+        final User savedUser = userRepository.save(user);
+
         final SkinUrl skinUrl = SkinUrl.builder()
                 .s3Url("test")
                 .cloudfrontUrl("test")
@@ -332,12 +341,14 @@ public class PostRepositoryTest {
                     .storyUrl(storyUrl)
                     .skinLocation(idx % 2 == 0 ? domestic : foreign)
                     .skinTime(idx % 2 == 0 ? year2023 : year2020)
-                    .user(user)
                     .likeCount((long) (Math.random() * 100))
                     .viewCount((long) (Math.random() * 100))
                     .isPublic(true)
                     .createdAt(LocalDateTime.now())
                     .build();
+
+            post.setUser(savedUser);
+
             postRepository.save(post);
         }
 
@@ -401,6 +412,8 @@ public class PostRepositoryTest {
                 .phoneNumber("test")
                 .build();
 
+        final User savedUser = userRepository.save(user);
+
         final SkinUrl skinUrl = SkinUrl.builder()
                 .s3Url("test")
                 .cloudfrontUrl("test")
@@ -417,12 +430,14 @@ public class PostRepositoryTest {
                     .storyUrl(storyUrl)
                     .skinLocation(idx % 2 == 0 ? domestic : foreign)
                     .skinTime(idx % 2 == 0 ? year2020 : year2023)
-                    .user(user)
                     .likeCount((long) (Math.random() * 100))
                     .viewCount((long) (Math.random() * 100))
                     .isPublic(true)
                     .createdAt(LocalDateTime.now())
                     .build();
+
+            post.setUser(savedUser);
+
             postRepository.save(post);
         }
 
@@ -486,6 +501,8 @@ public class PostRepositoryTest {
                 .phoneNumber("test")
                 .build();
 
+        final User savedUser = userRepository.save(user);
+
         final SkinUrl skinUrl = SkinUrl.builder()
                 .s3Url("test")
                 .cloudfrontUrl("test")
@@ -502,12 +519,14 @@ public class PostRepositoryTest {
                     .storyUrl(storyUrl)
                     .skinLocation(idx % 2 == 0 ? domestic : foreign)
                     .skinTime(idx % 2 == 0 ? year2020 : year2023)
-                    .user(user)
                     .likeCount((long) (Math.random() * 100))
                     .viewCount((long) (Math.random() * 100))
                     .isPublic(true)
                     .createdAt(LocalDateTime.now())
                     .build();
+
+            post.setUser(savedUser);
+
             postRepository.save(post);
         }
 

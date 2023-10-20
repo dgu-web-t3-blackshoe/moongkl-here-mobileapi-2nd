@@ -88,25 +88,4 @@ public class FavoriteRepositoryTest {
         assertThat(savedFavorite.getPost()).isNotNull();
         assertThat(savedFavorite.getUser()).isNotNull();
     }
-
-    @Test
-    public void findById_returns_savedLike() {
-        //given
-        final Favorite favorite = Favorite.builder()
-                .post(post)
-                .user(user)
-                .build();
-
-        //when
-        final Favorite savedFavorite = favoriteRepository.save(favorite);
-        final FavoritePk favoritePk = savedFavorite.getFavoritePk();
-
-        //when
-        final Favorite foundFavorite = favoriteRepository.findById(favoritePk).get();
-
-        //then
-        assertThat(foundFavorite).isNotNull();
-        assertThat(foundFavorite.getPost()).isNotNull();
-        assertThat(foundFavorite.getUser()).isNotNull();
-    }
 }

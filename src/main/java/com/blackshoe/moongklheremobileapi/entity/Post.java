@@ -44,7 +44,7 @@ public class Post {
     private SkinLocation skinLocation;
 
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "post_fk_user_id"))
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @ColumnDefault("0")

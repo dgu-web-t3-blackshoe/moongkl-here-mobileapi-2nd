@@ -2,7 +2,6 @@ package com.blackshoe.moongklheremobileapi.service;
 
 import com.blackshoe.moongklheremobileapi.dto.PostDto;
 import com.blackshoe.moongklheremobileapi.entity.Favorite;
-import com.blackshoe.moongklheremobileapi.entity.FavoritePk;
 import com.blackshoe.moongklheremobileapi.entity.Post;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.InteractionErrorResult;
@@ -38,6 +37,10 @@ public class FavoriteServiceImpl implements FavoriteService {
 
         final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
 
+        if (favoriteRepository.existsByPostAndUser(post, user)) {
+            throw new InteractionException(InteractionErrorResult.FAVORITE_ALREADY_EXIST);
+        }
+
         final Favorite favorite = Favorite.builder()
                 .post(post)
                 .user(user)
@@ -62,9 +65,7 @@ public class FavoriteServiceImpl implements FavoriteService {
 
         final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
 
-        final FavoritePk favoritePk = new FavoritePk(post, user);
-
-        final Favorite favorite = favoriteRepository.findById(favoritePk).orElseThrow(() -> new InteractionException(InteractionErrorResult.FAVORITE_NOT_FOUND));
+        final Favorite favorite = favoriteRepository.findByPostAndUser(post, user).orElseThrow(() -> new InteractionException(InteractionErrorResult.FAVORITE_NOT_FOUND));
 
         favoriteRepository.delete(favorite);
 

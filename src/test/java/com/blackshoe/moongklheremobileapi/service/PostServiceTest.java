@@ -1,6 +1,5 @@
 package com.blackshoe.moongklheremobileapi.service;
 
-import com.blackshoe.moongklheremobileapi.config.ModelMapperConfig;
 import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;

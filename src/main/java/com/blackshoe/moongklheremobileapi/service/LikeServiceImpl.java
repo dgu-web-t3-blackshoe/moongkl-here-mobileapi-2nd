@@ -2,7 +2,6 @@ package com.blackshoe.moongklheremobileapi.service;
 
 import com.blackshoe.moongklheremobileapi.dto.PostDto;
 import com.blackshoe.moongklheremobileapi.entity.Like;
-import com.blackshoe.moongklheremobileapi.entity.LikePk;
 import com.blackshoe.moongklheremobileapi.entity.Post;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.InteractionErrorResult;
@@ -38,9 +37,7 @@ public class LikeServiceImpl implements LikeService {
 
         final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
 
-        final LikePk tempLikePk = new LikePk(post, user);
-
-        if (likeRepository.existsById(tempLikePk)) {
+        if (likeRepository.existsByPostAndUser(post, user)) {
             throw new InteractionException(InteractionErrorResult.USER_ALREADY_LIKED_POST);
         }
 
@@ -68,9 +65,7 @@ public class LikeServiceImpl implements LikeService {
 
         final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
 
-        final LikePk likePk = new LikePk(post, user);
-
-        final Like like = likeRepository.findById(likePk).orElseThrow(() -> new InteractionException(InteractionErrorResult.LIKE_NOT_FOUND));
+        final Like like = likeRepository.findByPostAndUser(post, user).orElseThrow(() -> new InteractionException(InteractionErrorResult.LIKE_NOT_FOUND));
 
         likeRepository.delete(like);
 

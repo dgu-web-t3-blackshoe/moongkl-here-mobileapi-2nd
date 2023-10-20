@@ -3,28 +3,31 @@ package com.blackshoe.moongklheremobileapi.entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "post_favorites")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 @EntityListeners(AuditingEntityListener.class)
-public class Favorite implements Persistable<FavoritePk> {
-    @EmbeddedId
-    private FavoritePk favoritePk = new FavoritePk();
+public class Favorite {
+    @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(columnDefinition = "BINARY(16)")
+    private UUID id;
 
-    @MapsId("postId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id",  foreignKey = @ForeignKey(name = "favorite_fk_post_id"), referencedColumnName = "id")
     private Post post;
 
-    @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "favorite_fk_user_id"), referencedColumnName = "id")
     private User user;
@@ -45,15 +48,5 @@ public class Favorite implements Persistable<FavoritePk> {
 
     public User getUser() {
         return this.user;
-    }
-
-    @Override
-    public FavoritePk getId() {
-        return this.favoritePk;
-    }
-
-    @Override
-    public boolean isNew() {
-        return this.createdAt == null;
     }
 }

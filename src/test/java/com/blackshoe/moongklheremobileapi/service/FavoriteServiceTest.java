@@ -130,6 +130,7 @@ public class FavoriteServiceTest {
         // when
         when(favoriteRepository.save(any(Favorite.class))).thenReturn(favorite);
         when(postRepository.findById(any(UUID.class))).thenReturn(Optional.ofNullable(post));
+        when(favoriteRepository.existsByPostAndUser(any(), any())).thenReturn(false);
         final PostDto.FavoritePostDto favoritePostDto =  favoriteService.favoritePost(postId, user);
 
         // then
@@ -147,7 +148,7 @@ public class FavoriteServiceTest {
 
         when(favoriteRepository.save(any(Favorite.class))).thenReturn(favorite);
         when(postRepository.findById(any(UUID.class))).thenReturn(Optional.ofNullable(post));
-        when(favoriteRepository.findById(any(FavoritePk.class))).thenReturn(Optional.ofNullable(favorite));
+        when(favoriteRepository.findByPostAndUser(any(), any())).thenReturn(Optional.ofNullable(favorite));
 
         // when
         final PostDto.FavoritePostDto favoritePostDto = favoriteService.favoritePost(postId, user);

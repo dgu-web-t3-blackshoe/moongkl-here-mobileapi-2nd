@@ -127,6 +127,7 @@ public class LikeServiceTest {
         // when
         when(likeRepository.save(any(Like.class))).thenReturn(like);
         when(postRepository.findById(any(UUID.class))).thenReturn(Optional.ofNullable(post));
+        when(likeRepository.existsByPostAndUser(any(), any())).thenReturn(false);
         final PostDto.LikePostDto likePostDto =  likeService.likePost(postId, user);
 
         // then
@@ -143,7 +144,7 @@ public class LikeServiceTest {
 
         when(likeRepository.save(any(Like.class))).thenReturn(like);
         when(postRepository.findById(any(UUID.class))).thenReturn(Optional.ofNullable(post));
-        when(likeRepository.findById(any(LikePk.class))).thenReturn(Optional.ofNullable(like));
+        when(likeRepository.findByPostAndUser(any(), any())).thenReturn(Optional.ofNullable(like));
 
         // when
         final PostDto.LikePostDto likePostDto = likeService.likePost(postId, user);

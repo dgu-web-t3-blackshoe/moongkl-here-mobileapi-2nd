@@ -37,6 +37,9 @@ public class PostEntityRelatedIntegrationTest {
     @Autowired
     private LikeRepository likeRepository;
 
+    @Autowired
+    private FavoriteRepository favoriteRepository;
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @BeforeEach
@@ -118,8 +121,7 @@ public class PostEntityRelatedIntegrationTest {
         final UUID skinLocationId = foundPost.getSkinLocation().getId();
 
         //when
-        final LikePk likePk = new LikePk(foundPost, foundUser);
-        likeRepository.deleteById(likePk);
+        likeRepository.deleteByPostAndUser(foundPost, foundUser);
         postRepository.delete(foundPost);
 
         //then
@@ -129,7 +131,7 @@ public class PostEntityRelatedIntegrationTest {
         assertThat(skinTimeRepository.findById(skinTimeId)).isEmpty();
         assertThat(skinLocationRepository.findById(skinLocationId)).isEmpty();
         assertThat(userRepository.findByEmail("user1")).isNotEmpty();
-        assertThat(likeRepository.findById(savedLike.getLikePk())).isEmpty();
+        assertThat(likeRepository.findByPostAndUser(foundPost, foundUser)).isEmpty();
     }
 
     @Test
@@ -180,7 +182,7 @@ public class PostEntityRelatedIntegrationTest {
         final Like savedLike = likeRepository.save(like);
 
         //when
-        likeRepository.deleteById(savedLike.getLikePk());
+        likeRepository.deleteByPostAndUser(foundPost, foundUser2);
 
         userRepository.delete(foundUser1);
 
@@ -192,5 +194,111 @@ public class PostEntityRelatedIntegrationTest {
         assertThat(storyUrlRepository.findById(storyUrlId)).isEmpty();
         assertThat(skinTimeRepository.findById(skinTimeId)).isEmpty();
         assertThat(skinLocationRepository.findById(skinLocationId)).isEmpty();
+        assertThat(likeRepository.findByPostAndUser(foundPost, foundUser2)).isEmpty();
+    }
+
+    @Test
+    public void userWithFavoriteDelete_whenSuccess_relatedAlsoDeleted() {
+        //given
+        final User foundUser1 = userRepository.findByEmail("user1").get();
+
+        final User foundUser2 = userRepository.findByEmail("user2").get();
+
+        final Post foundPost = postRepository.findAll().get(0);
+
+        final UUID postId = foundPost.getId();
+        final UUID skinUrlId = foundPost.getSkinUrl().getId();
+        final UUID storyUrlId = foundPost.getStoryUrl().getId();
+        final UUID skinTimeId = foundPost.getSkinTime().getId();
+        final UUID skinLocationId = foundPost.getSkinLocation().getId();
+
+        final Favorite favorite = Favorite.builder()
+                .post(foundPost)
+                .user(foundUser2)
+                .build();
+
+        final Favorite savedFavorite = favoriteRepository.save(favorite);
+
+        //when
+        favoriteRepository.deleteByPostAndUser(foundPost, foundUser2);
+
+        userRepository.delete(foundUser1);
+
+        //then
+        assertThat(userRepository.findByEmail("test")).isEmpty();
+        assertThat(postRepository.findById(postId)).isEmpty();
+        assertThat(skinUrlRepository.findById(skinUrlId)).isEmpty();
+        assertThat(storyUrlRepository.findById(storyUrlId)).isEmpty();
+        assertThat(skinTimeRepository.findById(skinTimeId)).isEmpty();
+        assertThat(skinLocationRepository.findById(skinLocationId)).isEmpty();
+        assertThat(favoriteRepository.findByPostAndUser(foundPost, foundUser2)).isEmpty();
+    }
+
+    @Test
+    public void findByPostAndUser_returns_savedLike() {
+        //given
+        final User foundUser1 = userRepository.findByEmail("user1").get();
+
+        final Post foundPost = postRepository.findAll().get(0);
+
+        final Like like = Like.builder()
+                .post(foundPost)
+                .user(foundUser1)
+                .build();
+
+        final Like savedLike = likeRepository.save(like);
+
+        //when
+        final Like foundLike = likeRepository.findByPostAndUser(foundPost, foundUser1).get();
+
+        //then
+        assertThat(foundLike).isNotNull();
+        assertThat(foundLike.getPost()).isNotNull();
+        assertThat(foundLike.getUser()).isNotNull();
+    }
+
+    @Test
+    public void deleteLike_whenPostedUserLiked_noError() {
+        //given
+        final User foundUser1 = userRepository.findByEmail("user1").get();
+
+        final Post foundPost = postRepository.findAll().get(0);
+
+        final Like like = Like.builder()
+                .post(foundPost)
+                .user(foundUser1)
+                .build();
+
+        final Like savedLike = likeRepository.save(like);
+
+        //when
+        likeRepository.deleteByPostAndUser(foundPost, foundUser1);
+
+        //then
+        assertThat(likeRepository.existsByPostAndUser(foundPost, foundUser1)).isFalse();
+    }
+
+    @Test
+    public void findByPostAndUser_returns_savedFavorite() {
+        //given
+        final User foundUser = userRepository.findByEmail("user1").get();
+
+        final Post foundPost = postRepository.findAll().get(0);
+
+        final Favorite favorite = Favorite.builder()
+                .post(foundPost)
+                .user(foundUser)
+                .build();
+
+        //when
+        final Favorite savedFavorite = favoriteRepository.save(favorite);
+
+        //when
+        final Favorite foundFavorite = favoriteRepository.findByPostAndUser(foundPost, foundUser).get();
+
+        //then
+        assertThat(foundFavorite).isNotNull();
+        assertThat(foundFavorite.getPost()).isNotNull();
+        assertThat(foundFavorite.getUser()).isNotNull();
     }
 }

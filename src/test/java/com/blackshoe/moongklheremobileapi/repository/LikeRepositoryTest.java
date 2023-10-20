@@ -88,24 +88,4 @@ public class LikeRepositoryTest {
         assertThat(savedLike.getPost()).isNotNull();
         assertThat(savedLike.getUser()).isNotNull();
     }
-
-    @Test
-    public void findById_returns_savedLike() {
-        //given
-        final Like like = Like.builder()
-                .post(post)
-                .user(user)
-                .build();
-
-        final Like savedLike = likeRepository.save(like);
-        final LikePk likePk = savedLike.getLikePk();
-
-        //when
-        final Like foundLike = likeRepository.findById(likePk).get();
-
-        //then
-        assertThat(foundLike).isNotNull();
-        assertThat(foundLike.getPost()).isNotNull();
-        assertThat(foundLike.getUser()).isNotNull();
-    }
 }

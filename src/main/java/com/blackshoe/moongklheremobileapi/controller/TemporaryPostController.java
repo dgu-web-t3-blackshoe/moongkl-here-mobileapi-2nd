@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -91,7 +92,7 @@ public class TemporaryPostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @GetMapping("/{temporaryPostId}")
+    @GetMapping("/{userId}/{temporaryPostId}")
     public ResponseEntity<ResponseDto> getTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                         @PathVariable UUID temporaryPostId) {
 
@@ -104,5 +105,25 @@ public class TemporaryPostController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
+    @DeleteMapping("/{userId}/{temporaryPostId}")
+    public ResponseEntity<ResponseDto> deleteTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                           @PathVariable UUID temporaryPostId) {
+
+        final User user = userPrincipal.getUser();
+
+        temporaryPostService.deleteTemporaryPost(temporaryPostId, user);
+
+        final TemporaryPostDto.DeleteResponse deleteResponse = TemporaryPostDto.DeleteResponse.builder()
+                .temporaryPostId(temporaryPostId.toString())
+                .deletedAt(LocalDateTime.now().toString())
+                .build();
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(deleteResponse, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
     }
 }

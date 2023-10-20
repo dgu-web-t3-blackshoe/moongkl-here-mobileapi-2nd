@@ -5,7 +5,6 @@ import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.repository.SkinLocationRepository;
 import com.blackshoe.moongklheremobileapi.repository.SkinTimeRepository;
 import com.blackshoe.moongklheremobileapi.repository.TemporaryPostRepository;
-import org.joda.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
 

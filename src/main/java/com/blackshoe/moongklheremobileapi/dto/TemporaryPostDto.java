@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Data;
-import org.joda.time.LocalDateTime;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -54,5 +54,13 @@ public class TemporaryPostDto {
             this.skin = skin;
             this.story = story;
         }
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class DeleteResponse {
+        private String temporaryPostId;
+        private String deletedAt;
     }
 }

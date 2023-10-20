@@ -223,4 +223,73 @@ public class TemporaryPostRelatedEntityIntegrationTest {
         assertThat(foundTemporaryPostPage.getContent().size()).isEqualTo(1);
     }
 
+    @Test
+    public void delete_whenFkNull_success() {
+        //given
+        final SkinUrl skinUrl = SkinUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        final StoryUrl storyUrl = StoryUrl.builder()
+                .s3Url("test")
+                .cloudfrontUrl("test")
+                .build();
+
+        final SkinTime skinTime = SkinTime.builder()
+                .year(2021)
+                .month(1)
+                .day(1)
+                .hour(1)
+                .minute(1)
+                .build();
+
+        final SkinLocation skinLocation = SkinLocation.builder()
+                .latitude(1.0)
+                .longitude(1.0)
+                .country("test")
+                .state("test")
+                .city("test")
+                .build();
+
+        final User user = User.builder()
+                .email("test")
+                .password("test")
+                .nickname("test")
+                .phoneNumber("test")
+                .build();
+
+        final User savedUser = userRepository.save(user);
+
+        final TemporaryPost temporaryPost = TemporaryPost.builder()
+                .skinUrl(skinUrl)
+                .storyUrl(storyUrl)
+                .skinTime(skinTime)
+                .skinLocation(skinLocation)
+                .build();
+
+        temporaryPost.setUser(savedUser);
+
+        final TemporaryPost savedTemporaryPost = temporaryPostRepository.save(temporaryPost);
+
+        final UUID temporaryPostId = savedTemporaryPost.getId();
+        final UUID userId = savedTemporaryPost.getUser().getId();
+        final UUID skinUrlId = savedTemporaryPost.getSkinUrl().getId();
+        final UUID storyUrlId = savedTemporaryPost.getStoryUrl().getId();
+        final UUID skinTimeId = savedTemporaryPost.getSkinTime().getId();
+        final UUID skinLocationId = savedTemporaryPost.getSkinLocation().getId();
+
+        //when
+        savedTemporaryPost.emptyFk();
+
+        temporaryPostRepository.delete(savedTemporaryPost);
+
+        //then
+        assertThat(temporaryPostRepository.findById(temporaryPostId).orElse(null)).isNull();
+        assertThat(userRepository.findById(userId).orElse(null)).isNotNull();
+        assertThat(skinUrlRepository.findById(skinUrlId).orElse(null)).isNotNull();
+        assertThat(storyUrlRepository.findById(storyUrlId).orElse(null)).isNotNull();
+        assertThat(skinTimeRepository.findById(skinTimeId).orElse(null)).isNotNull();
+        assertThat(skinLocationRepository.findById(skinLocationId).orElse(null)).isNotNull();
+    }
 }

@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -20,6 +22,9 @@ public class TemporaryPostRepositoryTest {
 
     @Autowired
     private TemporaryPostRepository temporaryPostRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private Logger log = LoggerFactory.getLogger(TemporaryPostRepositoryTest.class);
 
@@ -65,13 +70,16 @@ public class TemporaryPostRepositoryTest {
                 .phoneNumber("test")
                 .build();
 
+        final User savedUser = userRepository.save(user);
+
         final TemporaryPost temporaryPost = TemporaryPost.builder()
                 .skinUrl(skinUrl)
                 .storyUrl(storyUrl)
                 .skinTime(skinTime)
                 .skinLocation(skinLocation)
-                .user(user)
                 .build();
+
+        temporaryPost.setUser(savedUser);
 
         //when
         final TemporaryPost savedTemporaryPost = temporaryPostRepository.save(temporaryPost);
@@ -122,13 +130,16 @@ public class TemporaryPostRepositoryTest {
                 .phoneNumber("test")
                 .build();
 
+        final User savedUser = userRepository.save(user);
+
         final TemporaryPost temporaryPost = TemporaryPost.builder()
                 .skinUrl(skinUrl)
                 .storyUrl(storyUrl)
                 .skinTime(skinTime)
                 .skinLocation(skinLocation)
-                .user(user)
                 .build();
+
+        temporaryPost.setUser(savedUser);
 
         final TemporaryPost savedTemporaryPost = temporaryPostRepository.save(temporaryPost);
 
@@ -144,5 +155,4 @@ public class TemporaryPostRepositoryTest {
         assertThat(foundTemporaryPost.getSkinLocation()).isEqualTo(skinLocation);
         assertThat(foundTemporaryPost.getUser()).isEqualTo(user);
     }
-
 }

@@ -19,7 +19,6 @@ import com.blackshoe.moongklheremobileapi.service.StoryService;
 import com.blackshoe.moongklheremobileapi.service.TemporaryPostService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -44,17 +43,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = TemporaryPostController.class,
@@ -312,13 +312,13 @@ public class TemporaryPostControllerTest {
 
         //when
         final MvcResult result = mockMvc.perform(
-                get("/temporary-posts/{userId}", userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .param("size", "10")
-                        .param("page", "0")
-                        .with(csrf())
-                        .with(user(userDetailService.loadUserByUsername("test"))))
+                        get("/temporary-posts/{userId}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .param("size", "10")
+                                .param("page", "0")
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -363,7 +363,7 @@ public class TemporaryPostControllerTest {
 
         //when
         final MvcResult result = mockMvc.perform(
-                        get("/temporary-posts/{temporaryPostId}", UUID.randomUUID())
+                        get("/temporary-posts/{userId}/{temporaryPostId}", UUID.randomUUID(), UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .with(csrf())
@@ -386,7 +386,7 @@ public class TemporaryPostControllerTest {
 
         //when
         final MvcResult result = mockMvc.perform(
-                        get("/temporary-posts/{temporaryPostId}", UUID.randomUUID())
+                        get("/temporary-posts/{userId}/{temporaryPostId}", UUID.randomUUID(), UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .with(csrf())
@@ -409,7 +409,74 @@ public class TemporaryPostControllerTest {
 
         //when
         final MvcResult result = mockMvc.perform(
-                        get("/temporary-posts/{temporaryPostId}", UUID.randomUUID())
+                        get("/temporary-posts/{userId}/{temporaryPostId}", UUID.randomUUID(), UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void deleteTemporaryPost_whenSuccess_returns204() throws Exception {
+        //given
+
+        //when
+        final MvcResult result = mockMvc.perform(
+                        delete("/temporary-posts/{userId}/{temporaryPostId}", UUID.randomUUID(), UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isNoContent())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void deleteTemporaryPost_whenPostNotFound_returns404() throws Exception {
+        //given
+        doThrow(new TemporaryPostException(TemporaryPostErrorResult.TEMPORARY_POST_NOT_FOUND))
+                .when(temporaryPostService).deleteTemporaryPost(any(), any());
+
+        //when
+        final MvcResult result = mockMvc.perform(
+                        delete("/temporary-posts/{userId}/{temporaryPostId}", UUID.randomUUID(), UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void deleteTemporaryPost_whenInvalidUser_returns403() throws Exception {
+        //given
+        doThrow(new TemporaryPostException(TemporaryPostErrorResult.USER_NOT_MATCH))
+                .when(temporaryPostService).deleteTemporaryPost(any(), any());
+
+        //when
+        final MvcResult result = mockMvc.perform(
+                        delete("/temporary-posts/{userId}/{temporaryPostId}", UUID.randomUUID(), UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .with(csrf())

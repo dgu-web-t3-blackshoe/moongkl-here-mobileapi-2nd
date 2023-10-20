@@ -39,12 +39,12 @@ public class SwaggerConfig {
                 .required(false)
                 .build();
 
-        List<Parameter> globalParamters = new ArrayList<>();
-        globalParamters.add(parameterBuilder);
+        List<Parameter> globalParameters = new ArrayList<>();
+        globalParameters.add(parameterBuilder);
 
         return new Docket(DocumentationType.OAS_30)
                 .ignoredParameterTypes(AuthenticationPrincipal.class)
-                .globalOperationParameters(globalParamters)
+                .globalOperationParameters(globalParameters)
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.blackshoe.moongklheremobileapi.controller"))

@@ -90,4 +90,19 @@ public class TemporaryPostController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
+
+    @GetMapping("/{temporaryPostId}")
+    public ResponseEntity<ResponseDto> getTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                        @PathVariable UUID temporaryPostId) {
+
+        final User user = userPrincipal.getUser();
+
+        final TemporaryPostDto temporaryPostDto = temporaryPostService.getTemporaryPost(temporaryPostId, user);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(temporaryPostDto, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
 }

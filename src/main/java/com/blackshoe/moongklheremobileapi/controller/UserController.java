@@ -7,7 +7,7 @@ import com.blackshoe.moongklheremobileapi.dto.UserDto;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.UserException;
-import com.blackshoe.moongklheremobileapi.oauth2.UserPrincipal;
+import com.blackshoe.moongklheremobileapi.security.UserPrincipal;
 import com.blackshoe.moongklheremobileapi.service.MailService;
 import com.blackshoe.moongklheremobileapi.service.SmsService;
 import com.blackshoe.moongklheremobileapi.service.UserService;

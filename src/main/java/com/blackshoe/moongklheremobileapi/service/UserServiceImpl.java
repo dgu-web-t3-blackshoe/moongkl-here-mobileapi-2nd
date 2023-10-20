@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService{
         User originalUser = userRepository.findByEmail(updatePasswordRequestDto.getEmail())
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
-        User updatedUser = originalUser.toBuilder()
+        User updatedUser = originalUser.builder()
                 .password(passwordEncoder.encode(updatePasswordRequestDto.getNewPassword()))
                 .build();
 

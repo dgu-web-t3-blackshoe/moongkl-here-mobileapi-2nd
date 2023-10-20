@@ -41,7 +41,7 @@ public class TemporaryPost {
     private SkinLocation skinLocation;
 
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "temporary_post_fk_user_id"))
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @CreatedDate
@@ -62,5 +62,10 @@ public class TemporaryPost {
         this.skinLocation = skinLocation;
         this.user = user;
         this.createdAt = createdAt;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        user.addTemporaryPost(this);
     }
 }

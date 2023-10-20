@@ -14,12 +14,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-@NoArgsConstructor @AllArgsConstructor @Getter @Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 @EntityListeners(AuditingEntityListener.class)
 public class User {
     @Id
@@ -47,9 +50,6 @@ public class User {
     @Column(name = "provider", length = 20)
     private String provider;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Post> post;
-
     @CreatedDate
     @Column(name = "created_at", nullable = false, length = 20)
     private LocalDateTime createdAt;
@@ -58,7 +58,44 @@ public class User {
     @Column(name = "updated_at", length = 20)
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Post> posts;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<TemporaryPost> temporaryPosts;
+
     public void setProvider(String authProvider) {
         this.provider = authProvider;
+    }
+
+    public void addPost(Post post) {
+        this.posts.add(post);
+    }
+
+    public void addTemporaryPost(TemporaryPost temporaryPost) {
+        this.temporaryPosts.add(temporaryPost);
+    }
+
+    @Builder
+    public User(UUID id,
+                String email,
+                String password,
+                String nickname,
+                String phoneNumber,
+                Role role,
+                String provider,
+                LocalDateTime createdAt,
+                LocalDateTime updatedAt) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
+        this.role = role;
+        this.provider = provider;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.posts = new ArrayList<>();
+        this.temporaryPosts = new ArrayList<>();
     }
 }

@@ -4,6 +4,8 @@ import com.blackshoe.moongklheremobileapi.config.SecurityConfig;
 import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.Role;
 import com.blackshoe.moongklheremobileapi.entity.User;
+import com.blackshoe.moongklheremobileapi.exception.TemporaryPostErrorResult;
+import com.blackshoe.moongklheremobileapi.exception.TemporaryPostException;
 import com.blackshoe.moongklheremobileapi.oauth2.CustomOAuth2UserService;
 import com.blackshoe.moongklheremobileapi.oauth2.OAuth2SuccessHandler;
 import com.blackshoe.moongklheremobileapi.repository.UserRepository;
@@ -341,6 +343,75 @@ public class TemporaryPostControllerTest {
                                 .accept(MediaType.APPLICATION_JSON)
                                 .param("size", "10")
                                 .param("page", "0")
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getTemporaryPost_whenSuccess_returns200() throws Exception {
+        //given
+        when(temporaryPostService.getTemporaryPost(any(UUID.class), any(User.class)))
+                .thenReturn(temporaryPostDto);
+
+        //when
+        final MvcResult result = mockMvc.perform(
+                        get("/temporary-posts/{temporaryPostId}", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getTemporaryPost_whenPostNotFound_returns404() throws Exception {
+        //given
+        when(temporaryPostService.getTemporaryPost(any(UUID.class), any(User.class)))
+                .thenThrow(new TemporaryPostException(TemporaryPostErrorResult.TEMPORARY_POST_NOT_FOUND));
+
+        //when
+        final MvcResult result = mockMvc.perform(
+                        get("/temporary-posts/{temporaryPostId}", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                                .with(user(userDetailService.loadUserByUsername("test"))))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        //then
+        MockHttpServletResponse response = result.getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(response.getContentAsString()).isNotEmpty();
+        log.info("response: {}", response.getContentAsString());
+    }
+
+    @Test
+    public void getTemporaryPost_whenInvalidUser_returns403() throws Exception {
+        //given
+        when(temporaryPostService.getTemporaryPost(any(UUID.class), any(User.class)))
+                .thenThrow(new TemporaryPostException(TemporaryPostErrorResult.USER_NOT_MATCH));
+
+        //when
+        final MvcResult result = mockMvc.perform(
+                        get("/temporary-posts/{temporaryPostId}", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
                                 .with(csrf())
                                 .with(user(userDetailService.loadUserByUsername("test"))))
                 .andExpect(status().isForbidden())

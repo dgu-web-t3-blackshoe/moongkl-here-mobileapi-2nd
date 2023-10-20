@@ -157,7 +157,7 @@ public class TemporaryPostServiceTest {
 
         //when
         when(temporaryPostRepository.findById(any(UUID.class))).thenReturn(java.util.Optional.of(temporaryPost));
-        final TemporaryPostDto temporaryPostDto = temporaryPostService.getTemporaryPost(UUID.randomUUID());
+        final TemporaryPostDto temporaryPostDto = temporaryPostService.getTemporaryPost(UUID.randomUUID(), user);
 
         //then
         assertThat(temporaryPostDto).isNotNull();

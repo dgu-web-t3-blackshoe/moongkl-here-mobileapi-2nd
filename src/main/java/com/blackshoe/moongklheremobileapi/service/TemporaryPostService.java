@@ -16,5 +16,5 @@ public interface TemporaryPostService {
 
     Page<TemporaryPostDto.TemporaryPostListReadResponse> getUserTemporaryPostList(User user, Integer size, Integer page);
 
-    TemporaryPostDto getTemporaryPost(UUID temporaryPostId);
+    TemporaryPostDto getTemporaryPost(UUID temporaryPostId, User user);
 }

@@ -131,10 +131,14 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
     }
 
     @Override
-    public TemporaryPostDto getTemporaryPost(UUID temporaryPostId) {
+    public TemporaryPostDto getTemporaryPost(UUID temporaryPostId, User user) {
 
         final TemporaryPost temporaryPost = temporaryPostRepository.findById(temporaryPostId)
                 .orElseThrow(() -> new TemporaryPostException(TemporaryPostErrorResult.TEMPORARY_POST_NOT_FOUND));
+
+        if (!temporaryPost.getUser().getId().equals(user.getId())) {
+            throw new TemporaryPostException(TemporaryPostErrorResult.USER_NOT_MATCH);
+        }
 
         final SkinUrl skinUrl = temporaryPost.getSkinUrl();
 

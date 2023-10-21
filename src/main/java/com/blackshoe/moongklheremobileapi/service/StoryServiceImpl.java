@@ -76,4 +76,16 @@ public class StoryServiceImpl implements StoryService {
 
         return storyUrlDto;
     }
+
+    @Override
+    public void deleteStory(String storyS3Url) {
+        String key = storyS3Url.substring(storyS3Url.indexOf(BUCKET) + BUCKET.length() + 1);
+
+        try {
+            amazonS3Client.deleteObject(BUCKET, key);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new PostException(PostErrorResult.STORY_DELETE_FAILED);
+        }
+    }
 }

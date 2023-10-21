@@ -7,4 +7,6 @@ import java.util.UUID;
 
 public interface SkinService {
     SkinUrlDto uploadSkin(UUID userId, MultipartFile skin);
+
+    void deleteSkin(String skinS3Url);
 }

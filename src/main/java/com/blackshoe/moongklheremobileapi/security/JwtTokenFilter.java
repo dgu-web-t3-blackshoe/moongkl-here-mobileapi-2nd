@@ -34,6 +34,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             throws IOException, ServletException {
         log.info("JwtTokenFilter.doFilterInternal");
         try {
+
             String token = getTokenFromRequestHeader(request);
 
             if (token != null && jwtTokenProvider.validateToken(token)) {
@@ -53,8 +54,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
                 securityContext.setAuthentication(authentication);
+
                 SecurityContextHolder.setContext(securityContext);
+                log.info("SecurityContextHolder.getContext().setAuthentication(authentication)" + authentication);
             }
+            //spring security set user
 
             chain.doFilter(request, response);
         }catch(Exception e){

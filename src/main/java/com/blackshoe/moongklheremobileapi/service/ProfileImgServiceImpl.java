@@ -43,9 +43,9 @@ public class ProfileImgServiceImpl implements ProfileImgService {
 
         String key = ROOT_DIRECTORY + "/" + s3FilePath + "/" + UUID.randomUUID() + fileExtension;
 
-        if (!ContentType.isContentTypeValid(profileImg.getContentType())) {
-            throw new UserException(UserErrorResult.INVALID_PROFILEIMG_TYPE);
-        }
+//        if (!ContentType.isContentTypeValid(profileImg.getContentType())) {
+//            throw new UserException(UserErrorResult.INVALID_PROFILEIMG_TYPE);
+//        }
 
         if (profileImg.getSize() > 52428800) {
             throw new UserException(UserErrorResult.INVALID_PROFILEIMG_SIZE);

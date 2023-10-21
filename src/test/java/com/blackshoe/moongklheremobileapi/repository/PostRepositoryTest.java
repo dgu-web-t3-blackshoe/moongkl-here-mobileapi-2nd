@@ -198,7 +198,7 @@ public class PostRepositoryTest {
         final SkinLocation domestic = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("서울특별시")
                 .city("강남구")
                 .build();
@@ -287,7 +287,7 @@ public class PostRepositoryTest {
         final SkinLocation domestic = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("서울특별시")
                 .city("강남구")
                 .build();
@@ -376,7 +376,7 @@ public class PostRepositoryTest {
         final SkinLocation domestic = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("서울특별시")
                 .city("강남구")
                 .build();
@@ -465,7 +465,7 @@ public class PostRepositoryTest {
         final SkinLocation domestic = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("서울특별시")
                 .city("강남구")
                 .build();
@@ -559,7 +559,7 @@ public class PostRepositoryTest {
         final SkinLocation domestic = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("서울특별시")
                 .city("강남구")
                 .build();
@@ -650,7 +650,7 @@ public class PostRepositoryTest {
         final SkinLocation locationA = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("서울특별시")
                 .city("강남구")
                 .build();
@@ -658,7 +658,7 @@ public class PostRepositoryTest {
         final SkinLocation locationB = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("서울특별시")
                 .city("송파구")
                 .build();
@@ -666,7 +666,7 @@ public class PostRepositoryTest {
         final SkinLocation locationC = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("경기도")
                 .city("과천시")
                 .build();
@@ -740,7 +740,7 @@ public class PostRepositoryTest {
         final SkinLocation locationA = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("서울특별시")
                 .city("강남구")
                 .build();
@@ -748,7 +748,7 @@ public class PostRepositoryTest {
         final SkinLocation locationB = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("서울특별시")
                 .city("송파구")
                 .build();
@@ -756,7 +756,7 @@ public class PostRepositoryTest {
         final SkinLocation locationC = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("경기도")
                 .city("과천시")
                 .build();
@@ -809,7 +809,7 @@ public class PostRepositoryTest {
         final Integer size = 10;
         final Integer page = 0;
         final Pageable pageable = PageRequest.of(page, size, sort);
-        final String country = "대한민국";
+        final String country = "Republic of Korea";
         final String state = "서울특별시";
         final String city = "강남구";
         final PostAddressFilter postAddressFilter = PostAddressFilter.builder()
@@ -834,7 +834,7 @@ public class PostRepositoryTest {
         final SkinLocation skinLocation = SkinLocation.builder()
                 .latitude(1.0)
                 .longitude(1.0)
-                .country("대한민국")
+                .country("Republic of Korea")
                 .state("서울특별시")
                 .city("강남구")
                 .build();

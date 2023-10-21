@@ -40,4 +40,9 @@ public interface LikeRepository extends JpaRepository<Like, UUID> {
     @Transactional
     @Query("DELETE FROM Like l WHERE l.user = :user")
     void deleteAllByUser(User user);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Like l WHERE l.post = :post")
+    void deleteAllByPost(Post post);
 }

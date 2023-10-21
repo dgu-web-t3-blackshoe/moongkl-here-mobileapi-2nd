@@ -40,4 +40,9 @@ public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
     @Transactional
     @Query("DELETE FROM Favorite f WHERE f.user = :user")
     void deleteAllByUser(User user);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Favorite f WHERE f.post = :post")
+    void deleteAllByPost(Post post);
 }

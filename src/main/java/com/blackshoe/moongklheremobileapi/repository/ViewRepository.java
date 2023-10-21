@@ -23,4 +23,9 @@ public interface ViewRepository extends JpaRepository<View, UUID> {
     @Transactional
     @Query("DELETE FROM View v WHERE v.user = :user")
     void deleteAllByUser(User user);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM View v WHERE v.post = :post")
+    void deleteAllByPost(Post post);
 }

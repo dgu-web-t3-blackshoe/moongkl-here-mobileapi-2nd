@@ -131,3 +131,9 @@ logging:
       amazonaws:
         util:
           EC2MetadataUtils: error
+
+
+skin: ${skins}
+post: ${posts}
+background: ${background_images}
+profile: ${profile_images}

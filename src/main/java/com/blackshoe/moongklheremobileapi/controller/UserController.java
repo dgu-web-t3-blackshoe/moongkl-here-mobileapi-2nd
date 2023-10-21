@@ -299,7 +299,6 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
     }
-
     @PostMapping("/sign-in/phone/verification")
     public ResponseEntity<ResponseDto> verificationPhoneNumber(@RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         String phoneNumber = verificationRequestDto.getPhoneNumber();
@@ -325,6 +324,65 @@ public class UserController {
 
             return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
         }
+    }
+
+    @PostMapping("/phone/verification")
+    public ResponseEntity<ResponseDto> verificationPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        final User user = userPrincipal.getUser();
+
+        String phoneNumber = verificationRequestDto.getPhoneNumber();
+
+        if (!phoneNumber.matches(phoneNumberRegex)) {
+            log.info("유효하지 않은 전화번호");
+            UserErrorResult userErrorResult = UserErrorResult.INVALID_PHONE_NUMBER;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        }
+
+        if (verificationService.verifyCode(verificationRequestDto.getPhoneNumber(), verificationRequestDto.getVerificationCode())) {
+            log.info("인증 코드 검증 성공");
+
+            verificationService.deleteVerificationCode(verificationRequestDto.getPhoneNumber());
+            verificationService.saveCompletionCode(verificationRequestDto.getPhoneNumber(), true);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
+        } else {
+            log.info("인증 코드 검증 실패");
+            UserErrorResult userErrorResult = UserErrorResult.FAILED_VALIDATING_CODE;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        }
+    }
+    @PostMapping("/phone/validation")
+    public ResponseEntity<ResponseDto> validationPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        final User user = userPrincipal.getUser();
+
+        String phoneNumber = validationRequestDto.getPhoneNumber();
+
+        if (!phoneNumber.matches(phoneNumberRegex)) {
+            log.info("유효하지 않은 전화번호");
+            UserErrorResult userErrorResult = UserErrorResult.INVALID_PHONE_NUMBER;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        }
+
+        String verificationCode = verificationService.makeVerificationCode();
+
+        SmsDto.MessageDto messageDto = SmsDto.MessageDto.builder()
+                .to(phoneNumber)
+                .content("[뭉클히어] 인증번호는 [" + verificationCode + "]입니다.")
+                .build();
+
+        log.info(verificationCode);
+
+        SmsDto.SmsResponseDto smsResponseDto = smsService.sendSms(messageDto);
+
+        verificationService.saveVerificationCode(phoneNumber, verificationCode);
+        verificationService.saveCompletionCode(phoneNumber, false);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
     }
 
     @DeleteMapping //API-102
@@ -392,7 +450,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @PutMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
+    @PutMapping(value = "/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
     public ResponseEntity<ResponseDto> updateProfile(@RequestPart(name = "profile_img") MultipartFile profileImg,
                                                      @RequestPart(name = "background_img") MultipartFile backgroundImg,
                                                      @RequestPart(name = "update_profile_request")UserDto.UpdateProfileRequestDto updateProfileRequestDto,

@@ -13,6 +13,8 @@ import com.blackshoe.moongklheremobileapi.security.UserPrincipal;
 import com.blackshoe.moongklheremobileapi.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -327,7 +329,7 @@ public class UserController {
 
     @DeleteMapping //API-102
     public ResponseEntity<ResponseDto> deleteUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        User user = userPrincipal.getUser();
+        final User user = userPrincipal.getUser();
 
         UUID userId = user.getId();
 
@@ -338,7 +340,7 @@ public class UserController {
 
     @GetMapping("/profile/details") //API - 133
     public ResponseEntity<ResponseDto> getUserDetailProfileInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception{
-        User user = userPrincipal.getUser();
+        final User user = userPrincipal.getUser();
 
         UUID userId = user.getId();
 
@@ -352,7 +354,7 @@ public class UserController {
     }
     @GetMapping("/profile/general") //API - 120
     public ResponseEntity<ResponseDto> getUserBasicProfileInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception{
-        User user = userPrincipal.getUser();
+        final User user = userPrincipal.getUser();
         UserDto.UserBasicProfileInfoResponseDto userBasicProfileInfoResponseDto = userService.getUserBasicProfileInfo(userPrincipal.getUser().getId());
 
         ResponseDto responseDto = ResponseDto.builder()
@@ -365,7 +367,7 @@ public class UserController {
     @GetMapping("/profile") //API - 100
     public ResponseEntity<ResponseDto> getUserMyProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception{
 
-        User user = userPrincipal.getUser();
+        final User user = userPrincipal.getUser();
         UUID userId = user.getId();
 
         UserDto.UserMyProfileInfoResponseDto userMyProfileInfoResponseDto = userService.getUserMyProfileInfo(userId);
@@ -377,11 +379,23 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<ResponseDto> test(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        User user = userPrincipal.getUser();
+        log.info(user.getEmail());
+        log.info(user.getNickname());
+        log.info(user.getPhoneNumber());
+        log.info(user.getRole().toString());
+        log.info(user.getCreatedAt().toString());
+        log.info(user.getUpdatedAt().toString());
 
-    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE) // API - 142
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PutMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
     public ResponseEntity<ResponseDto> updateProfile(@RequestPart(name = "profile_img") MultipartFile profileImg,
                                                      @RequestPart(name = "background_img") MultipartFile backgroundImg,
-                                                     @RequestBody UserDto.UpdateProfileRequestDto updateProfileRequestDto,
+                                                     @RequestPart(name = "update_profile_request")UserDto.UpdateProfileRequestDto updateProfileRequestDto,
                                                      @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
         User user = userPrincipal.getUser();
 
@@ -411,7 +425,7 @@ public class UserController {
     @PutMapping("/password") //API-92
     public ResponseEntity<ResponseDto> updatePasswordInMyHere(@RequestBody UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto,
                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
-        User user = userPrincipal.getUser();
+        final User user = userPrincipal.getUser();
 
         UUID userId = user.getId();
 
@@ -455,7 +469,8 @@ public class UserController {
     @PutMapping("/phone-number") //API-32
     public ResponseEntity<ResponseDto> updatePhoneNumberInMyHere(@RequestBody String phoneNumber,
                                                               @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
-        User user = userPrincipal.getUser();
+        final User user = userPrincipal.getUser();
+
         UUID userId = user.getId();
 
         if (!phoneNumber.matches(phoneNumberRegex)) {

@@ -18,4 +18,7 @@ public interface UserService {
     UserDto.UserProfileInfoResponseDto getUserProfileInfo(UUID userId);
     UserDto.UserMyProfileInfoResponseDto getUserMyProfileInfo(UUID userId);
     UserDto.UserBasicProfileInfoResponseDto getUserBasicProfileInfo(UUID userId);
+    boolean userExistsByIdAndPassword(UUID userId, String password);
+    UserDto.UpdatePasswordResponseDto updatePasswordInMyHere(UUID userId, UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto);
+    UserDto.UpdatePhoneNumberResponseDto updatePhoneNumber(UUID userId, String phoneNumber);
 }

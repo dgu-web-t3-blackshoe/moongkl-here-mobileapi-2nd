@@ -336,6 +336,8 @@ public class UserController {
                     .content("[뭉클히어] 인증번호는 [" + verificationCode + "]입니다.")
                     .build();
 
+            log.info(verificationCode);
+
             SmsDto.SmsResponseDto smsResponseDto = smsService.sendSms(messageDto);
 
             verificationService.saveVerificationCode(phoneNumber, verificationCode);
@@ -481,5 +483,85 @@ public class UserController {
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
         }
+    }
+
+    //API-92 현재 비밀번호 검증 후 맞다면 새로운 비밀번호로 변경, 받아야 할 것 : 현재 비밀번호, 새로운 비밀번호
+    @PutMapping("/password") //API-92
+    public ResponseEntity<ResponseDto> updatePasswordInMyHere(@RequestBody UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto,
+                                                      @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
+        try {
+            UUID userId = userPrincipal.getUser().getId();
+            String currentPassword = updatePasswordInMyHereRequestDto.getCurrentPassword();
+            String newPassword = updatePasswordInMyHereRequestDto.getNewPassword();
+
+            if (!currentPassword.matches(passwordRegex)) {
+                log.info("currentPassword : 유효하지 않은 비밀번호");
+                UserErrorResult userErrorResult = UserErrorResult.INVALID_PASSWORD;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //400
+            }
+
+            if (!newPassword.matches(passwordRegex)) {
+                log.info("newPassword : 유효하지 않은 비밀번호");
+                UserErrorResult userErrorResult = UserErrorResult.INVALID_PASSWORD;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //400
+            }
+
+            if (!userService.userExistsByIdAndPassword(userId, currentPassword)) {
+                log.info("현재 비밀번호 불일치");
+                UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //400
+            }
+
+            UserDto.UpdatePasswordResponseDto updatePasswordResponseDto = userService.updatePasswordInMyHere(userId, updatePasswordInMyHereRequestDto);
+
+            ResponseDto responseDto = ResponseDto.builder()
+                    .payload(objectMapper.convertValue(updatePasswordResponseDto, Map.class))
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
+
+        } catch (Exception e) {
+            ResponseDto responseDto = ResponseDto.builder().error(e.getMessage()).build();
+            log.info("비밀번호 변경 실패");
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+        }
+    }
+
+    //API-32 전화번호 변경 전화번호 검증되었으면 전화번호 변경
+    @PutMapping("/phone-number") //API-32
+    public ResponseEntity<ResponseDto> updatePhoneNumberInMyHere(@RequestBody String phoneNumber,
+                                                              @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
+        UUID userId = userPrincipal.getUser().getId();
+
+        if (!phoneNumber.matches(phoneNumberRegex)) {
+            log.info("유효하지 않은 전화번호");
+            UserErrorResult userErrorResult = UserErrorResult.INVALID_PHONE_NUMBER;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //400
+        }
+
+        if(!verificationService.isVerified(phoneNumber)){
+            log.info("검증되지 않은 전화번호");
+            UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_PHONE_NUMBER;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //400
+        }
+
+        UserDto.UpdatePhoneNumberResponseDto updatePhoneNumberResponseDto = userService.updatePhoneNumber(userId, phoneNumber);
+
+        ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(updatePhoneNumberResponseDto, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
 }

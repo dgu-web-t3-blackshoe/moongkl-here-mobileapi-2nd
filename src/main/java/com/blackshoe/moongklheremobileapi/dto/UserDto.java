@@ -131,6 +131,23 @@ public class UserDto {
         private BackgroundImgUrlDto backgroundImgUrlDto;
         private ProfileImgUrlDto profileImgUrlDto;
     }
+
+    @Getter
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class UpdatePasswordInMyHereRequestDto{
+        private String currentPassword;
+        private String newPassword;
+    }
+
+    @Getter
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class UpdatePhoneNumberResponseDto{
+        private UUID userId;
+        private LocalDateTime updatedAt;
+    }
+
 }
 
 

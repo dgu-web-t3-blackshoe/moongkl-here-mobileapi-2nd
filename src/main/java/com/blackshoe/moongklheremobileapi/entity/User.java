@@ -93,7 +93,7 @@ public class User {
         this.temporaryPosts.add(temporaryPost);
     }
 
-    @Builder
+    @Builder(toBuilder = true)
     public User(UUID id,
                 String email,
                 String password,

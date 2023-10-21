@@ -80,18 +80,18 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserDto.UpdatePasswordResponseDto updatePassword(UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
 
-        User originalUser = userRepository.findByEmail(updatePasswordRequestDto.getEmail())
+        User user = userRepository.findByEmail(updatePasswordRequestDto.getEmail())
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
-        User updatedUser = originalUser.builder()
+        user = user.toBuilder()
                 .password(passwordEncoder.encode(updatePasswordRequestDto.getNewPassword()))
                 .build();
 
-        userRepository.save(updatedUser);
+        userRepository.save(user);
 
         return UserDto.UpdatePasswordResponseDto.builder()
-                .userId(updatedUser.getId())
-                .updatedAt(updatedUser.getUpdatedAt())
+                .userId(user.getId())
+                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 
@@ -226,6 +226,55 @@ public class UserServiceImpl implements UserService{
                 .statusMessage(user.getStatusMessage())
                 .profileImgUrlDto(profileImgUrlDto)
                 .backgroundImgUrlDto(backgroundImgUrlDto)
+                .build();
+    }
+
+    @Override
+    public boolean userExistsByIdAndPassword(UUID userId, String password) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                return true; // 인증 성공
+            }
+        }
+
+        return false; // 인증 실패
+    }
+
+    @Override
+    public UserDto.UpdatePasswordResponseDto updatePasswordInMyHere(UUID userId, UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        user = user.toBuilder()
+                .password(passwordEncoder.encode(updatePasswordInMyHereRequestDto.getNewPassword()))
+                .build();
+
+        userRepository.save(user);
+
+        return UserDto.UpdatePasswordResponseDto.builder()
+                .userId(user.getId())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    @Override
+    public UserDto.UpdatePhoneNumberResponseDto updatePhoneNumber(UUID userId, String phoneNumber) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        user = user.toBuilder()
+                .phoneNumber(phoneNumber)
+                .build();
+
+        userRepository.save(user);
+
+        return UserDto.UpdatePhoneNumberResponseDto.builder()
+                .userId(user.getId())
+                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 }

@@ -141,14 +141,14 @@ public class UserServiceImpl implements UserService{
         final ProfileImgUrl profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(updateProfileDto.getProfileImgUrlDto());
         final BackgroundImgUrl backgroundImgUrl = BackgroundImgUrl.convertBackgroundImgUrlDtoToEntity(updateProfileDto.getBackgroundImgUrlDto());
 
-        user = User.builder()
+        User updatedUser = user.toBuilder()
                 .nickname(updateProfileDto.getNickname())
                 .statusMessage(updateProfileDto.getStatusMessage())
                 .profileImgUrl(profileImgUrl)
                 .backgroundImgUrl(backgroundImgUrl)
                 .build();
 
-        userRepository.save(user);
+        userRepository.save(updatedUser);
 
         return UserDto.UpdateProfileResponseDto.builder()
                 .userId(user.getId())
@@ -157,18 +157,23 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public UserDto.UserProfileInfoResponseDto getUserProfileInfo(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
+        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
+
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
-                .cloudfrontUrl(user.getProfileImgUrl().getCloudfrontUrl())
-                .s3Url(user.getProfileImgUrl().getS3Url())
+                .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
+                .s3Url(profileImgUrl.getS3Url())
                 .build();
 
+        BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
+
         BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
-                .cloudfrontUrl(user.getBackgroundImgUrl().getCloudfrontUrl())
-                .s3Url(user.getBackgroundImgUrl().getS3Url())
+                .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
+                .s3Url(backgroundImgUrl.getS3Url())
                 .build();
 
         int postCount = user.getPosts().size();
@@ -186,9 +191,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public UserDto.UserBasicProfileInfoResponseDto getUserBasicProfileInfo(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
 
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
                 .cloudfrontUrl(user.getProfileImgUrl().getCloudfrontUrl())
@@ -206,18 +214,24 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public UserDto.UserMyProfileInfoResponseDto getUserMyProfileInfo(UUID userId) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
+        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
+
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
-                .cloudfrontUrl(user.getProfileImgUrl().getCloudfrontUrl())
-                .s3Url(user.getProfileImgUrl().getS3Url())
+                .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
+                .s3Url(profileImgUrl.getS3Url())
                 .build();
 
+        BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
+
         BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
-                .cloudfrontUrl(user.getBackgroundImgUrl().getCloudfrontUrl())
-                .s3Url(user.getBackgroundImgUrl().getS3Url())
+                .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
+                .s3Url(backgroundImgUrl.getS3Url())
                 .build();
 
         return UserDto.UserMyProfileInfoResponseDto.builder()

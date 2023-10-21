@@ -14,6 +14,7 @@ import com.blackshoe.moongklheremobileapi.service.TemporaryPostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class TemporaryPostController {
     }
 
 
-    @PostMapping
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseDto> createTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                            @RequestPart(name = "skin") MultipartFile skin,
                                                            @RequestPart(name = "story") MultipartFile story,

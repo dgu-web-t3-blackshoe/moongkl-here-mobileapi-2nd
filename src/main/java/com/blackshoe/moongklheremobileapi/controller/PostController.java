@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -256,5 +257,25 @@ public class PostController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ResponseDto> deletePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                  @PathVariable("postId") UUID postId) {
+
+        final User user = userPrincipal.getUser();
+
+        postService.deletePost(user, postId);
+
+        final PostDto.DeletePostResponse deletePostResponse = PostDto.DeletePostResponse.builder()
+                .postId(postId)
+                .deletedAt(LocalDateTime.now().toString())
+                .build();
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(deletePostResponse, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
     }
 }

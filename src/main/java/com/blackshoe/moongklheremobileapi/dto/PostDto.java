@@ -171,4 +171,12 @@ public class PostDto {
         @Pattern(regexp = "^(true|false)$", message = "is_public must be true or false")
         private String isPublic;
     }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class DeletePostResponse {
+        private UUID postId;
+        private String deletedAt;
+    }
 }

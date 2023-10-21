@@ -40,7 +40,7 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month < :#{#postTimeFilter.toMonth}) OR " +
             "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month = :#{#postTimeFilter.toMonth} AND p.skinTime.day <= :#{#postTimeFilter.toDay})) " +
             "  AND p.isPublic = true" +
-            "  AND p.skinLocation.country = '대한민국'")
+            "  AND p.skinLocation.country = 'Republic of Korea'")
     Page<PostDto.PostListReadResponse> findAllBySkinTimeBetweenAndDomesticAndIsPublic(PostTimeFilter postTimeFilter, Pageable pageable);
 
     @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +
@@ -53,7 +53,7 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month < :#{#postTimeFilter.toMonth}) OR " +
             "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month = :#{#postTimeFilter.toMonth} AND p.skinTime.day <= :#{#postTimeFilter.toDay})) " +
             "  AND p.isPublic = true" +
-            "  AND p.skinLocation.country != '대한민국'")
+            "  AND p.skinLocation.country != 'Republic of Korea'")
     Page<PostDto.PostListReadResponse> findAllBySkinTimeBetweenAndAbroadAndIsPublic(PostTimeFilter postTimeFilter, Pageable pageable);
 
     @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +

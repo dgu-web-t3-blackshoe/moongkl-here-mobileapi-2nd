@@ -31,16 +31,28 @@ public class PostServiceImpl implements PostService {
 
     private final SkinTimeRepository skinTimeRepository;
 
+    private final LikeRepository likeRepository;
+
+    private final FavoriteRepository favoriteRepository;
+
+    private final ViewRepository viewRepository;
+
     public PostServiceImpl(PostRepository postRepository,
                            SkinUrlRepository skinUrlRepository,
                            StoryUrlRepository storyUrlRepository,
                            SkinLocationRepository skinLocationRepository,
-                           SkinTimeRepository skinTimeRepository) {
+                           SkinTimeRepository skinTimeRepository,
+                           LikeRepository likeRepository,
+                           FavoriteRepository favoriteRepository,
+                           ViewRepository viewRepository) {
         this.postRepository = postRepository;
         this.skinUrlRepository = skinUrlRepository;
         this.storyUrlRepository = storyUrlRepository;
         this.skinLocationRepository = skinLocationRepository;
         this.skinTimeRepository = skinTimeRepository;
+        this.likeRepository = likeRepository;
+        this.favoriteRepository = favoriteRepository;
+        this.viewRepository = viewRepository;
     }
 
     @Override
@@ -327,5 +339,25 @@ public class PostServiceImpl implements PostService {
         final PostDto postDto = convertPostEntityToDto(skinUrl, storyUrl, savedPost);
 
         return postDto;
+    }
+
+    @Override
+    public void deletePost(User user, UUID postId) {
+
+            final Post post = postRepository.findById(postId).orElseThrow(() -> {
+                throw new PostException(PostErrorResult.POST_NOT_FOUND);
+            });
+
+            if (post.getUser().getId() != user.getId()) {
+                throw new PostException(PostErrorResult.USER_NOT_MATCH);
+            }
+
+            likeRepository.deleteAllByPost(post);
+
+            favoriteRepository.deleteAllByPost(post);
+
+            viewRepository.deleteAllByPost(post);
+
+            postRepository.delete(post);
     }
 }

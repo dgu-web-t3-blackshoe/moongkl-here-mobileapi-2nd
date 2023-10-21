@@ -36,4 +36,6 @@ public interface PostService {
     Page<PostDto.PostListReadResponse> getUserSkinTimePostList(User user, String from, String to, String sort, Integer size, Integer page);
 
     PostDto saveTemporaryPost(User user, TemporaryPostDto.TemporaryPostToSave temporaryPostToSave, Boolean isPublic);
+
+    void deletePost(User user, UUID postId);
 }

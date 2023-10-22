@@ -21,8 +21,16 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
 
     private final TemporaryPostRepository temporaryPostRepository;
 
-    public TemporaryPostServiceImpl(TemporaryPostRepository temporaryPostRepository) {
+    private final SkinService skinService;
+
+    private final StoryService storyService;
+
+    public TemporaryPostServiceImpl(TemporaryPostRepository temporaryPostRepository,
+                                    SkinService skinService,
+                                    StoryService storyService) {
         this.temporaryPostRepository = temporaryPostRepository;
+        this.skinService = skinService;
+        this.storyService = storyService;
     }
 
     @Override
@@ -157,6 +165,10 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
         if (!temporaryPost.getUser().getId().equals(user.getId())) {
             throw new TemporaryPostException(TemporaryPostErrorResult.USER_NOT_MATCH);
         }
+
+        skinService.deleteSkin(temporaryPost.getSkinUrl().getS3Url());
+
+        storyService.deleteStory(temporaryPost.getStoryUrl().getS3Url());
 
         temporaryPostRepository.delete(temporaryPost);
     }

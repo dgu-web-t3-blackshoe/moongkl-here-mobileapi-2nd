@@ -2,6 +2,7 @@ package com.blackshoe.moongklheremobileapi.service;
 
 import com.blackshoe.moongklheremobileapi.dto.ResponseDto;
 import com.blackshoe.moongklheremobileapi.dto.UserDto;
+import com.blackshoe.moongklheremobileapi.entity.User;
 import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;

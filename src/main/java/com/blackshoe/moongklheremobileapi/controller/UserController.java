@@ -437,25 +437,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<ResponseDto> test(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        User user = userPrincipal.getUser();
-        log.info(user.getEmail());
-        log.info(user.getNickname());
-        log.info(user.getPhoneNumber());
-        log.info(user.getRole().toString());
-        log.info(user.getCreatedAt().toString());
-        log.info(user.getUpdatedAt().toString());
-
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
     @PutMapping(value = "/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
     public ResponseEntity<ResponseDto> updateProfile(@RequestPart(name = "profile_img") MultipartFile profileImg,
                                                      @RequestPart(name = "background_img") MultipartFile backgroundImg,
                                                      @RequestPart(name = "update_profile_request")UserDto.UpdateProfileRequestDto updateProfileRequestDto,
                                                      @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
-        User user = userPrincipal.getUser();
+        final User user = userPrincipal.getUser();
 
         UUID userId = user.getId();
 

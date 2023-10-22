@@ -13,6 +13,7 @@ import com.blackshoe.moongklheremobileapi.repository.ViewRepository;
 import com.blackshoe.moongklheremobileapi.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.blackshoe.moongklheremobileapi.repository.UserRepository;
@@ -33,7 +34,8 @@ public class UserServiceImpl implements UserService{
     private final ViewRepository viewRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-
+    private final ProfileImgService profileImgService;
+    private final BackgroundImgService backgroundImgService;
     public UserDto.SignInResponseDto signIn(UserDto.SignInRequestDto signInRequestDto) {
         //이미 존재하는 회원
         userRepository.save(User.builder()
@@ -42,6 +44,8 @@ public class UserServiceImpl implements UserService{
                 .nickname(signInRequestDto.getNickname())
                 .phoneNumber(signInRequestDto.getPhoneNumber())
                 .role(Role.valueOf("USER"))
+                .profileImgUrl(null)
+                .backgroundImgUrl(null)
                 .build());
 
         Optional<User> user = userRepository.findByEmail(signInRequestDto.getEmail());
@@ -116,6 +120,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public void deleteUser(UUID userId) {
 
         User user = userRepository.findById(userId)
@@ -127,7 +132,13 @@ public class UserServiceImpl implements UserService{
 
         viewRepository.deleteAllByUser(user);
 
-        userRepository.deleteById(userId);
+        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
+        profileImgService.deleteProfileImg(profileImgUrl.getS3Url());
+
+        BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
+        backgroundImgService.deleteBackgroundImg(backgroundImgUrl.getS3Url());
+
+//        userRepository.deleteById(userId);
     }
 
     @Override
@@ -136,6 +147,7 @@ public class UserServiceImpl implements UserService{
 
         User user = userRepository.findById(updateProfileDto.getUserId())
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
 
 
         final ProfileImgUrl profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(updateProfileDto.getProfileImgUrlDto());
@@ -147,6 +159,9 @@ public class UserServiceImpl implements UserService{
                 .profileImgUrl(profileImgUrl)
                 .backgroundImgUrl(backgroundImgUrl)
                 .build();
+
+        profileImgService.deleteProfileImg(user.getProfileImgUrl().getS3Url());
+        backgroundImgService.deleteBackgroundImg(user.getBackgroundImgUrl().getS3Url());
 
         userRepository.save(updatedUser);
 
@@ -164,12 +179,26 @@ public class UserServiceImpl implements UserService{
 
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
 
+        if (profileImgUrl == null) {
+            profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl(null)
+                    .s3Url(null)
+                    .build();
+        }
+
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
                 .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
                 .s3Url(profileImgUrl.getS3Url())
                 .build();
 
         BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
+
+        if (backgroundImgUrl == null) {
+            backgroundImgUrl = BackgroundImgUrl.builder()
+                    .cloudfrontUrl(null)
+                    .s3Url(null)
+                    .build();
+        }
 
         BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
                 .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
@@ -198,9 +227,16 @@ public class UserServiceImpl implements UserService{
 
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
 
+        if (profileImgUrl == null) {
+            profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl(null)
+                    .s3Url(null)
+                    .build();
+        }
+
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
-                .cloudfrontUrl(user.getProfileImgUrl().getCloudfrontUrl())
-                .s3Url(user.getProfileImgUrl().getS3Url())
+                .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
+                .s3Url(profileImgUrl.getS3Url())
                 .build();
 
         int postCount = user.getPosts().size();
@@ -222,6 +258,12 @@ public class UserServiceImpl implements UserService{
 
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
 
+        if(profileImgUrl == null) {
+            profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl(null)
+                    .s3Url(null)
+                    .build();
+        }
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
                 .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
                 .s3Url(profileImgUrl.getS3Url())
@@ -229,6 +271,12 @@ public class UserServiceImpl implements UserService{
 
         BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
 
+        if(backgroundImgUrl == null){
+            backgroundImgUrl = BackgroundImgUrl.builder()
+                    .cloudfrontUrl(null)
+                    .s3Url(null)
+                    .build();
+        }
         BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
                 .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
                 .s3Url(backgroundImgUrl.getS3Url())
@@ -291,4 +339,36 @@ public class UserServiceImpl implements UserService{
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
+//
+//    @Override
+//    @Transactional
+//    public void deleteProfileImage(UUID userId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+//
+//        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
+//
+//        profileImgService.deleteProfileImg(profileImgUrl.getS3Url());
+//
+//        user = user.toBuilder()
+//                .profileImgUrl(null)
+//                .build();
+//
+//        userRepository.save(user);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void deleteBackgroundImage(UUID userId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+//
+//        backgroundImgService.deleteBackgroundImg(user.getBackgroundImgUrl().getS3Url());
+//
+//        user = user.toBuilder()
+//                .backgroundImgUrl(null)
+//                .build();
+//
+//        userRepository.save(user);
+//    }
 }

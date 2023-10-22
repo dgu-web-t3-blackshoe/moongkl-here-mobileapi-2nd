@@ -76,4 +76,16 @@ public class SkinServiceImpl implements SkinService {
 
         return skinUrlDto;
     }
+
+    @Override
+    public void deleteSkin(String skinS3Url) {
+        String key = skinS3Url.substring(skinS3Url.indexOf(BUCKET) + BUCKET.length() + 1);
+
+        try {
+            amazonS3Client.deleteObject(BUCKET, key);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new PostException(PostErrorResult.SKIN_DELETE_FAILED);
+        }
+    }
 }

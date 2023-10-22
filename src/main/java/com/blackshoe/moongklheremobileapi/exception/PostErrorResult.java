@@ -26,7 +26,10 @@ public enum PostErrorResult {
     STORY_URL_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "스토리를 찾을 수 없습니다."),
     SKIN_TIME_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "스킨 시간을 찾을 수 없습니다."),
     SKIN_LOCATION_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "스킨 위치를 찾을 수 없습니다."),
-    INVALID_PARAMETER_VALUE_FOR_SAVE_TEMPORARY_POST(HttpStatus.BAD_REQUEST, "유효하지 않은 파라미터 값입니다.");
+    INVALID_PARAMETER_VALUE_FOR_SAVE_TEMPORARY_POST(HttpStatus.BAD_REQUEST, "유효하지 않은 파라미터 값입니다."),
+    SKIN_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "스킨 삭제에 실패했습니다."),
+    STORY_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "스토리 삭제에 실패했습니다.");
+
 
     private final HttpStatus httpStatus;
     private final String message;

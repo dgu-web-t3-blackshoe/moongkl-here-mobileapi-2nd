@@ -37,6 +37,10 @@ public class PostServiceImpl implements PostService {
 
     private final ViewRepository viewRepository;
 
+    private final SkinService skinService;
+
+    private final StoryService storyService;
+
     public PostServiceImpl(PostRepository postRepository,
                            SkinUrlRepository skinUrlRepository,
                            StoryUrlRepository storyUrlRepository,
@@ -44,7 +48,9 @@ public class PostServiceImpl implements PostService {
                            SkinTimeRepository skinTimeRepository,
                            LikeRepository likeRepository,
                            FavoriteRepository favoriteRepository,
-                           ViewRepository viewRepository) {
+                           ViewRepository viewRepository,
+                           SkinService skinService,
+                           StoryService storyService) {
         this.postRepository = postRepository;
         this.skinUrlRepository = skinUrlRepository;
         this.storyUrlRepository = storyUrlRepository;
@@ -53,6 +59,8 @@ public class PostServiceImpl implements PostService {
         this.likeRepository = likeRepository;
         this.favoriteRepository = favoriteRepository;
         this.viewRepository = viewRepository;
+        this.skinService = skinService;
+        this.storyService = storyService;
     }
 
     @Override
@@ -342,6 +350,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void deletePost(User user, UUID postId) {
 
             final Post post = postRepository.findById(postId).orElseThrow(() -> {
@@ -358,6 +367,11 @@ public class PostServiceImpl implements PostService {
 
             viewRepository.deleteAllByPost(post);
 
+            skinService.deleteSkin(post.getSkinUrl().getS3Url());
+
+            storyService.deleteStory(post.getStoryUrl().getS3Url());
+
             postRepository.delete(post);
+
     }
 }

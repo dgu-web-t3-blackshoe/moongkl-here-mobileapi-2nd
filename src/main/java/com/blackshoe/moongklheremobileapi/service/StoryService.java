@@ -9,4 +9,6 @@ import java.util.UUID;
 
 public interface StoryService {
     StoryUrlDto uploadStory(UUID userId, MultipartFile story);
+
+    void deleteStory(String storyS3Url);
 }

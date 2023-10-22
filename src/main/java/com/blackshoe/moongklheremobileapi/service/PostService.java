@@ -5,8 +5,6 @@ import com.blackshoe.moongklheremobileapi.dto.SkinUrlDto;
 import com.blackshoe.moongklheremobileapi.dto.StoryUrlDto;
 import com.blackshoe.moongklheremobileapi.dto.TemporaryPostDto;
 import com.blackshoe.moongklheremobileapi.entity.*;
-import com.blackshoe.moongklheremobileapi.vo.LocationType;
-import com.blackshoe.moongklheremobileapi.vo.SortType;
 import org.springframework.data.domain.Page;
 
 import java.util.UUID;

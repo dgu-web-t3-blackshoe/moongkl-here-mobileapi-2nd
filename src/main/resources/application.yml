@@ -55,7 +55,7 @@ spring:
 
   security:
     oauth2:
-      redirect-uri: http://localhost:3000
+      redirect-uri: ${SUCCESS_REDIRECT_URI}
       client:
         registration:
           google:
@@ -78,6 +78,13 @@ spring:
             client-authentication-method: POST
             scope: account_email
             authorization-grant-type: authorization_code
+          facebook:
+            client-id: ${FACEBOOK_CLIENT_ID}
+            client-secret: ${FACEBOOK_CLIENT_SECRET}
+            redirect-uri: ${OAUTH2_BASE_URI}/oauth2/callback/facebook
+            authorization-grant-type: authorization_code
+            scope: email
+            client-name: facebook
         provider:
           naver:
             authorization-uri: https://nid.naver.com/oauth2.0/authorize
@@ -131,9 +138,3 @@ logging:
       amazonaws:
         util:
           EC2MetadataUtils: error
-
-
-skin: ${skins}
-post: ${posts}
-background: ${background_images}
-profile: ${profile_images}

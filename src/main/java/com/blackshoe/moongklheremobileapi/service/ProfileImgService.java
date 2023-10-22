@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface ProfileImgService {
     ProfileImgUrlDto uploadProfileImg(UUID userId, MultipartFile profileImg);
+    void deleteProfileImg(String profileImgS3Url);
 }

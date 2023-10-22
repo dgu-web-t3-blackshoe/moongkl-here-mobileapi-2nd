@@ -31,6 +31,8 @@ public enum UserErrorResult {
     INVALID_BACKGROUNDIMG_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 배경 이미지 타입입니다."), //400
     INVALID_BACKGROUNDIMG_SIZE(HttpStatus.BAD_REQUEST, "유효하지 않은 배경 이미지 크기입니다."), //400
     BACKGROUNDIMG_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "배경 이미지 업로드에 실패했습니다."), //500
+    BACKGROUNDIMG_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "배경 이미지 삭제에 실패했습니다."), //500
+    PROFILEIMG_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 이미지 삭제에 실패했습니다."), //500
     ;
     private final HttpStatus httpStatus;
     private final String message;

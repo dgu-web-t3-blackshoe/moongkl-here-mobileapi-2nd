@@ -79,7 +79,7 @@ public class SkinServiceImpl implements SkinService {
 
     @Override
     public void deleteSkin(String skinS3Url) {
-        String key = skinS3Url.substring(skinS3Url.indexOf(BUCKET) + BUCKET.length() + 1);
+        String key = skinS3Url.substring(skinS3Url.indexOf(ROOT_DIRECTORY));
 
         try {
             amazonS3Client.deleteObject(BUCKET, key);

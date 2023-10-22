@@ -135,4 +135,26 @@ public class SkinServiceTest {
         //then
         assertThat(postException.getPostErrorResult()).isEqualTo(PostErrorResult.SKIN_UPLOAD_FAILED);
     }
+
+    @Test
+    public void deleteSkin_success_noError() {
+        //given
+        final MultipartFile testImg;
+        try {
+            testImg = new MockMultipartFile("test.jpg", "test.jpg", "img/jpg", new FileInputStream(new File("src/test/resources/test.jpg")));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        final SkinUrlDto skinUrlDto = skinService.uploadSkin(userId, testImg);
+        String s3Url = skinUrlDto.getS3Url();
+        s3Key = s3Url.substring(s3Url.indexOf("test"));
+
+        //when
+        skinService.deleteSkin(s3Url);
+
+        //then
+        assertThat(amazonS3Client.doesObjectExist("files.mobile-api.moongkl.com", s3Key)).isFalse();
+    }
 }

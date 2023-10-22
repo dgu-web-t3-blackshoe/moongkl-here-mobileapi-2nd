@@ -79,7 +79,7 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     public void deleteStory(String storyS3Url) {
-        String key = storyS3Url.substring(storyS3Url.indexOf(BUCKET) + BUCKET.length() + 1);
+        String key = storyS3Url.substring(storyS3Url.indexOf(ROOT_DIRECTORY));
 
         try {
             amazonS3Client.deleteObject(BUCKET, key);

@@ -11,6 +11,8 @@ import com.blackshoe.moongklheremobileapi.service.StoryService;
 import com.blackshoe.moongklheremobileapi.service.TemporaryPostService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -49,7 +51,7 @@ public class PostController {
     }
 
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value="/create", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseDto> createPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                   @RequestPart(name = "skin") MultipartFile skin,
                                                   @RequestPart(name = "story") MultipartFile story,
@@ -113,7 +115,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @GetMapping
+    @GetMapping(value = "/list")
     public ResponseEntity<ResponseDto> getPostList(@RequestParam(name = "user", required = false, defaultValue = "false") String user,
                                                    @RequestParam(name = "from", required = false, defaultValue = "2001-01-01") String from,
                                                    @RequestParam(name = "to", required = false, defaultValue = "2999-12-31") String to,
@@ -141,7 +143,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @GetMapping(params = {"user", "latitude", "longitude", "radius"})
+    @GetMapping(value="/list/grouped-by-city",params = {"user", "latitude", "longitude", "radius"})
     public ResponseEntity<ResponseDto> getUserPostListGroupedByCity(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                     @RequestParam(name = "user") UUID userId,
                                                                     @RequestParam(name = "latitude") Double latitude,
@@ -169,7 +171,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @GetMapping(params = {"user", "country", "state", "city"})
+    @GetMapping(value="/list/city",params = {"user", "country", "state", "city"})
     public ResponseEntity<ResponseDto> getUserCityPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                            @RequestParam(name = "user") UUID userId,
                                                            @RequestParam(name = "country") String country,
@@ -197,7 +199,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @GetMapping(params = {"user", "from", "to"})
+    @GetMapping(value="/list/skin-time",params = {"user", "from", "to"})
     public ResponseEntity<ResponseDto> getUserSkinTimePostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                @RequestParam(name = "user") UUID userId,
                                                                @RequestParam(name = "from") String from,
@@ -225,7 +227,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @PostMapping(params = {"save-temporary-post"})
+    @PostMapping(value="/temporary", params = {"save-temporary-post"})
     public ResponseEntity<ResponseDto> saveTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                          @RequestParam(name = "save-temporary-post") Boolean saveTemporaryPost,
                                                          @RequestBody @Valid PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest) throws JsonProcessingException {

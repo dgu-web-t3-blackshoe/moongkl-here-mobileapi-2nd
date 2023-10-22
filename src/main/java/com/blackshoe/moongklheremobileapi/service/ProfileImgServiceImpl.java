@@ -85,12 +85,10 @@ public class ProfileImgServiceImpl implements ProfileImgService {
 
     @Override
     public void deleteProfileImg(String profileImgS3Url) {
-        String key = profileImgS3Url.substring(profileImgS3Url.lastIndexOf("/") + 1);
-        log.info(key);
+        String key = profileImgS3Url.substring(profileImgS3Url.indexOf(ROOT_DIRECTORY));
+
         try {
-            log.info(BUCKET);
             amazonS3Client.deleteObject(BUCKET,  key);
-            log.info("delete success");
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new UserException(UserErrorResult.PROFILEIMG_DELETE_FAILED);

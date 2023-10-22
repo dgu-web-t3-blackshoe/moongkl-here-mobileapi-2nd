@@ -83,10 +83,8 @@ public class BackgroundImgServiceImpl implements BackgroundImgService {
 
     @Override
     public void deleteBackgroundImg(String backgroundImgS3Url) {
-        String key = backgroundImgS3Url.substring(backgroundImgS3Url.indexOf(BUCKET) + BUCKET.length() + 1);
-        log.info(backgroundImgS3Url);
-        log.info(key);
-        log.info(BUCKET);
+        String key = backgroundImgS3Url.substring(backgroundImgS3Url.indexOf(ROOT_DIRECTORY));
+
         try {
             amazonS3Client.deleteObject(BUCKET, key);
 

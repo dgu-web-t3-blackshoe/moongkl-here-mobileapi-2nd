@@ -138,7 +138,7 @@ public class UserServiceImpl implements UserService{
         BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
         backgroundImgService.deleteBackgroundImg(backgroundImgUrl.getS3Url());
 
-//        userRepository.deleteById(userId);
+        userRepository.deleteById(userId);
     }
 
     @Override

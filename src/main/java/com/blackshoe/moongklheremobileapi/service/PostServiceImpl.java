@@ -357,6 +357,9 @@ public class PostServiceImpl implements PostService {
                 throw new PostException(PostErrorResult.POST_NOT_FOUND);
             });
 
+            log.info(String.valueOf(post.getUser().getClass()));
+            log.info(String.valueOf(user.getClass()));
+
             if (!post.getUser().getId().equals(user.getId())) {
                 throw new PostException(PostErrorResult.USER_NOT_MATCH);
             }

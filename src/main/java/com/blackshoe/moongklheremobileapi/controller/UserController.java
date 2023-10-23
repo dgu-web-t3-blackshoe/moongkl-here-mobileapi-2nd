@@ -56,6 +56,10 @@ public class UserController {
     //닉네임 한글 포함 10자리 이하 특수문자X
     private String nicknameRegex = "^[가-힣a-zA-Z0-9]{1,10}$";
 
+    @GetMapping("/test")
+    public String test() {
+        return "test";
+    }
     @PostMapping("/login")
     public ResponseEntity<ResponseDto> login(@RequestBody UserDto.LoginRequestDto loginRequestDto) {
         if (loginRequestDto.getEmail() == null || loginRequestDto.getPassword() == null) {
@@ -167,72 +171,30 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto); //201
     }
-
-    @PostMapping("/sign-in/email/validation")
-    public ResponseEntity<ResponseDto> validationEmail(@RequestBody MailDto.MailRequestDto mailRequestDto) {
-        String email = mailRequestDto.getEmail();
-
+    @GetMapping("/sign-in/email/validation")
+    public ResponseEntity<ResponseDto> checkEmail(@RequestBody String email) {
         if (!email.matches(emailRegex)) {
             log.info("유효하지 않은 이메일");
             UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
             ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
 
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //400
         }
 
-        if (!userService.userExistsByEmail(email)) {
-            log.info("존재하지 않는 회원");
-            UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
+        if (userService.userExistsByEmail(email)) {
+            log.info("이메일 중복");
+            UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_EMAIL;
 
             ResponseDto responseDto = ResponseDto.builder()
                     .error(userErrorResult.getMessage())
                     .build();
 
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //409
         }
-
-        String verificationCode = verificationService.makeVerificationCode();
-
-        MailDto.MailSendDto mailSendDto = MailDto.MailSendDto.builder()
-                .email(email)
-                .title("뭉클히어 이메일 인증코드입니다.")
-                .content("인증번호는 [" + verificationCode + "]입니다.")
-                .build();
-        mailService.sendMail(mailSendDto);
-
-        verificationService.saveVerificationCode(email, verificationCode);
-        verificationService.saveCompletionCode(email, false);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
     }
 
-    @PostMapping("/sign-in/email/verification")
-    public ResponseEntity<ResponseDto> verificationEmail(@RequestBody MailDto.MailVerifyDto mailVerifyDto) {
-        String email = mailVerifyDto.getEmail();
-
-        if (!email.matches(emailRegex)) {
-            log.info("유효하지 않은 이메일");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-
-        if (verificationService.verifyCode(email, mailVerifyDto.getVerificationCode())) {
-            log.info("인증 코드 검증 성공");
-            //검증 성공 후 코드 삭제, 완료 코드 생성
-            verificationService.deleteVerificationCode(email);
-            verificationService.saveCompletionCode(email, true);
-
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
-        } else {
-            log.info("인증 코드 검증 실패");
-            UserErrorResult userErrorResult = UserErrorResult.FAILED_VALIDATING_CODE;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-    }
 
     @PutMapping("/sign-in/password")
     public ResponseEntity<ResponseDto> updatePassword(@RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
@@ -240,14 +202,6 @@ public class UserController {
         if (!email.matches(emailRegex)) {
             log.info("유효하지 않은 이메일");
             UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-
-        if (!verificationService.isVerified(email)) {
-            log.info("검증되지 않은 이메일");
-            UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_EMAIL;
             ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
 
             return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);

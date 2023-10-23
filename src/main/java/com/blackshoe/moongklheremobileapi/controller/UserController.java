@@ -87,7 +87,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDto> signIn(@Valid @RequestBody UserDto.SignInRequestDto signInRequestDto) throws Exception {
+    public ResponseEntity<ResponseDto> signUp(@Valid @RequestBody UserDto.SignInRequestDto signInRequestDto) throws Exception {
         if (signInRequestDto.getEmail() == null || signInRequestDto.getPassword() == null || signInRequestDto.getNickname() == null || signInRequestDto.getPhoneNumber() == null) {
             log.info("필수값 누락");
             UserErrorResult userErrorResult = UserErrorResult.REQUIRED_VALUE;

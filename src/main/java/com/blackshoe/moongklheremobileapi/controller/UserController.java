@@ -3,31 +3,25 @@ package com.blackshoe.moongklheremobileapi.controller;
 import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
-import com.blackshoe.moongklheremobileapi.exception.UserException;
 import com.blackshoe.moongklheremobileapi.security.UserPrincipal;
 import com.blackshoe.moongklheremobileapi.service.MailService;
 import com.blackshoe.moongklheremobileapi.service.SmsService;
 import com.blackshoe.moongklheremobileapi.service.UserService;
 import com.blackshoe.moongklheremobileapi.service.VerificationService;
-import com.blackshoe.moongklheremobileapi.security.UserPrincipal;
 import com.blackshoe.moongklheremobileapi.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -49,29 +43,15 @@ public class UserController {
 
     private final ProfileImgService profileService;
     private final BackgroundImgService backgroundService;
-    private String phoneNumberRegex = "^01(?:0|1|[6-9])(?:\\d{3}|\\d{4})\\d{4}$";
-    private String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
-    private String passwordRegex = "^(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,20}$";
-
-    //닉네임 한글 포함 10자리 이하 특수문자X
-    private String nicknameRegex = "^[가-힣a-zA-Z0-9]{1,10}$";
-
     @GetMapping("/test")
     public String test() {
         return "test";
     }
     @PostMapping("/login")
-    public ResponseEntity<ResponseDto> login(@RequestBody UserDto.LoginRequestDto loginRequestDto) {
+    public ResponseEntity<ResponseDto> login(@Valid @RequestBody UserDto.LoginRequestDto loginRequestDto) {
         if (loginRequestDto.getEmail() == null || loginRequestDto.getPassword() == null) {
             log.info("필수값 누락");
             UserErrorResult userErrorResult = UserErrorResult.REQUIRED_VALUE;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-        if (!loginRequestDto.getEmail().matches(emailRegex)) {
-            log.info("유효하지 않은 이메일");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
             ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
 
             return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
@@ -107,58 +87,11 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDto> signIn(@RequestBody UserDto.SignInRequestDto signInRequestDto) throws Exception {
+    public ResponseEntity<ResponseDto> signIn(@Valid @RequestBody UserDto.SignInRequestDto signInRequestDto) throws Exception {
         if (signInRequestDto.getEmail() == null || signInRequestDto.getPassword() == null || signInRequestDto.getNickname() == null || signInRequestDto.getPhoneNumber() == null) {
             log.info("필수값 누락");
             UserErrorResult userErrorResult = UserErrorResult.REQUIRED_VALUE;
             ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-        if (!signInRequestDto.getEmail().matches(emailRegex)) {
-            log.info("유효하지 않은 이메일");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-        if (!signInRequestDto.getPassword().matches(passwordRegex)) {
-            log.info("유효하지 않은 비밀번호");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_PASSWORD;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-        if (!signInRequestDto.getNickname().matches(nicknameRegex)) {
-            log.info("유효하지 않은 닉네임");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_NICKNAME;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-        if (!signInRequestDto.getPhoneNumber().matches(phoneNumberRegex)) {
-            log.info("유효하지 않은 전화번호");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_PHONE_NUMBER;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-
-        if (!verificationService.isVerified(signInRequestDto.getPhoneNumber())) {
-            log.info("인증되지 않은 전화번호");
-            UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_PHONE_NUMBER;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-
-        if (userService.userExistsByEmail(signInRequestDto.getEmail())) {
-            log.info("이메일 중복");
-            UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_EMAIL;
-
-            ResponseDto responseDto = ResponseDto.builder()
-                    .error(userErrorResult.getMessage())
-                    .build();
 
             return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
         }
@@ -171,17 +104,10 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto); //201
     }
-    @GetMapping("/sign-in/email/validation")
-    public ResponseEntity<ResponseDto> checkEmail(@RequestBody String email) {
-        if (!email.matches(emailRegex)) {
-            log.info("유효하지 않은 이메일");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+    @PostMapping("/sign-in/email/validation")
+    public ResponseEntity<ResponseDto> checkDuplicatedEmail(@Valid @RequestBody UserDto.CheckDuplicatedEmailRequestDto checkDuplicatedEmailRequestDto) {
 
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //400
-        }
-
-        if (userService.userExistsByEmail(email)) {
+        if (userService.userExistsByEmail(checkDuplicatedEmailRequestDto.getEmail())) {
             log.info("이메일 중복");
             UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_EMAIL;
 
@@ -199,22 +125,6 @@ public class UserController {
     @PutMapping("/sign-in/password")
     public ResponseEntity<ResponseDto> updatePassword(@RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
         String email = updatePasswordRequestDto.getEmail();
-        if (!email.matches(emailRegex)) {
-            log.info("유효하지 않은 이메일");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_EMAIL;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-
-        if (!updatePasswordRequestDto.getNewPassword().matches(passwordRegex)) {
-            log.info("유효하지 않은 비밀번호");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_PASSWORD;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-        userService.updatePassword(updatePasswordRequestDto);
 
         UserDto.UpdatePasswordResponseDto updatePasswordResponseDto = userService.updatePassword(updatePasswordRequestDto);
 
@@ -228,14 +138,6 @@ public class UserController {
     @PostMapping("/sign-in/phone/validation")
     public ResponseEntity<ResponseDto> validationPhoneNumber(@RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         String phoneNumber = validationRequestDto.getPhoneNumber();
-
-        if (!phoneNumber.matches(phoneNumberRegex)) {
-            log.info("유효하지 않은 전화번호");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_PHONE_NUMBER;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
 
         String verificationCode = verificationService.makeVerificationCode();
 
@@ -256,14 +158,6 @@ public class UserController {
     @PostMapping("/sign-in/phone/verification")
     public ResponseEntity<ResponseDto> verificationPhoneNumber(@RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         String phoneNumber = verificationRequestDto.getPhoneNumber();
-
-        if (!phoneNumber.matches(phoneNumberRegex)) {
-            log.info("유효하지 않은 전화번호");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_PHONE_NUMBER;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
 
         if (verificationService.verifyCode(verificationRequestDto.getPhoneNumber(), verificationRequestDto.getVerificationCode())) {
             log.info("인증 코드 검증 성공");
@@ -286,14 +180,6 @@ public class UserController {
 
         String phoneNumber = verificationRequestDto.getPhoneNumber();
 
-        if (!phoneNumber.matches(phoneNumberRegex)) {
-            log.info("유효하지 않은 전화번호");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_PHONE_NUMBER;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-
         if (verificationService.verifyCode(verificationRequestDto.getPhoneNumber(), verificationRequestDto.getVerificationCode())) {
             log.info("인증 코드 검증 성공");
 
@@ -313,14 +199,6 @@ public class UserController {
         final User user = userPrincipal.getUser();
 
         String phoneNumber = validationRequestDto.getPhoneNumber();
-
-        if (!phoneNumber.matches(phoneNumberRegex)) {
-            log.info("유효하지 않은 전화번호");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_PHONE_NUMBER;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
 
         String verificationCode = verificationService.makeVerificationCode();
 
@@ -428,26 +306,7 @@ public class UserController {
 
         UUID userId = user.getId();
 
-        String currentPassword = updatePasswordInMyHereRequestDto.getCurrentPassword();
-        String newPassword = updatePasswordInMyHereRequestDto.getNewPassword();
-
-        if (!currentPassword.matches(passwordRegex)) {
-            log.info("currentPassword : 유효하지 않은 비밀번호");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_PASSWORD;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //400
-        }
-
-        if (!newPassword.matches(passwordRegex)) {
-            log.info("newPassword : 유효하지 않은 비밀번호");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_PASSWORD;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //400
-        }
-
-        if (!userService.userExistsByIdAndPassword(userId, currentPassword)) {
+        if (!userService.userExistsByIdAndPassword(userId, updatePasswordInMyHereRequestDto.getCurrentPassword())) {
             log.info("현재 비밀번호 불일치");
             UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
             ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -466,19 +325,13 @@ public class UserController {
 
     //API-32 전화번호 변경 전화번호 검증되었으면 전화번호 변경
     @PutMapping("/phone-number") //API-32
-    public ResponseEntity<ResponseDto> updatePhoneNumberInMyHere(@RequestBody String phoneNumber,
+    public ResponseEntity<ResponseDto> updatePhoneNumberInMyHere(@RequestBody UserDto.UpdatePhoneNumberRequestDto updatePhoneNumberRequestDto,
                                                               @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
         final User user = userPrincipal.getUser();
 
         UUID userId = user.getId();
 
-        if (!phoneNumber.matches(phoneNumberRegex)) {
-            log.info("유효하지 않은 전화번호");
-            UserErrorResult userErrorResult = UserErrorResult.INVALID_PHONE_NUMBER;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //400
-        }
+        String phoneNumber = updatePhoneNumberRequestDto.getPhoneNumber();
 
         if(!verificationService.isVerified(phoneNumber)){
             log.info("검증되지 않은 전화번호");

@@ -57,6 +57,8 @@ public class PostController {
                                                   @RequestPart(name = "story") MultipartFile story,
                                                   @RequestPart(name = "post_create_request") @Valid
                                                   PostDto.PostCreateRequest postCreateRequest) {
+        //log all
+        log.info("create post, postCreateRequest: {}", postCreateRequest);
 
         final User user = userPrincipal.getUser();
 
@@ -231,6 +233,8 @@ public class PostController {
     public ResponseEntity<ResponseDto> saveTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                          @RequestParam(name = "save-temporary-post") Boolean saveTemporaryPost,
                                                          @RequestBody @Valid PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest) throws JsonProcessingException {
+
+        log.info("save temporary post, save-temporary-post: {}, saveTemporaryPostRequest: {}", saveTemporaryPost, objectMapper.writeValueAsString(saveTemporaryPostRequest));
 
         if (!saveTemporaryPost) {
             throw new PostException(PostErrorResult.INVALID_PARAMETER_VALUE_FOR_SAVE_TEMPORARY_POST);

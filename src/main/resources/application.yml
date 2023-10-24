@@ -131,6 +131,8 @@ cloud:
       auto: false
     cloudfront:
       distribution-domain: ${CLOUDFRONT_URL}
+converter:
+  secret-key: ${CONVERTER_SECRET_KEY}
 
 logging:
   level:

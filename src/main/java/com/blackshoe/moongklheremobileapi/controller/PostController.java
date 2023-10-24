@@ -143,6 +143,57 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @GetMapping(params = {"user", "public"})
+    public ResponseEntity<ResponseDto> getPublicUserPostList(@RequestParam(name = "user") UUID userId,
+                                                            @RequestParam(name = "public") Boolean isPublic,
+                                                          @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
+                                                          @RequestParam(name = "size", required = false, defaultValue = "10") Integer size) {
+
+        log.info("get public user post list, user: {}, public: {}, sort: {}, size: {}",
+                userId, isPublic, sort, size);
+
+        if (!isPublic) {
+            throw new PostException(PostErrorResult.INVALID_PARAMETER_FOR_GET_PUBLIC_USER_POST_LIST);
+        }
+
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage
+                = postService.getPublicUserPostList(userId, sort, size);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
+    @GetMapping(params = {"user"})
+    public ResponseEntity<ResponseDto> getAllUserPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                          @RequestParam(name = "user") UUID userId,
+                                                          @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
+                                                          @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
+                                                          @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+
+        log.info("get all user post list, user: {}, sort: {}, size: {}, page: {}",
+                userId, sort, size, page);
+
+        final User user = userPrincipal.getUser();
+
+        if (!user.getId().equals(userId)) {
+            throw new PostException(PostErrorResult.USER_NOT_MATCH);
+        }
+
+        final Page<PostDto.PostListReadResponse> postListReadResponsePage
+                = postService.getAllUserPostList(user, sort, size, page);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
+
+
     @GetMapping(params = {"user", "latitude", "longitude", "radius"})
     public ResponseEntity<ResponseDto> getUserPostListGroupedByCity(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                     @RequestParam(name = "user") UUID userId,

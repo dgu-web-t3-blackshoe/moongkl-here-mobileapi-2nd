@@ -20,10 +20,10 @@ public class BackgroundImgUrl{
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(nullable = false)
+    @Column
     private String s3Url;
 
-    @Column(nullable = false)
+    @Column
     private String cloudfrontUrl;
 
     @Builder

@@ -1,5 +1,6 @@
 package com.blackshoe.moongklheremobileapi.entity;
 
+import com.blackshoe.moongklheremobileapi.security.EncryptionConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,7 +41,8 @@ public class User {
     @Column(name = "nickname", length = 50)
     private String nickname;
 
-    @Column(name = "phone_number", length = 20)
+    @Convert(converter = EncryptionConverter.class)
+    @Column(name = "phone_number", length = 100)
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
@@ -93,7 +95,7 @@ public class User {
         this.temporaryPosts.add(temporaryPost);
     }
 
-    @Builder
+    @Builder(toBuilder = true)
     public User(UUID id,
                 String email,
                 String password,

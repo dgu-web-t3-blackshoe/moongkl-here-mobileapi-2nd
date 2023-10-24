@@ -43,9 +43,9 @@ public class StoryServiceImpl implements StoryService {
 
         String key = ROOT_DIRECTORY + "/" + s3FilePath + "/" + UUID.randomUUID() + fileExtension;
 
-        if (!ContentType.isContentTypeValid(story.getContentType())) {
-            throw new PostException(PostErrorResult.INVALID_STORY_TYPE);
-        }
+        //if (!ContentType.isContentTypeValid(story.getContentType())) {
+        //    throw new PostException(PostErrorResult.INVALID_STORY_TYPE);
+        //}
 
         if (story.getSize() > 52428800) {
             throw new PostException(PostErrorResult.INVALID_STORY_SIZE);

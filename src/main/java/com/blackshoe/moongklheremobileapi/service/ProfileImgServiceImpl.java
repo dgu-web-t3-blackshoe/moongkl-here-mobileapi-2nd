@@ -1,11 +1,16 @@
 package com.blackshoe.moongklheremobileapi.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.blackshoe.moongklheremobileapi.dto.ProfileImgUrlDto;
+import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.UserException;
+import com.blackshoe.moongklheremobileapi.repository.UserRepository;
 import com.blackshoe.moongklheremobileapi.vo.ContentType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,9 +22,11 @@ import java.util.UUID;
 @Service
 public class ProfileImgServiceImpl implements ProfileImgService {
     private final AmazonS3Client amazonS3Client;
-
-    public ProfileImgServiceImpl(AmazonS3Client amazonS3Client) {
+    private final UserRepository userRepository;
+    @Autowired
+    public ProfileImgServiceImpl(AmazonS3Client amazonS3Client, UserRepository userRepository) {
         this.amazonS3Client = amazonS3Client;
+        this.userRepository = userRepository;
     }
 
     @Value("${cloud.aws.s3.bucket}")
@@ -43,9 +50,9 @@ public class ProfileImgServiceImpl implements ProfileImgService {
 
         String key = ROOT_DIRECTORY + "/" + s3FilePath + "/" + UUID.randomUUID() + fileExtension;
 
-        if (!ContentType.isContentTypeValid(profileImg.getContentType())) {
-            throw new UserException(UserErrorResult.INVALID_PROFILEIMG_TYPE);
-        }
+//        if (!ContentType.isContentTypeValid(profileImg.getContentType())) {
+//            throw new UserException(UserErrorResult.INVALID_PROFILEIMG_TYPE);
+//        }
 
         if (profileImg.getSize() > 52428800) {
             throw new UserException(UserErrorResult.INVALID_PROFILEIMG_SIZE);
@@ -75,4 +82,17 @@ public class ProfileImgServiceImpl implements ProfileImgService {
                 .build();
         return profileImgUrlDto;
     }
+
+    @Override
+    public void deleteProfileImg(String profileImgS3Url) {
+        String key = profileImgS3Url.substring(profileImgS3Url.indexOf(ROOT_DIRECTORY));
+
+        try {
+            amazonS3Client.deleteObject(BUCKET,  key);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new UserException(UserErrorResult.PROFILEIMG_DELETE_FAILED);
+        }
+    }
+
 }

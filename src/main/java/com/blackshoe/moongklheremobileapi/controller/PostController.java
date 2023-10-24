@@ -11,9 +11,12 @@ import com.blackshoe.moongklheremobileapi.service.StoryService;
 import com.blackshoe.moongklheremobileapi.service.TemporaryPostService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -47,13 +50,14 @@ public class PostController {
         this.objectMapper = objectMapper;
     }
 
-
-    @PostMapping
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseDto> createPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                   @RequestPart(name = "skin") MultipartFile skin,
                                                   @RequestPart(name = "story") MultipartFile story,
                                                   @RequestPart(name = "post_create_request") @Valid
                                                   PostDto.PostCreateRequest postCreateRequest) {
+        //log all
+        log.info("create post, postCreateRequest: {}", postCreateRequest);
 
         final User user = userPrincipal.getUser();
 
@@ -102,7 +106,6 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<ResponseDto> getPost(@PathVariable("postId") UUID postId) {
-
         final PostDto.PostReadResponse postReadResponse = postService.getPost(postId);
 
         final ResponseDto responseDto = ResponseDto.builder()
@@ -112,7 +115,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @GetMapping
+    @GetMapping()
     public ResponseEntity<ResponseDto> getPostList(@RequestParam(name = "user", required = false, defaultValue = "false") String user,
                                                    @RequestParam(name = "from", required = false, defaultValue = "2001-01-01") String from,
                                                    @RequestParam(name = "to", required = false, defaultValue = "2999-12-31") String to,
@@ -228,6 +231,8 @@ public class PostController {
     public ResponseEntity<ResponseDto> saveTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                          @RequestParam(name = "save-temporary-post") Boolean saveTemporaryPost,
                                                          @RequestBody @Valid PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest) throws JsonProcessingException {
+
+        log.info("save temporary post, save-temporary-post: {}, saveTemporaryPostRequest: {}", saveTemporaryPost, objectMapper.writeValueAsString(saveTemporaryPostRequest));
 
         if (!saveTemporaryPost) {
             throw new PostException(PostErrorResult.INVALID_PARAMETER_VALUE_FOR_SAVE_TEMPORARY_POST);

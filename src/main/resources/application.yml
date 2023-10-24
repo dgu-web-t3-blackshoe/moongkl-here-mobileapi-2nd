@@ -26,7 +26,7 @@ spring:
     generate-ddl: true
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${SPRING_DATASOURCE_DDL-AUTO}
     properties:
       hibernate:
         jdbc:
@@ -55,7 +55,7 @@ spring:
 
   security:
     oauth2:
-      redirect-uri: http://localhost:3000
+      redirect-uri: ${SUCCESS_REDIRECT_URI}
       client:
         registration:
           google:
@@ -78,6 +78,13 @@ spring:
             client-authentication-method: POST
             scope: account_email
             authorization-grant-type: authorization_code
+          facebook:
+            client-id: ${FACEBOOK_CLIENT_ID}
+            client-secret: ${FACEBOOK_CLIENT_SECRET}
+            redirect-uri: ${OAUTH2_BASE_URI}/oauth2/callback/facebook
+            authorization-grant-type: authorization_code
+            scope: email
+            client-name: facebook
         provider:
           naver:
             authorization-uri: https://nid.naver.com/oauth2.0/authorize
@@ -105,10 +112,6 @@ springfox:
   documentation:
     swagger-ui:
       enabled: true
-
-
-
-
 cloud:
   aws:
     credentials:
@@ -128,3 +131,12 @@ cloud:
       auto: false
     cloudfront:
       distribution-domain: ${CLOUDFRONT_URL}
+converter:
+  secret-key: ${CONVERTER_SECRET_KEY}
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error

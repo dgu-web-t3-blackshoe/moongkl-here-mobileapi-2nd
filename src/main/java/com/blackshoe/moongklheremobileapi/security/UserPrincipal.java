@@ -22,6 +22,9 @@ public class UserPrincipal implements UserDetails {
         return this.user;
     }
 
+    public UUID getUserId() {
+        return this.user.getId();
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getRoleName()));

@@ -43,9 +43,9 @@ public class SkinServiceImpl implements SkinService {
 
         String key = ROOT_DIRECTORY + "/" + s3FilePath + "/" + UUID.randomUUID() + fileExtension;
 
-        if (!ContentType.isContentTypeValid(skin.getContentType())) {
-            throw new PostException(PostErrorResult.INVALID_SKIN_TYPE);
-        }
+        //if (!ContentType.isContentTypeValid(skin.getContentType())) {
+        //    throw new PostException(PostErrorResult.INVALID_SKIN_TYPE);
+        //}
 
         if (skin.getSize() > 52428800) {
             throw new PostException(PostErrorResult.INVALID_SKIN_SIZE);

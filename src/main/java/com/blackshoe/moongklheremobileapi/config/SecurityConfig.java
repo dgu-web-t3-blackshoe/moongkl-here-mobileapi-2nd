@@ -4,6 +4,7 @@ import com.blackshoe.moongklheremobileapi.oauth2.CustomOAuth2UserService;
 import com.blackshoe.moongklheremobileapi.oauth2.OAuth2SuccessHandler;
 import com.blackshoe.moongklheremobileapi.security.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @RequiredArgsConstructor
 @Configuration
@@ -26,9 +30,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         //TODO: CORS 설정 및 Permit 설정 필요
         http
+                //.httpBasic().disable()
                 .formLogin().disable()
                 .csrf().disable()
                 .cors().disable()
+
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
@@ -39,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .oauth2Login()
                 .redirectionEndpoint()
-                .baseUri("/login/oauth2/callback/*")
+                .baseUri("/oauth2/callback/*")
                 .and()
                 .authorizationEndpoint()
                 .baseUri("/oauth2/authorize")
@@ -55,4 +61,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
     }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
 }

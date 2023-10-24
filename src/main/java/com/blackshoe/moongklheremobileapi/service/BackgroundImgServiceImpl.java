@@ -2,10 +2,12 @@ package com.blackshoe.moongklheremobileapi.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.blackshoe.moongklheremobileapi.dto.BackgroundImgUrlDto;
+import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.UserException;
-import com.blackshoe.moongklheremobileapi.vo.ContentType;
+import com.blackshoe.moongklheremobileapi.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,9 +18,12 @@ import java.util.UUID;
 @Slf4j
 public class BackgroundImgServiceImpl implements BackgroundImgService {
     private final AmazonS3Client amazonS3Client;
+    private final UserRepository userRepository;
 
-    public BackgroundImgServiceImpl(AmazonS3Client amazonS3Client) {
+    @Autowired
+    public BackgroundImgServiceImpl(AmazonS3Client amazonS3Client, UserRepository userRepository) {
         this.amazonS3Client = amazonS3Client;
+        this.userRepository = userRepository;
     }
 
     @Value("${cloud.aws.s3.bucket}")
@@ -43,9 +48,9 @@ public class BackgroundImgServiceImpl implements BackgroundImgService {
         String key = ROOT_DIRECTORY + "/" + s3FilePath + "/" + UUID.randomUUID() + fileExtension;
 
 
-        if (!ContentType.isContentTypeValid(backgroundImg.getContentType())) {
-            throw new UserException(UserErrorResult.INVALID_BACKGROUNDIMG_TYPE);
-        }
+//        if (!ContentType.isContentTypeValid(backgroundImg.getContentType())) {
+//            throw new UserException(UserErrorResult.INVALID_BACKGROUNDIMG_TYPE);
+//        }
 
         if (backgroundImg.getSize() > 52428800) {
             throw new UserException(UserErrorResult.INVALID_BACKGROUNDIMG_SIZE);
@@ -74,5 +79,18 @@ public class BackgroundImgServiceImpl implements BackgroundImgService {
                 .cloudfrontUrl(cloudFrontUrl)
                 .build();
         return backgroundImgUrlDto;
+    }
+
+    @Override
+    public void deleteBackgroundImg(String backgroundImgS3Url) {
+        String key = backgroundImgS3Url.substring(backgroundImgS3Url.indexOf(ROOT_DIRECTORY));
+
+        try {
+            amazonS3Client.deleteObject(BUCKET, key);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new UserException(UserErrorResult.BACKGROUNDIMG_DELETE_FAILED);
+        }
     }
 }

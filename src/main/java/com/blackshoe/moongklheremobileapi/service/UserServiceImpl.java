@@ -13,6 +13,7 @@ import com.blackshoe.moongklheremobileapi.repository.ViewRepository;
 import com.blackshoe.moongklheremobileapi.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.blackshoe.moongklheremobileapi.repository.UserRepository;
@@ -33,21 +34,24 @@ public class UserServiceImpl implements UserService{
     private final ViewRepository viewRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-
-    public UserDto.SignInResponseDto signIn(UserDto.SignInRequestDto signInRequestDto) {
+    private final ProfileImgService profileImgService;
+    private final BackgroundImgService backgroundImgService;
+    public UserDto.SignUpResponseDto signUp(UserDto.SignUpRequestDto signUpRequestDto) {
         //이미 존재하는 회원
         userRepository.save(User.builder()
-                .email(signInRequestDto.getEmail())
-                .password(passwordEncoder.encode(signInRequestDto.getPassword()))
-                .nickname(signInRequestDto.getNickname())
-                .phoneNumber(signInRequestDto.getPhoneNumber())
+                .email(signUpRequestDto.getEmail())
+                .password(passwordEncoder.encode(signUpRequestDto.getPassword()))
+                .nickname(signUpRequestDto.getNickname())
+                .phoneNumber(signUpRequestDto.getPhoneNumber())
                 .role(Role.valueOf("USER"))
+                .profileImgUrl(null)
+                .backgroundImgUrl(null)
                 .build());
 
-        Optional<User> user = userRepository.findByEmail(signInRequestDto.getEmail());
+        Optional<User> user = userRepository.findByEmail(signUpRequestDto.getEmail());
 
         log.info("회원가입 성공");
-        return UserDto.SignInResponseDto.builder()
+        return UserDto.SignUpResponseDto.builder()
                 .userId(user.get().getId())
                 .createdAt(user.get().getCreatedAt())
                 .build();
@@ -80,18 +84,18 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserDto.UpdatePasswordResponseDto updatePassword(UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
 
-        User originalUser = userRepository.findByEmail(updatePasswordRequestDto.getEmail())
+        User user = userRepository.findByEmail(updatePasswordRequestDto.getEmail())
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
-        User updatedUser = originalUser.builder()
+        user = user.toBuilder()
                 .password(passwordEncoder.encode(updatePasswordRequestDto.getNewPassword()))
                 .build();
 
-        userRepository.save(updatedUser);
+        userRepository.save(user);
 
         return UserDto.UpdatePasswordResponseDto.builder()
-                .userId(updatedUser.getId())
-                .updatedAt(updatedUser.getUpdatedAt())
+                .userId(user.getId())
+                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 
@@ -116,6 +120,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public void deleteUser(UUID userId) {
 
         User user = userRepository.findById(userId)
@@ -126,6 +131,12 @@ public class UserServiceImpl implements UserService{
         favoriteRepository.deleteAllByUser(user);
 
         viewRepository.deleteAllByUser(user);
+
+        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
+        profileImgService.deleteProfileImg(profileImgUrl.getS3Url());
+
+        BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
+        backgroundImgService.deleteBackgroundImg(backgroundImgUrl.getS3Url());
 
         userRepository.deleteById(userId);
     }
@@ -138,17 +149,21 @@ public class UserServiceImpl implements UserService{
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
 
+
         final ProfileImgUrl profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(updateProfileDto.getProfileImgUrlDto());
         final BackgroundImgUrl backgroundImgUrl = BackgroundImgUrl.convertBackgroundImgUrlDtoToEntity(updateProfileDto.getBackgroundImgUrlDto());
 
-        user = User.builder()
+        User updatedUser = user.toBuilder()
                 .nickname(updateProfileDto.getNickname())
                 .statusMessage(updateProfileDto.getStatusMessage())
                 .profileImgUrl(profileImgUrl)
                 .backgroundImgUrl(backgroundImgUrl)
                 .build();
 
-        userRepository.save(user);
+        profileImgService.deleteProfileImg(user.getProfileImgUrl().getS3Url());
+        backgroundImgService.deleteBackgroundImg(user.getBackgroundImgUrl().getS3Url());
+
+        userRepository.save(updatedUser);
 
         return UserDto.UpdateProfileResponseDto.builder()
                 .userId(user.getId())
@@ -157,18 +172,37 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public UserDto.UserProfileInfoResponseDto getUserProfileInfo(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
+        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
+
+        if (profileImgUrl == null) {
+            profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl(null)
+                    .s3Url(null)
+                    .build();
+        }
+
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
-                .cloudfrontUrl(user.getProfileImgUrl().getCloudfrontUrl())
-                .s3Url(user.getProfileImgUrl().getS3Url())
+                .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
+                .s3Url(profileImgUrl.getS3Url())
                 .build();
 
+        BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
+
+        if (backgroundImgUrl == null) {
+            backgroundImgUrl = BackgroundImgUrl.builder()
+                    .cloudfrontUrl(null)
+                    .s3Url(null)
+                    .build();
+        }
+
         BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
-                .cloudfrontUrl(user.getBackgroundImgUrl().getCloudfrontUrl())
-                .s3Url(user.getBackgroundImgUrl().getS3Url())
+                .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
+                .s3Url(backgroundImgUrl.getS3Url())
                 .build();
 
         int postCount = user.getPosts().size();
@@ -186,13 +220,23 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public UserDto.UserBasicProfileInfoResponseDto getUserBasicProfileInfo(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
+        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
+
+        if (profileImgUrl == null) {
+            profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl(null)
+                    .s3Url(null)
+                    .build();
+        }
+
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
-                .cloudfrontUrl(user.getProfileImgUrl().getCloudfrontUrl())
-                .s3Url(user.getProfileImgUrl().getS3Url())
+                .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
+                .s3Url(profileImgUrl.getS3Url())
                 .build();
 
         int postCount = user.getPosts().size();
@@ -206,18 +250,36 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public UserDto.UserMyProfileInfoResponseDto getUserMyProfileInfo(UUID userId) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
+        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
+
+        if(profileImgUrl == null) {
+            profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl(null)
+                    .s3Url(null)
+                    .build();
+        }
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
-                .cloudfrontUrl(user.getProfileImgUrl().getCloudfrontUrl())
-                .s3Url(user.getProfileImgUrl().getS3Url())
+                .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
+                .s3Url(profileImgUrl.getS3Url())
                 .build();
 
+        BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
+
+        if(backgroundImgUrl == null){
+            backgroundImgUrl = BackgroundImgUrl.builder()
+                    .cloudfrontUrl(null)
+                    .s3Url(null)
+                    .build();
+        }
         BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
-                .cloudfrontUrl(user.getBackgroundImgUrl().getCloudfrontUrl())
-                .s3Url(user.getBackgroundImgUrl().getS3Url())
+                .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
+                .s3Url(backgroundImgUrl.getS3Url())
                 .build();
 
         return UserDto.UserMyProfileInfoResponseDto.builder()
@@ -228,4 +290,85 @@ public class UserServiceImpl implements UserService{
                 .backgroundImgUrlDto(backgroundImgUrlDto)
                 .build();
     }
+
+    @Override
+    public boolean userExistsByIdAndPassword(UUID userId, String password) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                return true; // 인증 성공
+            }
+        }
+
+        return false; // 인증 실패
+    }
+
+    @Override
+    public UserDto.UpdatePasswordResponseDto updatePasswordInMyHere(UUID userId, UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        user = user.toBuilder()
+                .password(passwordEncoder.encode(updatePasswordInMyHereRequestDto.getNewPassword()))
+                .build();
+
+        userRepository.save(user);
+
+        return UserDto.UpdatePasswordResponseDto.builder()
+                .userId(user.getId())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    @Override
+    public UserDto.UpdatePhoneNumberResponseDto updatePhoneNumber(UUID userId, String phoneNumber) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        user = user.toBuilder()
+                .phoneNumber(phoneNumber)
+                .build();
+
+        userRepository.save(user);
+
+        return UserDto.UpdatePhoneNumberResponseDto.builder()
+                .userId(user.getId())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+//
+//    @Override
+//    @Transactional
+//    public void deleteProfileImage(UUID userId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+//
+//        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
+//
+//        profileImgService.deleteProfileImg(profileImgUrl.getS3Url());
+//
+//        user = user.toBuilder()
+//                .profileImgUrl(null)
+//                .build();
+//
+//        userRepository.save(user);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void deleteBackgroundImage(UUID userId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+//
+//        backgroundImgService.deleteBackgroundImg(user.getBackgroundImgUrl().getS3Url());
+//
+//        user = user.toBuilder()
+//                .backgroundImgUrl(null)
+//                .build();
+//
+//        userRepository.save(user);
+//    }
 }

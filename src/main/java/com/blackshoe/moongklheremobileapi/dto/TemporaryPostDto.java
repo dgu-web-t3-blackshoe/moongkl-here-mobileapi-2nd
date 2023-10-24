@@ -78,7 +78,7 @@ public class TemporaryPostDto {
     @Data
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public class TemporaryPostReadResponse {
+    public static class TemporaryPostReadResponse {
         private UUID temporaryPostId;
         private UUID userId;
         private String skin;

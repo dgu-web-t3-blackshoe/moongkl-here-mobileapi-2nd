@@ -154,6 +154,7 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
 
         final TemporaryPostDto.TemporaryPostReadResponse temporaryPostReadResponse = TemporaryPostDto.TemporaryPostReadResponse.builder()
                 .temporaryPostId(temporaryPost.getId())
+                .userId(temporaryPost.getUser().getId())
                 .skin(skinUrl.getCloudfrontUrl())
                 .story(storyUrl.getCloudfrontUrl())
                 .location(SkinLocationDto.builder()
@@ -177,6 +178,7 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
     }
 
     @Override
+    @Transactional
     public void deleteTemporaryPost(UUID uuid, User user) {
 
         final TemporaryPost temporaryPost = temporaryPostRepository.findById(uuid)
@@ -194,6 +196,7 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
     }
 
     @Override
+    @Transactional
     public TemporaryPostDto.TemporaryPostToSave getAndDeleteTemporaryPostToSave(UUID temporaryPostId, User user) {
         final TemporaryPost temporaryPost = temporaryPostRepository.findById(temporaryPostId)
                 .orElseThrow(() -> new TemporaryPostException(TemporaryPostErrorResult.TEMPORARY_POST_NOT_FOUND));

@@ -178,6 +178,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostDto.PostReadResponse getPost(UUID postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> {
             log.error("Post not found. postId: {}", postId);

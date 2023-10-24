@@ -138,6 +138,7 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
     }
 
     @Override
+    @Transactional
     public TemporaryPostDto getTemporaryPost(UUID temporaryPostId, User user) {
 
         final TemporaryPost temporaryPost = temporaryPostRepository.findById(temporaryPostId)

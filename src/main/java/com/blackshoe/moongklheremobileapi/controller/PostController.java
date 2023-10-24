@@ -50,7 +50,6 @@ public class PostController {
         this.objectMapper = objectMapper;
     }
 
-
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseDto> createPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                   @RequestPart(name = "skin") MultipartFile skin,
@@ -107,7 +106,6 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<ResponseDto> getPost(@PathVariable("postId") UUID postId) {
-
         final PostDto.PostReadResponse postReadResponse = postService.getPost(postId);
 
         final ResponseDto responseDto = ResponseDto.builder()

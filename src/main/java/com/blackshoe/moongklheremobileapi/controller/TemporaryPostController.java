@@ -99,10 +99,10 @@ public class TemporaryPostController {
 
         final User user = userPrincipal.getUser();
 
-        final TemporaryPostDto temporaryPostDto = temporaryPostService.getTemporaryPost(temporaryPostId, user);
+        final TemporaryPostDto.TemporaryPostReadResponse temporaryPostReadResponse = temporaryPostService.getTemporaryPost(temporaryPostId, user);
 
         final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(temporaryPostDto, Map.class))
+                .payload(objectMapper.convertValue(temporaryPostReadResponse, Map.class))
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);

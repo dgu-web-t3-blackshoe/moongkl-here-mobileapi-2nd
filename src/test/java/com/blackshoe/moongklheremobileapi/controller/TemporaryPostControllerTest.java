@@ -3,6 +3,7 @@ package com.blackshoe.moongklheremobileapi.controller;
 import com.blackshoe.moongklheremobileapi.config.SecurityConfig;
 import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.Role;
+import com.blackshoe.moongklheremobileapi.entity.TemporaryPost;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.TemporaryPostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.TemporaryPostException;
@@ -358,8 +359,18 @@ public class TemporaryPostControllerTest {
     @Test
     public void getTemporaryPost_whenSuccess_returns200() throws Exception {
         //given
+        TemporaryPostDto.TemporaryPostReadResponse temporaryPostReadResponse = TemporaryPostDto.TemporaryPostReadResponse.builder()
+                .temporaryPostId(UUID.randomUUID())
+                .userId(UUID.randomUUID())
+                .skin("test")
+                .story("test")
+                .location(skinLocationDto)
+                .time(skinTimeDto)
+                .createdAt(LocalDateTime.now())
+                .build();
+
         when(temporaryPostService.getTemporaryPost(any(UUID.class), any(User.class)))
-                .thenReturn(temporaryPostDto);
+                .thenReturn(temporaryPostReadResponse);
 
         //when
         final MvcResult result = mockMvc.perform(

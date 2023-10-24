@@ -320,6 +320,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostDto saveTemporaryPost(User user, TemporaryPostDto.TemporaryPostToSave temporaryPostToSave, Boolean isPublic) {
 
         final SkinUrl skinUrl = skinUrlRepository.findById(temporaryPostToSave.getSkinUrlId())

@@ -138,7 +138,8 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
     }
 
     @Override
-    public TemporaryPostDto getTemporaryPost(UUID temporaryPostId, User user) {
+    @Transactional
+    public TemporaryPostDto.TemporaryPostReadResponse getTemporaryPost(UUID temporaryPostId, User user) {
 
         final TemporaryPost temporaryPost = temporaryPostRepository.findById(temporaryPostId)
                 .orElseThrow(() -> new TemporaryPostException(TemporaryPostErrorResult.TEMPORARY_POST_NOT_FOUND));
@@ -151,9 +152,28 @@ public class TemporaryPostServiceImpl implements TemporaryPostService {
 
         final StoryUrl storyUrl = temporaryPost.getStoryUrl();
 
-        final TemporaryPostDto temporaryPostDto = convertTemporaryPostEntityToDto(skinUrl, storyUrl, temporaryPost);
+        final TemporaryPostDto.TemporaryPostReadResponse temporaryPostReadResponse = TemporaryPostDto.TemporaryPostReadResponse.builder()
+                .temporaryPostId(temporaryPost.getId())
+                .skin(skinUrl.getCloudfrontUrl())
+                .story(storyUrl.getCloudfrontUrl())
+                .location(SkinLocationDto.builder()
+                        .latitude(temporaryPost.getSkinLocation().getLatitude())
+                        .longitude(temporaryPost.getSkinLocation().getLongitude())
+                        .country(temporaryPost.getSkinLocation().getCountry())
+                        .state(temporaryPost.getSkinLocation().getState())
+                        .city(temporaryPost.getSkinLocation().getCity())
+                        .build())
+                .time(SkinTimeDto.builder()
+                        .year(temporaryPost.getSkinTime().getYear())
+                        .month(temporaryPost.getSkinTime().getMonth())
+                        .day(temporaryPost.getSkinTime().getDay())
+                        .hour(temporaryPost.getSkinTime().getHour())
+                        .minute(temporaryPost.getSkinTime().getMinute())
+                        .build())
+                .createdAt(temporaryPost.getCreatedAt())
+                .build();
 
-        return temporaryPostDto;
+        return temporaryPostReadResponse;
     }
 
     @Override

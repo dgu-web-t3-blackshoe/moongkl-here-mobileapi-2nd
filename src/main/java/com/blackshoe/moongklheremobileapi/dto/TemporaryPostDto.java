@@ -73,4 +73,18 @@ public class TemporaryPostDto {
         private UUID skinLocationId;
         private UUID skinTimeId;
     }
+
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public class TemporaryPostReadResponse {
+        private UUID temporaryPostId;
+        private UUID userId;
+        private String skin;
+        private String story;
+        private SkinLocationDto location;
+        private SkinTimeDto time;
+        private LocalDateTime createdAt;
+    }
 }

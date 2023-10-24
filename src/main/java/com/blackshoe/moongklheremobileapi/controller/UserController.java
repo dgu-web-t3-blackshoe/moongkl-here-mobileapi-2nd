@@ -61,13 +61,6 @@ public class UserController {
             UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
             ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
         }
-        if (userService.userExistsByNickname(loginRequestDto.getEmail())) {
-            log.info("이미 존재하는 닉네임");
-            UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_NICKNAME;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
         if (!userService.userExistsByEmailAndPassword(loginRequestDto.getEmail(), loginRequestDto.getPassword())) {
             log.info("비밀번호 불일치");
             UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
@@ -87,8 +80,9 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDto> signUp(@Valid @RequestBody UserDto.SignInRequestDto signInRequestDto) throws Exception {
-        if (signInRequestDto.getEmail() == null || signInRequestDto.getPassword() == null || signInRequestDto.getNickname() == null || signInRequestDto.getPhoneNumber() == null) {
+    public ResponseEntity<ResponseDto> signUp(@Valid @RequestBody UserDto.
+            SignUpRequestDto signUpRequestDto) throws Exception {
+        if (signUpRequestDto.getEmail() == null || signUpRequestDto.getPassword() == null || signUpRequestDto.getNickname() == null || signUpRequestDto.getPhoneNumber() == null) {
             log.info("필수값 누락");
             UserErrorResult userErrorResult = UserErrorResult.REQUIRED_VALUE;
             ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
@@ -96,15 +90,41 @@ public class UserController {
             return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
         }
 
-        UserDto.SignInResponseDto signInResponseDto = userService.signIn(signInRequestDto);
+
+        if (userService.userExistsByNickname(signUpRequestDto.getEmail())) {
+            log.info("이미 존재하는 닉네임");
+            UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_NICKNAME;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        }
+
+        if (userService.userExistsByEmail(signUpRequestDto.getEmail())) {
+            log.info("이미 존재하는 이메일");
+            UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_EMAIL;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        }
+
+        if (!verificationService.isVerified(signUpRequestDto.getPhoneNumber())){
+            log.info("검증되지 않은 전화번호");
+            UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_PHONE_NUMBER;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        }
+
+
+        UserDto.SignUpResponseDto signUpResponseDto = userService.signUp(signUpRequestDto);
 
         ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(signInResponseDto, Map.class))
+                .payload(objectMapper.convertValue(signUpResponseDto, Map.class))
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto); //201
     }
-    @PostMapping("/sign-in/email/validation")
+    @PostMapping("/sign-up/email/validation")
     public ResponseEntity<ResponseDto> checkDuplicatedEmail(@Valid @RequestBody UserDto.CheckDuplicatedEmailRequestDto checkDuplicatedEmailRequestDto) {
 
         if (userService.userExistsByEmail(checkDuplicatedEmailRequestDto.getEmail())) {
@@ -122,7 +142,7 @@ public class UserController {
     }
 
 
-    @PutMapping("/sign-in/password")
+    @PutMapping("/sign-up/password")
     public ResponseEntity<ResponseDto> updatePassword(@RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
         String email = updatePasswordRequestDto.getEmail();
 
@@ -135,7 +155,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //204
     }
 
-    @PostMapping("/sign-in/phone/validation")
+    @PostMapping("/sign-up/phone/validation")
     public ResponseEntity<ResponseDto> validationPhoneNumber(@RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         String phoneNumber = validationRequestDto.getPhoneNumber();
 
@@ -155,7 +175,7 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
     }
-    @PostMapping("/sign-in/phone/verification")
+    @PostMapping("/sign-up/phone/verification")
     public ResponseEntity<ResponseDto> verificationPhoneNumber(@RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         String phoneNumber = verificationRequestDto.getPhoneNumber();
 

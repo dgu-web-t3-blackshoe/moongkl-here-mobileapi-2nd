@@ -36,22 +36,22 @@ public class UserServiceImpl implements UserService{
     private final JwtTokenProvider jwtTokenProvider;
     private final ProfileImgService profileImgService;
     private final BackgroundImgService backgroundImgService;
-    public UserDto.SignInResponseDto signIn(UserDto.SignInRequestDto signInRequestDto) {
+    public UserDto.SignUpResponseDto signUp(UserDto.SignUpRequestDto signUpRequestDto) {
         //이미 존재하는 회원
         userRepository.save(User.builder()
-                .email(signInRequestDto.getEmail())
-                .password(passwordEncoder.encode(signInRequestDto.getPassword()))
-                .nickname(signInRequestDto.getNickname())
-                .phoneNumber(signInRequestDto.getPhoneNumber())
+                .email(signUpRequestDto.getEmail())
+                .password(passwordEncoder.encode(signUpRequestDto.getPassword()))
+                .nickname(signUpRequestDto.getNickname())
+                .phoneNumber(signUpRequestDto.getPhoneNumber())
                 .role(Role.valueOf("USER"))
                 .profileImgUrl(null)
                 .backgroundImgUrl(null)
                 .build());
 
-        Optional<User> user = userRepository.findByEmail(signInRequestDto.getEmail());
+        Optional<User> user = userRepository.findByEmail(signUpRequestDto.getEmail());
 
         log.info("회원가입 성공");
-        return UserDto.SignInResponseDto.builder()
+        return UserDto.SignUpResponseDto.builder()
                 .userId(user.get().getId())
                 .createdAt(user.get().getCreatedAt())
                 .build();

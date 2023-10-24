@@ -15,7 +15,7 @@ public class UserDto {
     @Getter @Setter
     @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-    public static class SignInRequestDto {
+    public static class SignUpRequestDto {
 
         @NotBlank
         @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$", message = "유효하지 않은 이메일입니다. 재시도해주세요.")
@@ -30,14 +30,14 @@ public class UserDto {
         private String nickname;
 
         @NotBlank
-        @Pattern(regexp = "\"^01(?:0|1|[6-9])(?:\\\\d{3}|\\\\d{4})\\\\d{4}$\"", message = "유효하지 않은 전화번호입니다. 재시도해주세요.")
+        @Pattern(regexp = "^01[016-9]\\d{7,8}$", message = "유효하지 않은 전화번호입니다. 재시도해주세요.")
         private String phoneNumber;
     }
 
     @Getter
     @Builder @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-    public static class SignInResponseDto{
+    public static class SignUpResponseDto{
         private UUID userId;
         private LocalDateTime createdAt;
     }

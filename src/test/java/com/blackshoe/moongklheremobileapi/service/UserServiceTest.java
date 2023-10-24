@@ -36,8 +36,8 @@ public class UserServiceTest {
                 .build();
     }
 
-    public UserDto.SignInRequestDto signInRequestDto(){
-        UserDto.SignInRequestDto signInRequestDto = new UserDto.SignInRequestDto();
+    public UserDto.SignUpRequestDto signInRequestDto(){
+        UserDto.SignUpRequestDto signInRequestDto = new UserDto.SignUpRequestDto();
 
         signInRequestDto.setEmail(user().getEmail());
         signInRequestDto.setPassword(user().getPassword());
@@ -50,7 +50,7 @@ public class UserServiceTest {
     @Test
     public void 회원가입실패_필수값누락(){
         //given
-        UserDto.SignInRequestDto signInRequestDto = new UserDto.SignInRequestDto();
+        UserDto.SignUpRequestDto signInRequestDto = new UserDto.SignUpRequestDto();
 
         signInRequestDto.setEmail(user().getEmail());
         signInRequestDto.setPassword(user().getPassword());

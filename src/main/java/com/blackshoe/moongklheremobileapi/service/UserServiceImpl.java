@@ -36,6 +36,7 @@ public class UserServiceImpl implements UserService{
     private final JwtTokenProvider jwtTokenProvider;
     private final ProfileImgService profileImgService;
     private final BackgroundImgService backgroundImgService;
+    @Transactional
     public UserDto.SignUpResponseDto signUp(UserDto.SignUpRequestDto signUpRequestDto) {
         //이미 존재하는 회원
         userRepository.save(User.builder()
@@ -58,6 +59,7 @@ public class UserServiceImpl implements UserService{
 
     }
 
+    @Transactional
     public UserDto.LoginResponseDto login(UserDto.LoginRequestDto loginRequestDto) {
 
         User user = userRepository.findByEmail(loginRequestDto.getEmail())
@@ -77,11 +79,13 @@ public class UserServiceImpl implements UserService{
                 .build();
     }
 
+    @Transactional
     public boolean userExistsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
     @Override
+    @Transactional
     public UserDto.UpdatePasswordResponseDto updatePassword(UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
 
         User user = userRepository.findByEmail(updatePasswordRequestDto.getEmail())
@@ -100,11 +104,13 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public boolean userExistsByNickname(String nickname) {
         return userRepository.existsByNickname(nickname);
     }
 
     @Override
+    @Transactional
     public boolean userExistsByEmailAndPassword(String email, String password) {
         Optional<User> userOptional = userRepository.findByEmail(email);
 
@@ -292,6 +298,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public boolean userExistsByIdAndPassword(UUID userId, String password) {
         Optional<User> userOptional = userRepository.findById(userId);
 
@@ -307,6 +314,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public UserDto.UpdatePasswordResponseDto updatePasswordInMyHere(UUID userId, UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
@@ -324,6 +332,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public UserDto.UpdatePhoneNumberResponseDto updatePhoneNumber(UUID userId, String phoneNumber) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));

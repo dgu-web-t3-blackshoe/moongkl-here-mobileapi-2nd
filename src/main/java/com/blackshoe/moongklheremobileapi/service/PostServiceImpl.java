@@ -165,7 +165,7 @@ public class PostServiceImpl implements PostService {
             throw new PostException(PostErrorResult.POST_NOT_FOUND);
         });
 
-        if (post.getUser().getId() != user.getId()) {
+        if (post.getUser().getId().equals(user.getId())) {
             log.error("User does not have permission to change post isPublic. postId: {}", postId);
             throw new PostException(PostErrorResult.USER_NOT_MATCH);
         }

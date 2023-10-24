@@ -7,7 +7,6 @@ import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.*;
 import com.blackshoe.moongklheremobileapi.vo.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -165,7 +164,7 @@ public class PostServiceImpl implements PostService {
             throw new PostException(PostErrorResult.POST_NOT_FOUND);
         });
 
-        if (post.getUser().getId() != user.getId()) {
+        if (post.getUser().getId().equals(user.getId())) {
             log.error("User does not have permission to change post isPublic. postId: {}", postId);
             throw new PostException(PostErrorResult.USER_NOT_MATCH);
         }
@@ -378,5 +377,33 @@ public class PostServiceImpl implements PostService {
 
             postRepository.delete(post);
 
+    }
+
+    @Override
+    public Page<PostDto.PostListReadResponse> getPublicUserPostList(UUID user, String sort, Integer size) {
+
+        final SortType sortType = SortType.verifyAndConvertStringToSortType(sort);
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, SortType.getSortField(sortType));
+        final Pageable pageable = PageRequest.of(0, size, sortBy);
+
+        final Page<PostDto.PostListReadResponse> userPostDefaultReadResponsePage
+                = postRepository.findAllPublicUserPost(user, pageable);
+
+        return userPostDefaultReadResponsePage;
+    }
+
+    @Override
+    public Page<PostDto.PostListReadResponse> getAllUserPostList(User user, String sort, Integer size, Integer page) {
+
+        final SortType sortType = SortType.verifyAndConvertStringToSortType(sort);
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, SortType.getSortField(sortType));
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        final Page<PostDto.PostListReadResponse> userPostDefaultReadResponsePage
+                = postRepository.findAllUserPost(user, pageable);
+
+        return userPostDefaultReadResponsePage;
     }
 }

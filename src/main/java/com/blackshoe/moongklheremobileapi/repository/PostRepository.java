@@ -10,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -107,4 +106,17 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month < :#{#postTimeFilter.toMonth}) OR " +
             "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month = :#{#postTimeFilter.toMonth} AND p.skinTime.day <= :#{#postTimeFilter.toDay})) " )
     Page<PostDto.PostListReadResponse> findAllUserPostBySkinTime(User user, PostTimeFilter postTimeFilter, Pageable pageable);
+
+    @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +
+            "p.id, p.user.id, p.skinUrl.cloudfrontUrl, p.storyUrl.cloudfrontUrl) " +
+            "FROM Post p " +
+            "WHERE p.user.id = :userId " +
+            "AND p.isPublic = true")
+    Page<PostDto.PostListReadResponse> findAllPublicUserPost(UUID userId, Pageable pageable);
+
+    @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +
+            "p.id, p.user.id, p.skinUrl.cloudfrontUrl, p.storyUrl.cloudfrontUrl) " +
+            "FROM Post p " +
+            "WHERE p.user = :user " )
+    Page<PostDto.PostListReadResponse> findAllUserPost(User user, Pageable pageable);
 }

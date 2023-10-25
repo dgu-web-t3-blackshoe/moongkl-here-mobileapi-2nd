@@ -183,14 +183,14 @@ public class PostDto {
     @Data
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public class DidUserLikedPostResponse {
+    public static class DidUserLikedPostResponse {
         private Boolean isTrue;
     }
 
     @Data
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public class DidUserFavoritePostResponse {
+    public static class DidUserFavoritePostResponse {
         private Boolean isTrue;
     }
 }

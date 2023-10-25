@@ -248,11 +248,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
     }
 
-    @GetMapping("/profile/details") //API - 133
-    public ResponseEntity<ResponseDto> getUserDetailProfileInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception{
-        final User user = userPrincipal.getUser();
-
-        UUID userId = user.getId();
+    @GetMapping("/profile/{userId}/details") //API - 133
+    public ResponseEntity<ResponseDto> getUserDetailProfileInfo(@PathVariable UUID userId) throws Exception{
 
         UserDto.UserProfileInfoResponseDto userProfileInfoResponseDto = userService.getUserProfileInfo(userId);
 
@@ -262,10 +259,10 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
-    @GetMapping("/profile/general") //API - 120
-    public ResponseEntity<ResponseDto> getUserBasicProfileInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception{
-        final User user = userPrincipal.getUser();
-        UserDto.UserBasicProfileInfoResponseDto userBasicProfileInfoResponseDto = userService.getUserBasicProfileInfo(userPrincipal.getUser().getId());
+    @GetMapping("/profile/{userId}/general") //API - 120
+    public ResponseEntity<ResponseDto> getUserBasicProfileInfo(@PathVariable UUID userId) throws Exception{
+
+        UserDto.UserBasicProfileInfoResponseDto userBasicProfileInfoResponseDto = userService.getUserBasicProfileInfo(userId);
 
         ResponseDto responseDto = ResponseDto.builder()
                 .payload(objectMapper.convertValue(userBasicProfileInfoResponseDto, Map.class))

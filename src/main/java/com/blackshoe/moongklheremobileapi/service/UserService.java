@@ -22,4 +22,6 @@ public interface UserService {
     boolean userExistsByIdAndPassword(UUID userId, String password);
     UserDto.UpdatePasswordResponseDto updatePasswordInMyHere(UUID userId, UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto);
     UserDto.UpdatePhoneNumberResponseDto updatePhoneNumber(UUID userId, String phoneNumber);
+    UserDto.GetPhoneNumberResponseDto getPhoneNumber(UUID userId);
+    UserDto.GetEmailResponseDto getEmail(UUID userId);
 }

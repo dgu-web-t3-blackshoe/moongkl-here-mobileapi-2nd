@@ -81,4 +81,24 @@ public class LikeController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
 
     }
+
+    @GetMapping("/{userId}/{postId}")
+    public ResponseEntity<ResponseDto> didUserLikedPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                        @PathVariable UUID userId,
+                                                        @PathVariable UUID postId) {
+        final User user = userPrincipal.getUser();
+
+        if (!user.getId().equals(userId)) {
+            throw new InteractionException(InteractionErrorResult.LIKE_USER_NOT_MATCH);
+        }
+
+        final PostDto.DidUserLikedPostResponse didUserLikedPostResponse =
+                likeService.didUserLikedPost(user, postId);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(didUserLikedPostResponse, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
 }

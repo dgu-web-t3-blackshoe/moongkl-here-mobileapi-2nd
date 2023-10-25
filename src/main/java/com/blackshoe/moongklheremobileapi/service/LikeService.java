@@ -12,4 +12,6 @@ public interface LikeService {
     PostDto.LikePostDto dislikePost(UUID postId, User user);
 
     Page<PostDto.PostListReadResponse> getUserLikedPostList(User user, int size, int page);
+
+    PostDto.DidUserLikedPostResponse didUserLikedPost(User user, UUID postId);
 }

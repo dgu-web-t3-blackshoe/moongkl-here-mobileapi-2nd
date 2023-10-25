@@ -91,4 +91,18 @@ public class LikeServiceImpl implements LikeService {
 
         return userLikedPostResponse;
     }
+
+    @Override
+    public PostDto.DidUserLikedPostResponse didUserLikedPost(User user, UUID postId) {
+
+        final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
+
+        final Boolean didUserLikedPost = likeRepository.existsByPostAndUser(post, user);
+
+        final PostDto.DidUserLikedPostResponse didUserLikedPostResponse = PostDto.DidUserLikedPostResponse.builder()
+                .isTrue(didUserLikedPost)
+                .build();
+
+        return didUserLikedPostResponse;
+    }
 }

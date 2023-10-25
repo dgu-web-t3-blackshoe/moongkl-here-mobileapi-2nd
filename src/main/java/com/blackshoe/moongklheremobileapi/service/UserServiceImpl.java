@@ -26,7 +26,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
@@ -276,7 +276,7 @@ public class UserServiceImpl implements UserService{
 
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
 
-        if(profileImgUrl == null) {
+        if (profileImgUrl == null) {
             profileImgUrl = ProfileImgUrl.builder()
                     .cloudfrontUrl(null)
                     .s3Url(null)
@@ -289,7 +289,7 @@ public class UserServiceImpl implements UserService{
 
         BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
 
-        if(backgroundImgUrl == null){
+        if (backgroundImgUrl == null) {
             backgroundImgUrl = BackgroundImgUrl.builder()
                     .cloudfrontUrl(null)
                     .s3Url(null)
@@ -360,36 +360,26 @@ public class UserServiceImpl implements UserService{
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
-//
-//    @Override
-//    @Transactional
-//    public void deleteProfileImage(UUID userId) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
-//
-//        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
-//
-//        profileImgService.deleteProfileImg(profileImgUrl.getS3Url());
-//
-//        user = user.toBuilder()
-//                .profileImgUrl(null)
-//                .build();
-//
-//        userRepository.save(user);
-//    }
-//
-//    @Override
-//    @Transactional
-//    public void deleteBackgroundImage(UUID userId) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
-//
-//        backgroundImgService.deleteBackgroundImg(user.getBackgroundImgUrl().getS3Url());
-//
-//        user = user.toBuilder()
-//                .backgroundImgUrl(null)
-//                .build();
-//
-//        userRepository.save(user);
-//    }
+
+    @Override
+    public UserDto.GetPhoneNumberResponseDto getPhoneNumber(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        return UserDto.GetPhoneNumberResponseDto.builder()
+                .userId(user.getId())
+                .phoneNumber(user.getPhoneNumber())
+                .build();
+    }
+
+    @Override
+    public UserDto.GetEmailResponseDto getEmail(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        return UserDto.GetEmailResponseDto.builder()
+                .userId(user.getId())
+                .email(user.getEmail())
+                .build();
+    }
 }

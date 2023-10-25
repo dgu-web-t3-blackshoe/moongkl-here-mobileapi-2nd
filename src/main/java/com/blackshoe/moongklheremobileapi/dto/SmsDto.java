@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class SmsDto {
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class ValidationRequestDto{
         @NotBlank
+        @Pattern(regexp = "^01[016-9]\\d{8}$", message = "유효하지 않은 전화번호입니다. 재시도해주세요.")
         String phoneNumber;
     }
 
@@ -21,6 +23,7 @@ public class SmsDto {
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class VerificationRequestDto{
         @NotBlank
+        @Pattern(regexp = "^01[016-9]\\d{8}$", message = "유효하지 않은 전화번호입니다. 재시도해주세요.")
         String phoneNumber;
         @NotBlank
         String verificationCode;

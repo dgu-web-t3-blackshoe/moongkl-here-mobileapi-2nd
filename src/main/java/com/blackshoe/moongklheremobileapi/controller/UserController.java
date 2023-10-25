@@ -143,7 +143,7 @@ public class UserController {
 
 
     @PutMapping("/sign-up/password")
-    public ResponseEntity<ResponseDto> updatePassword(@RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
+    public ResponseEntity<ResponseDto> updatePassword(@Valid @RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
         String email = updatePasswordRequestDto.getEmail();
 
         UserDto.UpdatePasswordResponseDto updatePasswordResponseDto = userService.updatePassword(updatePasswordRequestDto);
@@ -156,7 +156,7 @@ public class UserController {
     }
 
     @PostMapping("/sign-up/phone/validation")
-    public ResponseEntity<ResponseDto> validationPhoneNumber(@RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto> validationPhoneNumber(@Valid @RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         String phoneNumber = validationRequestDto.getPhoneNumber();
 
         String verificationCode = verificationService.makeVerificationCode();
@@ -176,7 +176,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
     }
     @PostMapping("/sign-up/phone/verification")
-    public ResponseEntity<ResponseDto> verificationPhoneNumber(@RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto> verificationPhoneNumber(@Valid @RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         String phoneNumber = verificationRequestDto.getPhoneNumber();
 
         if (verificationService.verifyCode(verificationRequestDto.getPhoneNumber(), verificationRequestDto.getVerificationCode())) {
@@ -195,7 +195,7 @@ public class UserController {
     }
 
     @PostMapping("/phone/verification")
-    public ResponseEntity<ResponseDto> verificationPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto> verificationPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal, @Valid @RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         final User user = userPrincipal.getUser();
 
         String phoneNumber = verificationRequestDto.getPhoneNumber();
@@ -215,7 +215,7 @@ public class UserController {
         }
     }
     @PostMapping("/phone/validation")
-    public ResponseEntity<ResponseDto> validationPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto> validationPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal, @Valid @RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         final User user = userPrincipal.getUser();
 
         String phoneNumber = validationRequestDto.getPhoneNumber();
@@ -321,7 +321,7 @@ public class UserController {
     }
 
     @PutMapping("/password") //API-92
-    public ResponseEntity<ResponseDto> updatePasswordInMyHere(@RequestBody UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto,
+    public ResponseEntity<ResponseDto> updatePasswordInMyHere(@Valid @RequestBody UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto,
                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
         final User user = userPrincipal.getUser();
 
@@ -346,7 +346,7 @@ public class UserController {
 
     //API-32 전화번호 변경 전화번호 검증되었으면 전화번호 변경
     @PutMapping("/phone-number") //API-32
-    public ResponseEntity<ResponseDto> updatePhoneNumberInMyHere(@RequestBody UserDto.UpdatePhoneNumberRequestDto updatePhoneNumberRequestDto,
+    public ResponseEntity<ResponseDto> updatePhoneNumberInMyHere(@Valid @RequestBody UserDto.UpdatePhoneNumberRequestDto updatePhoneNumberRequestDto,
                                                               @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
         final User user = userPrincipal.getUser();
 

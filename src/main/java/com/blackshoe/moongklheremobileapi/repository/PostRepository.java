@@ -52,7 +52,7 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month < :#{#postTimeFilter.toMonth}) OR " +
             "       (p.skinTime.year = :#{#postTimeFilter.toYear} AND p.skinTime.month = :#{#postTimeFilter.toMonth} AND p.skinTime.day <= :#{#postTimeFilter.toDay})) " +
             "  AND p.isPublic = true" +
-            "  AND (p.skinLocation.country = 'Republic of Korea' OR p.skinLocation.country = 'Korea' OR p.skinLocation.country = 'South Korea' OR p.skinLocation.country = '대한민국' OR p.skinLocation.country = '한국')")
+            "  AND (p.skinLocation.country != 'Republic of Korea' AND p.skinLocation.country != 'Korea' AND p.skinLocation.country != 'South Korea' AND p.skinLocation.country != '대한민국' AND p.skinLocation.country != '한국')")
     Page<PostDto.PostListReadResponse> findAllBySkinTimeBetweenAndAbroadAndIsPublic(PostTimeFilter postTimeFilter, Pageable pageable);
 
     @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +

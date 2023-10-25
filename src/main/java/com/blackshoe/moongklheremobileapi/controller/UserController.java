@@ -368,11 +368,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
 
-    @GetMapping("/phone-number")
-    public ResponseEntity<ResponseDto> getPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
-        final User user = userPrincipal.getUser();
-
-        UUID userId = user.getId();
+    @GetMapping("/{userId}/phone-number")
+    public ResponseEntity<ResponseDto> getPhoneNumberWithUserId(@PathVariable UUID userId) throws Exception {
 
         UserDto.GetPhoneNumberResponseDto getPhoneNumberResponseDto = userService.getPhoneNumber(userId);
 
@@ -383,12 +380,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
 
-    @GetMapping("/email")
-    public ResponseEntity<ResponseDto> getEmailInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
-        final User user = userPrincipal.getUser();
-
-        UUID userId = user.getId();
-
+    @GetMapping("/{userId}/email")
+    public ResponseEntity<ResponseDto> getEmailWithUserId(@PathVariable UUID userId) throws Exception {
         UserDto.GetEmailResponseDto getEmailResponseDto = userService.getEmail(userId);
 
         ResponseDto responseDto = ResponseDto.builder()

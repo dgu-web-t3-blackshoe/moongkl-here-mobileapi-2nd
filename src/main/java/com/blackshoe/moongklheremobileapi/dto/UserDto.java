@@ -30,7 +30,7 @@ public class UserDto {
         private String nickname;
 
         @NotBlank
-        @Pattern(regexp = "^01[016-9]\\d{7,8}$", message = "유효하지 않은 전화번호입니다. 재시도해주세요.")
+        @Pattern(regexp = "^01[016-9]\\d{8}$", message = "유효하지 않은 전화번호입니다. 재시도해주세요.")
         private String phoneNumber;
     }
 
@@ -123,8 +123,7 @@ public class UserDto {
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class UserProfileInfoResponseDto{
         private UUID userId;
-        @NotBlank
-        @Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,10}$", message = "유효하지 않은 닉네임(2자리 이상 10자리 사이이며 특수 문자 미포함)입니다. 재시도해주세요.")
+
         private String nickname;
         private String statusMessage;
         private int likeCount;
@@ -139,8 +138,7 @@ public class UserDto {
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class UserBasicProfileInfoResponseDto{
         private UUID userId;
-        @NotBlank
-        @Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,10}$", message = "유효하지 않은 닉네임(2자리 이상 10자리 사이이며 특수 문자 미포함)입니다. 재시도해주세요.")
+
         private String nickname;
         private int postCount;
         private ProfileImgUrlDto profileImgUrlDto;
@@ -150,8 +148,7 @@ public class UserDto {
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class UserMyProfileInfoResponseDto{
         private UUID userId;
-        @NotBlank
-        @Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,10}$", message = "유효하지 않은 닉네임(2자리 이상 10자리 사이이며 특수 문자 미포함)입니다. 재시도해주세요.")
+
         private String nickname;
         private String statusMessage;
         private BackgroundImgUrlDto backgroundImgUrlDto;
@@ -193,8 +190,24 @@ public class UserDto {
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class UpdatePhoneNumberRequestDto{
         @NotBlank
-        @Pattern(regexp = "\"^01(?:0|1|[6-9])(?:\\\\d{3}|\\\\d{4})\\\\d{4}$\"", message = "유효하지 않은 전화번호입니다. 재시도해주세요.")
+        @Pattern(regexp = "^01[016-9]\\d{8}$", message = "유효하지 않은 전화번호입니다. 재시도해주세요.")
         private String phoneNumber;
+    }
+
+    @Getter
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class GetPhoneNumberResponseDto{
+        private UUID userId;
+        private String phoneNumber;
+    }
+
+    @Getter
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class GetEmailResponseDto{
+        private UUID userId;
+        private String email;
     }
 }
 

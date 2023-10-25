@@ -369,4 +369,34 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
+
+    @GetMapping("/phone-number")
+    public ResponseEntity<ResponseDto> getPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
+        final User user = userPrincipal.getUser();
+
+        UUID userId = user.getId();
+
+        UserDto.GetPhoneNumberResponseDto getPhoneNumberResponseDto = userService.getPhoneNumber(userId);
+
+        ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(getPhoneNumberResponseDto, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
+    }
+
+    @GetMapping("/email")
+    public ResponseEntity<ResponseDto> getEmailInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
+        final User user = userPrincipal.getUser();
+
+        UUID userId = user.getId();
+
+        UserDto.GetEmailResponseDto getEmailResponseDto = userService.getEmail(userId);
+
+        ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(getEmailResponseDto, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
+    }
 }

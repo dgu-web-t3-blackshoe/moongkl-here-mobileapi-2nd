@@ -179,4 +179,18 @@ public class PostDto {
         private UUID postId;
         private String deletedAt;
     }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public class DidUserLikedPostResponse {
+        private Boolean isTrue;
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public class DidUserFavoritePostResponse {
+        private Boolean isTrue;
+    }
 }

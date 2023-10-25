@@ -82,4 +82,24 @@ public class FavoriteController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @GetMapping("/{userId}/{postId}")
+    public ResponseEntity<ResponseDto> didUserFavoritePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                           @PathVariable UUID userId,
+                                                           @PathVariable UUID postId) {
+
+        final User user = userPrincipal.getUser();
+
+        if (!user.getId().equals(userId)) {
+            throw new InteractionException(InteractionErrorResult.FAVORITE_USER_NOT_MATCH);
+        }
+
+        final PostDto.DidUserFavoritePostResponse didUserFavoritePostResponse =
+                favoriteService.didUserFavoritePost(user, postId);
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .payload(objectMapper.convertValue(didUserFavoritePostResponse, Map.class))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
 }

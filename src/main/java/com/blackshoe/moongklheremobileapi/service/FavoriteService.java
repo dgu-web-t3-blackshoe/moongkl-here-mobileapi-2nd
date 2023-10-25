@@ -12,4 +12,6 @@ public interface FavoriteService {
     PostDto.FavoritePostDto deleteFavoritePost(UUID postId, User user);
 
     Page<PostDto.PostListReadResponse> getUserFavoritePostList(User user, Integer size, Integer page);
+
+    PostDto.DidUserFavoritePostResponse didUserFavoritePost(User user, UUID postId);
 }

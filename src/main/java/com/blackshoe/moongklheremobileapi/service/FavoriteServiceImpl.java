@@ -91,4 +91,18 @@ public class FavoriteServiceImpl implements FavoriteService {
 
         return userFavoritePostResponse;
     }
+
+    @Override
+    public PostDto.DidUserFavoritePostResponse didUserFavoritePost(User user, UUID postId) {
+
+        final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
+
+        final boolean didUserFavoritePost = favoriteRepository.existsByPostAndUser(post, user);
+
+        final PostDto.DidUserFavoritePostResponse didUserFavoritePostResponse = PostDto.DidUserFavoritePostResponse.builder()
+                .isTrue(didUserFavoritePost)
+                .build();
+
+        return didUserFavoritePostResponse;
+    }
 }

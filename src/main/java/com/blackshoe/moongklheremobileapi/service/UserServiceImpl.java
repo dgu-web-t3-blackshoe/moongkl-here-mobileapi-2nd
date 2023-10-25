@@ -197,13 +197,6 @@ public class UserServiceImpl implements UserService {
 
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
 
-        if (profileImgUrl == null) {
-            profileImgUrl = ProfileImgUrl.builder()
-                    .cloudfrontUrl(null)
-                    .s3Url(null)
-                    .build();
-        }
-
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
                 .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
                 .s3Url(profileImgUrl.getS3Url())
@@ -211,19 +204,14 @@ public class UserServiceImpl implements UserService {
 
         BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
 
-        if (backgroundImgUrl == null) {
-            backgroundImgUrl = BackgroundImgUrl.builder()
-                    .cloudfrontUrl(null)
-                    .s3Url(null)
-                    .build();
-        }
-
         BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
                 .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
                 .s3Url(backgroundImgUrl.getS3Url())
                 .build();
 
         int postCount = user.getPosts().size();
+        int likeCount = likeRepository.countByUserId(userId);
+        int favoriteCount = favoriteRepository.countByUserId(userId);
 
         return UserDto.UserProfileInfoResponseDto.builder()
                 .userId(user.getId())
@@ -231,8 +219,8 @@ public class UserServiceImpl implements UserService {
                 .statusMessage(user.getStatusMessage())
                 .profileImgUrlDto(profileImgUrlDto)
                 .backgroundImgUrlDto(backgroundImgUrlDto)
-                .likeCount(user.getLikeCount())
-                .favoriteCount(user.getFavoriteCount())
+                .likeCount(likeCount)
+                .favoriteCount(favoriteCount)
                 .postCount(postCount)
                 .build();
     }
@@ -244,13 +232,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
-
-        if (profileImgUrl == null) {
-            profileImgUrl = ProfileImgUrl.builder()
-                    .cloudfrontUrl(null)
-                    .s3Url(null)
-                    .build();
-        }
 
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
                 .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
@@ -276,12 +257,6 @@ public class UserServiceImpl implements UserService {
 
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
 
-        if (profileImgUrl == null) {
-            profileImgUrl = ProfileImgUrl.builder()
-                    .cloudfrontUrl(null)
-                    .s3Url(null)
-                    .build();
-        }
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
                 .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
                 .s3Url(profileImgUrl.getS3Url())
@@ -289,12 +264,6 @@ public class UserServiceImpl implements UserService {
 
         BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
 
-        if (backgroundImgUrl == null) {
-            backgroundImgUrl = BackgroundImgUrl.builder()
-                    .cloudfrontUrl(null)
-                    .s3Url(null)
-                    .build();
-        }
         BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
                 .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
                 .s3Url(backgroundImgUrl.getS3Url())

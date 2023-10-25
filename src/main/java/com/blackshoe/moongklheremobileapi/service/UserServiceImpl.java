@@ -38,6 +38,17 @@ public class UserServiceImpl implements UserService{
     private final BackgroundImgService backgroundImgService;
     @Transactional
     public UserDto.SignUpResponseDto signUp(UserDto.SignUpRequestDto signUpRequestDto) {
+
+        ProfileImgUrl profileImgUrl = ProfileImgUrl.builder()
+                .cloudfrontUrl("")
+                .s3Url("")
+                .build();
+
+        BackgroundImgUrl backgroundImgUrl = BackgroundImgUrl.builder()
+                .cloudfrontUrl("")
+                .s3Url("")
+                .build();
+
         //이미 존재하는 회원
         userRepository.save(User.builder()
                 .email(signUpRequestDto.getEmail())
@@ -45,8 +56,8 @@ public class UserServiceImpl implements UserService{
                 .nickname(signUpRequestDto.getNickname())
                 .phoneNumber(signUpRequestDto.getPhoneNumber())
                 .role(Role.valueOf("USER"))
-                .profileImgUrl(null)
-                .backgroundImgUrl(null)
+                .profileImgUrl(profileImgUrl)
+                .backgroundImgUrl(backgroundImgUrl)
                 .build());
 
         Optional<User> user = userRepository.findByEmail(signUpRequestDto.getEmail());
@@ -142,7 +153,6 @@ public class UserServiceImpl implements UserService{
         profileImgService.deleteProfileImg(profileImgUrl.getS3Url());
 
         BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
-        backgroundImgService.deleteBackgroundImg(backgroundImgUrl.getS3Url());
 
         userRepository.deleteById(userId);
     }
@@ -155,7 +165,6 @@ public class UserServiceImpl implements UserService{
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
 
-
         final ProfileImgUrl profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(updateProfileDto.getProfileImgUrlDto());
         final BackgroundImgUrl backgroundImgUrl = BackgroundImgUrl.convertBackgroundImgUrlDtoToEntity(updateProfileDto.getBackgroundImgUrlDto());
 
@@ -166,10 +175,13 @@ public class UserServiceImpl implements UserService{
                 .backgroundImgUrl(backgroundImgUrl)
                 .build();
 
-        profileImgService.deleteProfileImg(user.getProfileImgUrl().getS3Url());
-        backgroundImgService.deleteBackgroundImg(user.getBackgroundImgUrl().getS3Url());
+        log.info("updatedUser {}", updatedUser);
+        log.info("user {}", user);
 
         userRepository.save(updatedUser);
+
+        profileImgService.deleteProfileImg(user.getProfileImgUrl().getS3Url());
+        backgroundImgService.deleteBackgroundImg(user.getBackgroundImgUrl().getS3Url());
 
         return UserDto.UpdateProfileResponseDto.builder()
                 .userId(user.getId())

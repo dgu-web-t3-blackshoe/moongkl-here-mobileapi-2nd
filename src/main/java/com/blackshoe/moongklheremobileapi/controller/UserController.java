@@ -294,8 +294,9 @@ public class UserController {
                                                      @RequestPart(name = "background_img") MultipartFile backgroundImg,
                                                      @RequestPart(name = "update_profile_request")UserDto.UpdateProfileRequestDto updateProfileRequestDto,
                                                      @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
+        log.info("updateProfileRequestDto : {}", updateProfileRequestDto);
         final User user = userPrincipal.getUser();
-
+        log.info("user : {}", user);
         UUID userId = user.getId();
 
         final ProfileImgUrlDto profileImgUrlDto = profileService.uploadProfileImg(userId, profileImg);

@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +43,7 @@ public class TemporaryPostController {
     }
 
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseDto> createTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                            @RequestPart(name = "skin") MultipartFile skin,
@@ -71,6 +73,7 @@ public class TemporaryPostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}")
     public ResponseEntity<ResponseDto> getUserTemporaryPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                 @PathVariable UUID userId,
@@ -93,6 +96,7 @@ public class TemporaryPostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}/{temporaryPostId}")
     public ResponseEntity<ResponseDto> getTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                         @PathVariable UUID temporaryPostId) {
@@ -108,6 +112,7 @@ public class TemporaryPostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{userId}/{temporaryPostId}")
     public ResponseEntity<ResponseDto> deleteTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                            @PathVariable UUID temporaryPostId) {

@@ -1,5 +1,6 @@
 package com.blackshoe.moongklheremobileapi.exception;
 
+import com.amazonaws.Response;
 import com.blackshoe.moongklheremobileapi.dto.ResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -11,11 +12,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.stream.Collectors;
 
 @Slf4j
 @ControllerAdvice
 public class ControllerExceptionAdvice {
+
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<ResponseDto> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
 
@@ -115,7 +121,15 @@ public class ControllerExceptionAdvice {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseDto> handleException(Exception e) {
 
-        log.error("Exception", e);
+        log.error("Exception" + String.valueOf(e));
+
+        if(e.getClass().getName().equals("org.springframework.security.access.AccessDeniedException")){
+            final ResponseDto responseDto = ResponseDto.builder()
+                    .error(e.getMessage())
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDto);
+        }
 
         final ResponseDto responseDto = ResponseDto.builder()
                 .error(e.getMessage())
@@ -123,4 +137,6 @@ public class ControllerExceptionAdvice {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
     }
+
+
 }

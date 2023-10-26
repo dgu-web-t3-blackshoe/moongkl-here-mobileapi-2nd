@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.UUID;
 
 @Slf4j
@@ -59,9 +60,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 log.info("SecurityContextHolder.getContext().setAuthentication(authentication)" + authentication);
             }
             //spring security set user
-
             chain.doFilter(request, response);
-        }catch(Exception e){
+
+        }
+        catch(Exception e){
             log.error("Could not set user authentication in security context", e);
         }
     }

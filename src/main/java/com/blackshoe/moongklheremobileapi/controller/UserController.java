@@ -172,7 +172,13 @@ public class UserController {
     @PutMapping("/sign-up/password")
     public ResponseEntity<ResponseDto> updatePassword(@Valid @RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
         String email = updatePasswordRequestDto.getEmail();
+        if (!verificationService.isVerified(email)) {
+            log.info("검증되지 않은 이메일");
+            UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_EMAIL;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
 
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        }
         UserDto.UpdatePasswordResponseDto updatePasswordResponseDto = userService.updatePassword(updatePasswordRequestDto);
 
         ResponseDto responseDto = ResponseDto.builder()
@@ -443,5 +449,55 @@ public class UserController {
         }
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
+    }
+
+    //email validation, verification
+    @PostMapping("/email/validation")
+    public ResponseEntity<ResponseDto> validationEmail(@Valid @RequestBody MailDto.MailRequestDto mailRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        String email = mailRequestDto.getEmail();
+
+        if (!userService.userExistsByEmail(email)) {
+            log.info("존재하지 않는 회원");
+            UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
+            ResponseDto responseDto = ResponseDto.builder()
+                    .error(userErrorResult.getMessage())
+                    .build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        }
+
+
+        String verificationCode = verificationService.makeVerificationCode();
+
+        MailDto.MailSendDto mailSendDto = MailDto.MailSendDto.builder()
+                .email(email)
+                .title("뭉클히어 이메일 인증코드입니다.")
+                .content("인증번호는 [" + verificationCode + "]입니다.")
+                .build();
+        mailService.sendMail(mailSendDto);
+
+        verificationService.saveVerificationCode(email, verificationCode);
+        verificationService.saveCompletionCode(email, false);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
+    }
+    @PostMapping("/email/verification")
+    public ResponseEntity<ResponseDto> verificationEmail(@RequestBody MailDto.MailVerifyDto mailVerifyDto) {
+        String email = mailVerifyDto.getEmail();
+
+        if (verificationService.verifyCode(email, mailVerifyDto.getVerificationCode())) {
+            log.info("인증 코드 검증 성공");
+            //검증 성공 후 코드 삭제, 완료 코드 생성
+            verificationService.deleteVerificationCode(email);
+            verificationService.saveCompletionCode(email, true);
+
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
+        } else {
+            log.info("인증 코드 검증 실패");
+            UserErrorResult userErrorResult = UserErrorResult.FAILED_VALIDATING_CODE;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        }
     }
 }

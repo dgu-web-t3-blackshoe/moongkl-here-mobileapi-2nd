@@ -24,4 +24,7 @@ public interface UserService {
     UserDto.UpdatePhoneNumberResponseDto updatePhoneNumber(UUID userId, String phoneNumber);
     UserDto.GetPhoneNumberResponseDto getPhoneNumber(UUID userId);
     UserDto.GetEmailResponseDto getEmail(UUID userId);
+    boolean userHasProvider(String email);
+
+    UserDto.SocialSignUpResponseDto socialSignUp(UserDto.SignUpRequestDto signUpRequestDto);
 }

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -82,47 +83,74 @@ public class UserController {
     @PostMapping
     public ResponseEntity<ResponseDto> signUp(@Valid @RequestBody UserDto.
             SignUpRequestDto signUpRequestDto) throws Exception {
-        if (signUpRequestDto.getEmail() == null || signUpRequestDto.getPassword() == null || signUpRequestDto.getNickname() == null || signUpRequestDto.getPhoneNumber() == null) {
-            log.info("필수값 누락");
-            UserErrorResult userErrorResult = UserErrorResult.REQUIRED_VALUE;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
 
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        try{
+            if (signUpRequestDto.getEmail() == null || signUpRequestDto.getPassword() == null || signUpRequestDto.getNickname() == null || signUpRequestDto.getPhoneNumber() == null) {
+                log.info("필수값 누락");
+                UserErrorResult userErrorResult = UserErrorResult.REQUIRED_VALUE;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+
+
+            if (userService.userExistsByNickname(signUpRequestDto.getEmail())) {
+                log.info("이미 존재하는 닉네임");
+                UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_NICKNAME;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+
+
+            if (!verificationService.isVerified(signUpRequestDto.getPhoneNumber())){
+                log.info("검증되지 않은 전화번호");
+                UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_PHONE_NUMBER;
+                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+            boolean userHasProvider = userService.userHasProvider(signUpRequestDto.getEmail());
+
+            if (userService.userExistsByEmail(signUpRequestDto.getEmail()) && !userHasProvider) {
+                log.info("이미 존재하는 이메일");
+                UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_EMAIL;
+
+                ResponseDto responseDto = ResponseDto.builder()
+                        .error(userErrorResult.getMessage())
+                        .build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+            }
+
+            log.info("UserHasProvider: " + userHasProvider);
+
+            if (!userHasProvider) {
+                UserDto.SignUpResponseDto signUpResponseDto = userService.signUp(signUpRequestDto);
+
+                ResponseDto responseDto = ResponseDto.builder()
+                        .payload(objectMapper.convertValue(signUpResponseDto, Map.class))
+                        .build();
+
+                return ResponseEntity.status(HttpStatus.CREATED).body(responseDto); //201
+
+            } else if (userHasProvider) {
+                UserDto.SocialSignUpResponseDto socialSignUpResponseDto = userService.socialSignUp(signUpRequestDto);
+
+                ResponseDto responseDto = ResponseDto.builder()
+                        .payload(objectMapper.convertValue(socialSignUpResponseDto, Map.class))
+                        .build();
+
+                return ResponseEntity.status(HttpStatus.CREATED).body(responseDto); //201
+            }
+        }catch(Exception e){
+            log.info("회원가입 실패");
+            ResponseDto responseDto = ResponseDto.builder()
+                    .error("회원가입 실패")
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto); //400
         }
-
-
-        if (userService.userExistsByNickname(signUpRequestDto.getEmail())) {
-            log.info("이미 존재하는 닉네임");
-            UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_NICKNAME;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-
-        if (userService.userExistsByEmail(signUpRequestDto.getEmail())) {
-            log.info("이미 존재하는 이메일");
-            UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_EMAIL;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-
-        if (!verificationService.isVerified(signUpRequestDto.getPhoneNumber())){
-            log.info("검증되지 않은 전화번호");
-            UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_PHONE_NUMBER;
-            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-        }
-
-
-        UserDto.SignUpResponseDto signUpResponseDto = userService.signUp(signUpRequestDto);
-
-        ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(signUpResponseDto, Map.class))
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto); //201
+        return null;
     }
     @PostMapping("/sign-up/email/validation")
     public ResponseEntity<ResponseDto> checkDuplicatedEmail(@Valid @RequestBody UserDto.CheckDuplicatedEmailRequestDto checkDuplicatedEmailRequestDto) {
@@ -396,5 +424,24 @@ public class UserController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/password/validation")
+    public ResponseEntity<ResponseDto> validatePassword(@Valid @RequestBody UserDto.ValidatePasswordRequestDto validatePasswordRequestDto,
+                                                        @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
+        final User user = userPrincipal.getUser();
+
+        UUID userId = user.getId();
+
+        if (!userService.userExistsByIdAndPassword(userId, validatePasswordRequestDto.getPassword())) {
+            log.info("비밀번호 불일치");
+            UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //400
+        }
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
     }
 }

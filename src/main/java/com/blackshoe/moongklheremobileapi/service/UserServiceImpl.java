@@ -56,6 +56,7 @@ public class UserServiceImpl implements UserService {
                 .nickname(signUpRequestDto.getNickname())
                 .phoneNumber(signUpRequestDto.getPhoneNumber())
                 .role(Role.valueOf("USER"))
+                .statusMessage("")
                 .profileImgUrl(profileImgUrl)
                 .backgroundImgUrl(backgroundImgUrl)
                 .build());
@@ -350,5 +351,59 @@ public class UserServiceImpl implements UserService {
                 .userId(user.getId())
                 .email(user.getEmail())
                 .build();
+    }
+
+    @Override
+    public boolean userHasProvider(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            if (user.getProvider() != null) {
+                return true; // 인증 성공
+            }
+        }
+
+        return false; // 인증 실패
+    }
+
+    @Override
+    public UserDto.SocialSignUpResponseDto socialSignUp(UserDto.SignUpRequestDto socialSignUpRequestDto) {
+
+        User user = userRepository.findByEmail(socialSignUpRequestDto.getEmail())
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        ProfileImgUrl profileImgUrl = ProfileImgUrl.builder()
+                .cloudfrontUrl("")
+                .s3Url("")
+                .build();
+
+        BackgroundImgUrl backgroundImgUrl = BackgroundImgUrl.builder()
+                .cloudfrontUrl("")
+                .s3Url("")
+                .build();
+
+        user = user.toBuilder()
+                .nickname(socialSignUpRequestDto.getNickname())
+                .password(passwordEncoder.encode(socialSignUpRequestDto.getPassword()))
+                .role(Role.valueOf("USER"))
+                .phoneNumber(socialSignUpRequestDto.getPhoneNumber())
+                .statusMessage("")
+                .profileImgUrl(profileImgUrl)
+                .backgroundImgUrl(backgroundImgUrl)
+                .build();
+
+        //이미 존재하는 회원
+        userRepository.save(user);
+
+
+        log.info("user: {}", user);
+        log.info("소셜 로그인 후 회원가입 성공");
+        return UserDto.SocialSignUpResponseDto.builder()
+                .userId(user.getId())
+                .createdAt(user.getCreatedAt())
+                .build();
+
     }
 }

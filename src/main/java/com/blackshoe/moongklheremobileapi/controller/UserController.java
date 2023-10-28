@@ -345,11 +345,22 @@ public class UserController {
         log.info("user : {}", user);
         UUID userId = user.getId();
 
-        profileService.deleteProfileImg(userId);
-        backgroundService.deleteBackgroundImg(userId);
+        ProfileImgUrlDto profileImgUrlDto;
+        if(profileImg == null){
+            profileImgUrlDto = profileService.getUserPresentProfileImgUrlDto(userId);
+        }else{
+            profileService.deleteProfileImg(userId);
+            profileImgUrlDto = profileService.uploadProfileImg(userId, profileImg);
+        }
 
-        ProfileImgUrlDto profileImgUrlDto = profileService.uploadProfileImg(userId, profileImg);
-        BackgroundImgUrlDto backgroundImgUrlDto = backgroundService.uploadBackgroundImg(userId, backgroundImg);
+        BackgroundImgUrlDto backgroundImgUrlDto;
+        if(backgroundImg == null){
+            backgroundImgUrlDto = backgroundService.getUserPresentBackgroundImgUrlDto(userId);
+        }else{
+            backgroundService.deleteBackgroundImg(userId);
+            backgroundImgUrlDto = backgroundService.uploadBackgroundImg(userId, backgroundImg);
+        }
+
 
         UserDto.UpdateProfileDto updateProfileDto = UserDto.UpdateProfileDto.builder()
                 .userId(userId)

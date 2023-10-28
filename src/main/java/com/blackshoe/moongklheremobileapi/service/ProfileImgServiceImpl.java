@@ -119,4 +119,20 @@ public class ProfileImgServiceImpl implements ProfileImgService {
         }
     }
 
+    @Override
+    @Transactional
+    public ProfileImgUrlDto getUserPresentProfileImgUrlDto(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
+
+        ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
+                .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
+                .s3Url(profileImgUrl.getS3Url())
+                .build();
+
+        return profileImgUrlDto;
+    }
+
 }

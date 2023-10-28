@@ -1,6 +1,7 @@
 package com.blackshoe.moongklheremobileapi.dto;
 
 import com.blackshoe.moongklheremobileapi.entity.BackgroundImgUrl;
+import com.blackshoe.moongklheremobileapi.entity.ProfileImgUrl;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
@@ -116,6 +117,8 @@ public class UserDto {
     public static class UpdateProfileResponseDto{
         private UUID userId;
         private LocalDateTime updatedAt;
+        private ProfileImgUrlDto profileImgUrlDto;
+        private BackgroundImgUrlDto backgroundImgUrlDto;
     }
 
     @Getter

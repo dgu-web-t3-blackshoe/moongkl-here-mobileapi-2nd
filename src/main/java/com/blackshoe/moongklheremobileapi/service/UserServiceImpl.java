@@ -201,9 +201,21 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(updatedUser);
 
+        ProfileImgUrlDto updatedProfileImgUrl = ProfileImgUrlDto.builder()
+                .cloudfrontUrl(updatedUser.getProfileImgUrl().getCloudfrontUrl())
+                .s3Url(updatedUser.getProfileImgUrl().getS3Url())
+                .build();
+
+        BackgroundImgUrlDto updatedBackgroundImgUrl = BackgroundImgUrlDto.builder()
+                .cloudfrontUrl(updatedUser.getBackgroundImgUrl().getCloudfrontUrl())
+                .s3Url(updatedUser.getBackgroundImgUrl().getS3Url())
+                .build();
+
         return UserDto.UpdateProfileResponseDto.builder()
                 .userId(user.getId())
                 .updatedAt(user.getUpdatedAt())
+                .profileImgUrlDto(updatedProfileImgUrl)
+                .backgroundImgUrlDto(updatedBackgroundImgUrl)
                 .build();
     }
 

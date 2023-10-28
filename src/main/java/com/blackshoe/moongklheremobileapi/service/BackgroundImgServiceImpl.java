@@ -98,6 +98,22 @@ public class BackgroundImgServiceImpl implements BackgroundImgService {
 
     @Override
     @Transactional
+    public BackgroundImgUrlDto getUserPresentBackgroundImgUrlDto(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
+
+        BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
+                .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
+                .s3Url(backgroundImgUrl.getS3Url())
+                .build();
+
+        return backgroundImgUrlDto;
+    }
+
+    @Override
+    @Transactional
     public void deleteBackgroundImg(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));

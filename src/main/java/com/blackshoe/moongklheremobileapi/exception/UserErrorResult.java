@@ -29,6 +29,7 @@ public enum UserErrorResult {
     BACKGROUNDIMG_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "배경 이미지 업로드에 실패했습니다."), //500
     BACKGROUNDIMG_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "배경 이미지 삭제에 실패했습니다."), //500
     PROFILEIMG_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 이미지 삭제에 실패했습니다."), //500
+    DUPLICATED_PHONE_NUMBER(HttpStatus.CONFLICT, "이미 존재하는 전화번호입니다."), //409
     ;
     private final HttpStatus httpStatus;
     private final String message;

@@ -3,6 +3,7 @@ package com.blackshoe.moongklheremobileapi.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.blackshoe.moongklheremobileapi.dto.ProfileImgUrlDto;
+import com.blackshoe.moongklheremobileapi.entity.ProfileImgUrl;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.UserException;
@@ -40,12 +41,24 @@ public class ProfileImgServiceImpl implements ProfileImgService {
     private String PROFILEIMG_DIRECTORY;
 
     @Override
+    @Transactional
     public ProfileImgUrlDto uploadProfileImg(UUID userId, MultipartFile profileImg) {
-        if (profileImg == null) {
-            throw new UserException(UserErrorResult.EMPTY_PROFILEIMG);
-        }
 
         String s3FilePath = userId + "/" + PROFILEIMG_DIRECTORY;
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        ProfileImgUrlDto profileImgUrlDto;
+
+        if(profileImg == null || profileImg.isEmpty()) {
+            profileImgUrlDto = ProfileImgUrlDto.builder()
+                    .cloudfrontUrl("")
+                    .s3Url("")
+                    .build();
+
+            return profileImgUrlDto;
+        }
+
 
         String fileExtension = profileImg.getOriginalFilename().substring(profileImg.getOriginalFilename().lastIndexOf("."));
 
@@ -77,15 +90,25 @@ public class ProfileImgServiceImpl implements ProfileImgService {
 
         String cloudFrontUrl = DISTRIBUTION_DOMAIN + "/" + key;
 
-        ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
+        profileImgUrlDto = ProfileImgUrlDto.builder()
                 .s3Url(s3Url)
                 .cloudfrontUrl(cloudFrontUrl)
                 .build();
+
         return profileImgUrlDto;
     }
 
     @Override
-    public void deleteProfileImg(String profileImgS3Url) {
+    @Transactional
+    public void deleteProfileImg(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+        String profileImgS3Url = user.getProfileImgUrl().getS3Url();
+
+        if(profileImgS3Url.equals("")){
+            return;
+        }
+
         String key = profileImgS3Url.substring(profileImgS3Url.indexOf(ROOT_DIRECTORY));
 
         try {

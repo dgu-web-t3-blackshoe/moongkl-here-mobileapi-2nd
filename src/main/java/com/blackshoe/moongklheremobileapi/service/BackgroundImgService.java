@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface BackgroundImgService {
     BackgroundImgUrlDto uploadBackgroundImg(UUID userId, MultipartFile backgroundImg);
-    void deleteBackgroundImg(String backgroundImgS3Url);
+    void deleteBackgroundImg(UUID backgroundImgS3Url);
 }

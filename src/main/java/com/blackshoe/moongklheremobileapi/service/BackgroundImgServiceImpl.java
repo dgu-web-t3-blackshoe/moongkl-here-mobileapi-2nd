@@ -2,6 +2,7 @@ package com.blackshoe.moongklheremobileapi.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.blackshoe.moongklheremobileapi.dto.BackgroundImgUrlDto;
+import com.blackshoe.moongklheremobileapi.entity.BackgroundImgUrl;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.UserException;
@@ -37,9 +38,21 @@ public class BackgroundImgServiceImpl implements BackgroundImgService {
     private String BACKGROUND_DIRECTORY;
 
     @Override
+    @Transactional
     public BackgroundImgUrlDto uploadBackgroundImg(UUID userId, MultipartFile backgroundImg) {
-        if (backgroundImg == null) {
-            throw new UserException(UserErrorResult.EMPTY_BACKGROUNDIMG);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        BackgroundImgUrlDto backgroundImgUrlDto;
+
+        if(backgroundImg == null || backgroundImg.isEmpty()) {
+
+            backgroundImgUrlDto = BackgroundImgUrlDto.builder()
+                    .cloudfrontUrl("")
+                    .s3Url("")
+                    .build();
+
+            return backgroundImgUrlDto;
         }
 
         String s3FilePath = userId + "/" + BACKGROUND_DIRECTORY;
@@ -75,15 +88,26 @@ public class BackgroundImgServiceImpl implements BackgroundImgService {
 
         String cloudFrontUrl = DISTRIBUTION_DOMAIN + "/" + key;
 
-        BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
-                .s3Url(s3Url)
+        backgroundImgUrlDto = BackgroundImgUrlDto.builder()
                 .cloudfrontUrl(cloudFrontUrl)
+                .s3Url(s3Url)
                 .build();
+
         return backgroundImgUrlDto;
     }
 
     @Override
-    public void deleteBackgroundImg(String backgroundImgS3Url) {
+    @Transactional
+    public void deleteBackgroundImg(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        String backgroundImgS3Url = user.getBackgroundImgUrl().getS3Url();
+
+        if(backgroundImgS3Url.equals("")) {
+            return;
+        }
+
         String key = backgroundImgS3Url.substring(backgroundImgS3Url.indexOf(ROOT_DIRECTORY));
 
         try {

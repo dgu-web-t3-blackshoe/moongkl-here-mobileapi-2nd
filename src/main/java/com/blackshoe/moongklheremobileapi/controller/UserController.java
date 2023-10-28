@@ -1,6 +1,8 @@
 package com.blackshoe.moongklheremobileapi.controller;
 
 import com.blackshoe.moongklheremobileapi.dto.*;
+import com.blackshoe.moongklheremobileapi.entity.BackgroundImgUrl;
+import com.blackshoe.moongklheremobileapi.entity.ProfileImgUrl;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.security.UserPrincipal;
@@ -192,6 +194,14 @@ public class UserController {
     public ResponseEntity<ResponseDto> validationPhoneNumber(@Valid @RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         String phoneNumber = validationRequestDto.getPhoneNumber();
 
+        if (userService.userExistsByPhoneNumber(phoneNumber)) {
+            log.info("이미 존재하는 전화번호");
+            UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_PHONE_NUMBER;
+            ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        }
+
         String verificationCode = verificationService.makeVerificationCode();
 
         SmsDto.MessageDto messageDto = SmsDto.MessageDto.builder()
@@ -326,8 +336,8 @@ public class UserController {
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping(value = "/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
-    public ResponseEntity<ResponseDto> updateProfile(@RequestPart(name = "profile_img") MultipartFile profileImg,
-                                                     @RequestPart(name = "background_img") MultipartFile backgroundImg,
+    public ResponseEntity<ResponseDto> updateProfile(@RequestPart(name = "profile_img", required = false) MultipartFile profileImg,
+                                                     @RequestPart(name = "background_img", required = false) MultipartFile backgroundImg,
                                                      @RequestPart(name = "update_profile_request")UserDto.UpdateProfileRequestDto updateProfileRequestDto,
                                                      @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
         log.info("updateProfileRequestDto : {}", updateProfileRequestDto);
@@ -335,8 +345,11 @@ public class UserController {
         log.info("user : {}", user);
         UUID userId = user.getId();
 
-        final ProfileImgUrlDto profileImgUrlDto = profileService.uploadProfileImg(userId, profileImg);
-        final BackgroundImgUrlDto backgroundImgUrlDto = backgroundService.uploadBackgroundImg(userId, backgroundImg);
+        profileService.deleteProfileImg(userId);
+        backgroundService.deleteBackgroundImg(userId);
+
+        ProfileImgUrlDto profileImgUrlDto = profileService.uploadProfileImg(userId, profileImg);
+        BackgroundImgUrlDto backgroundImgUrlDto = backgroundService.uploadBackgroundImg(userId, backgroundImg);
 
         UserDto.UpdateProfileDto updateProfileDto = UserDto.UpdateProfileDto.builder()
                 .userId(userId)

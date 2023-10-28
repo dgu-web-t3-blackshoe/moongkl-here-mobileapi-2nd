@@ -150,10 +150,9 @@ public class UserServiceImpl implements UserService {
 
         viewRepository.deleteAllByUser(user);
 
-        ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
-        profileImgService.deleteProfileImg(profileImgUrl.getS3Url());
+        profileImgService.deleteProfileImg(userId);
 
-        BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
+        backgroundImgService.deleteBackgroundImg(userId);
 
         userRepository.deleteById(userId);
     }
@@ -165,9 +164,30 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(updateProfileDto.getUserId())
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
+        ProfileImgUrl userProfileImgUrl = user.getProfileImgUrl();
+        BackgroundImgUrl userBackgroundImgUrl = user.getBackgroundImgUrl();
 
-        final ProfileImgUrl profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(updateProfileDto.getProfileImgUrlDto());
-        final BackgroundImgUrl backgroundImgUrl = BackgroundImgUrl.convertBackgroundImgUrlDtoToEntity(updateProfileDto.getBackgroundImgUrlDto());
+        ProfileImgUrl profileImgUrl;
+        if(updateProfileDto.getProfileImgUrlDto().getCloudfrontUrl().equals("")) {
+
+            profileImgUrl = ProfileImgUrl.builder()
+                    .cloudfrontUrl("")
+                    .s3Url("")
+                    .build();
+        }else{
+            profileImgUrl = ProfileImgUrl.convertProfileImgUrlDtoToEntity(updateProfileDto.getProfileImgUrlDto());
+        }
+
+        BackgroundImgUrl backgroundImgUrl;
+        if(updateProfileDto.getBackgroundImgUrlDto().getCloudfrontUrl().equals("")) {
+
+            backgroundImgUrl = BackgroundImgUrl.builder()
+                    .cloudfrontUrl("")
+                    .s3Url("")
+                    .build();
+        }else{
+            backgroundImgUrl = BackgroundImgUrl.convertBackgroundImgUrlDtoToEntity(updateProfileDto.getBackgroundImgUrlDto());
+        }
 
         User updatedUser = user.toBuilder()
                 .nickname(updateProfileDto.getNickname())
@@ -180,9 +200,6 @@ public class UserServiceImpl implements UserService {
         log.info("user {}", user);
 
         userRepository.save(updatedUser);
-
-        profileImgService.deleteProfileImg(user.getProfileImgUrl().getS3Url());
-        backgroundImgService.deleteBackgroundImg(user.getBackgroundImgUrl().getS3Url());
 
         return UserDto.UpdateProfileResponseDto.builder()
                 .userId(user.getId())
@@ -405,5 +422,10 @@ public class UserServiceImpl implements UserService {
                 .createdAt(user.getCreatedAt())
                 .build();
 
+    }
+
+    @Override
+    public boolean userExistsByPhoneNumber(String phoneNumber) {
+        return userRepository.existsByPhoneNumber(phoneNumber);
     }
 }

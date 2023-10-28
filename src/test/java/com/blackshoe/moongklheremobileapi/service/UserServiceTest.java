@@ -59,7 +59,7 @@ public class UserServiceTest {
         signInRequestDto.setPhoneNumber(user().getPhoneNumber());
 
         //when
-        final UserException result = assertThrows(UserException.class, () -> userServiceImpl.signIn(signInRequestDto));
+        final UserException result = assertThrows(UserException.class, () -> userServiceImpl.signUp(signInRequestDto));
 
         //then
         assertThat(result.getUserErrorResult()).isEqualTo(UserErrorResult.REQUIRED_VALUE);

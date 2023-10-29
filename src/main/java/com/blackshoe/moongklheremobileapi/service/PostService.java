@@ -40,4 +40,6 @@ public interface PostService {
     Page<PostDto.PostListReadResponse> getPublicUserPostList(UUID userId, String sort, Integer size);
 
     Page<PostDto.PostListReadResponse> getAllUserPostList(User user, String sort, Integer size, Integer page);
+
+    Page<PostDto.PostWithDateListReadResponse> getUserPostWithDateList(User user, Integer size, Integer page);
 }

@@ -119,4 +119,11 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "FROM Post p " +
             "WHERE p.user = :user " )
     Page<PostDto.PostListReadResponse> findAllUserPost(User user, Pageable pageable);
+
+    @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostWithDateListReadResponse(" +
+            "p.id, p.user.id, p.skinUrl.cloudfrontUrl, p.storyUrl.cloudfrontUrl, p.skinTime.year, p.skinTime.month, p.skinTime.day) " +
+            "FROM Post p " +
+            "WHERE p.user = :user " +
+            "ORDER BY p.skinTime.year DESC, p.skinTime.month DESC, p.skinTime.day DESC")
+    Page<PostDto.PostWithDateListReadResponse> findAllUserPostWithDate(User user, Pageable pageable);
 }

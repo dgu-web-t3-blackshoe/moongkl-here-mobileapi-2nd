@@ -193,4 +193,27 @@ public class PostDto {
     public static class DidUserFavoritePostResponse {
         private Boolean isTrue;
     }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public class PostWithDateListReadResponse {
+        private UUID postId;
+        private UUID userId;
+        private String skin;
+        private String story;
+        private int year;
+        private int month;
+        private int day;
+
+        public PostWithDateListReadResponse(UUID postId, UUID userId, String skin, String story, int year, int month, int day) {
+            this.postId = postId;
+            this.userId = userId;
+            this.skin = skin;
+            this.story = story;
+            this.year = year;
+            this.month = month;
+            this.day = day;
+        }
+    }
 }

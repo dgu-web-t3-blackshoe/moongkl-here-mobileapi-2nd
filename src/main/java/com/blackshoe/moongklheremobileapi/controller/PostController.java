@@ -107,7 +107,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @PreAuthorize("isAnonymous()")
     @GetMapping("/{postId}")
     public ResponseEntity<ResponseDto> getPost(@PathVariable("postId") UUID postId) {
         final PostDto.PostReadResponse postReadResponse = postService.getPost(postId);
@@ -119,7 +118,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @PreAuthorize("isAnonymous()")
     @GetMapping()
     public ResponseEntity<ResponseDto> getPostList(@RequestParam(name = "user", required = false, defaultValue = "false") String user,
                                                    @RequestParam(name = "from", required = false, defaultValue = "2001-01-01") String from,
@@ -147,7 +145,6 @@ public class PostController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
-    @PreAuthorize("isAnonymous()")
     @GetMapping(params = {"user", "public"})
     public ResponseEntity<ResponseDto> getPublicUserPostList(@RequestParam(name = "user") UUID userId,
                                                             @RequestParam(name = "public") Boolean isPublic,

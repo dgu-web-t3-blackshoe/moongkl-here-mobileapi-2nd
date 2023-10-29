@@ -344,8 +344,8 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "with-date"})
     public ResponseEntity<ResponseDto> getUserPostWithDateList(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                               @PathVariable("user") UUID userId,
-                                                               @PathVariable("with-date") boolean withDate,
+                                                               @RequestParam("user") UUID userId,
+                                                               @RequestParam("with-date") boolean withDate,
                                                                @RequestParam(defaultValue = "10") Integer size,
                                                                @RequestParam(defaultValue = "0") Integer page) {
         if (!withDate) {

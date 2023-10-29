@@ -197,7 +197,7 @@ public class PostDto {
     @Data
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public class PostWithDateListReadResponse {
+    public static class PostWithDateListReadResponse {
         private UUID postId;
         private UUID userId;
         private String skin;

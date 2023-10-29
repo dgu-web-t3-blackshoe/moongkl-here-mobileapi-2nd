@@ -44,7 +44,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
-        boolean userSignInStatus = user.getPassword() == null ? false : true;
+        boolean userSignUpStatus = user.getPassword() == null ? false : true;
 
         JwtDto.JwtRequestDto jwtRequestDto = JwtDto.JwtRequestDto
                 .builder()
@@ -56,6 +56,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         response.setStatus(HttpServletResponse.SC_OK);
 
-        response.sendRedirect(REDIRECT_URI + "/social-login?userId=" + userId + "&sign-in=" + String.valueOf(userSignInStatus) + "&access-token=" + accessToken + "&email=" + email);
+        response.sendRedirect(REDIRECT_URI + "/social-login?userId=" + userId + "&sign-up=" + String.valueOf(userSignUpStatus) + "&access-token=" + accessToken + "&email=" + email);
     }
 }

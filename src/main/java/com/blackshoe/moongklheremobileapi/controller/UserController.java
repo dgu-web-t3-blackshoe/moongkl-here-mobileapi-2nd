@@ -157,7 +157,20 @@ public class UserController {
     @PostMapping("/sign-up/email/validation")
     public ResponseEntity<ResponseDto> checkDuplicatedEmail(@Valid @RequestBody UserDto.CheckDuplicatedEmailRequestDto checkDuplicatedEmailRequestDto) {
 
-        if (userService.userExistsByEmail(checkDuplicatedEmailRequestDto.getEmail())) {
+        String email = checkDuplicatedEmailRequestDto.getEmail();
+        if(!userService.userHasProvider(email)) {
+
+            if (userService.userExistsByEmail(email)) {
+                log.info("이메일 중복");
+                UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_EMAIL;
+
+                ResponseDto responseDto = ResponseDto.builder()
+                        .error(userErrorResult.getMessage())
+                        .build();
+
+                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto); //409
+            }
+        }else if(userService.userHasProvider(email) && userService.userHasPasswordByEmail(email)){
             log.info("이메일 중복");
             UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_EMAIL;
 

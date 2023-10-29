@@ -440,4 +440,19 @@ public class UserServiceImpl implements UserService {
     public boolean userExistsByPhoneNumber(String phoneNumber) {
         return userRepository.existsByPhoneNumber(phoneNumber);
     }
+
+    @Override
+    public boolean userHasPasswordByEmail(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            if (user.getPassword() != null) {
+                return true; // 인증 성공
+            }
+        }
+
+        return false; // 인증 실패
+    }
 }

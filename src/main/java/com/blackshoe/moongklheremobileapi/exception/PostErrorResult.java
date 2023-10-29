@@ -29,7 +29,8 @@ public enum PostErrorResult {
     INVALID_PARAMETER_VALUE_FOR_SAVE_TEMPORARY_POST(HttpStatus.BAD_REQUEST, "유효하지 않은 파라미터 값입니다."),
     SKIN_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "스킨 삭제에 실패했습니다."),
     STORY_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "스토리 삭제에 실패했습니다."),
-    INVALID_PARAMETER_FOR_GET_PUBLIC_USER_POST_LIST(HttpStatus.BAD_REQUEST, "유효하지 않은 파라미터입니다."),;
+    INVALID_PARAMETER_FOR_GET_PUBLIC_USER_POST_LIST(HttpStatus.BAD_REQUEST, "유효하지 않은 파라미터입니다."),
+    INVALID_PARAMETER_FOR_GET_POST_WITH_DATE_LIST(HttpStatus.BAD_REQUEST, "유효하지 않은 파라미터입니다.");
 
 
     private final HttpStatus httpStatus;

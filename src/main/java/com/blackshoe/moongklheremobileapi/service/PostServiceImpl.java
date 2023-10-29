@@ -406,4 +406,17 @@ public class PostServiceImpl implements PostService {
 
         return userPostDefaultReadResponsePage;
     }
+
+    @Override
+    public Page<PostDto.PostWithDateListReadResponse> getUserPostWithDateList(User user, Integer size, Integer page) {
+
+            final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+
+            final Pageable pageable = PageRequest.of(0, 10, sortBy);
+
+            final Page<PostDto.PostWithDateListReadResponse> userPostWithDateListReadResponsePage
+                    = postRepository.findAllUserPostWithDate(user, pageable);
+
+            return userPostWithDateListReadResponsePage;
+    }
 }

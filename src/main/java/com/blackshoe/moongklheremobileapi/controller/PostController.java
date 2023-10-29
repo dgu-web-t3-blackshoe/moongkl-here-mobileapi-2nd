@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,6 +51,7 @@ public class PostController {
         this.objectMapper = objectMapper;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseDto> createPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                   @RequestPart(name = "skin") MultipartFile skin,
@@ -81,6 +83,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{postId}/is-public")
     public ResponseEntity<ResponseDto> changePostIsPublic(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                           @PathVariable("postId") UUID postId,
@@ -104,6 +107,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @PreAuthorize("isAnonymous()")
     @GetMapping("/{postId}")
     public ResponseEntity<ResponseDto> getPost(@PathVariable("postId") UUID postId) {
         final PostDto.PostReadResponse postReadResponse = postService.getPost(postId);
@@ -115,6 +119,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @PreAuthorize("isAnonymous()")
     @GetMapping()
     public ResponseEntity<ResponseDto> getPostList(@RequestParam(name = "user", required = false, defaultValue = "false") String user,
                                                    @RequestParam(name = "from", required = false, defaultValue = "2001-01-01") String from,
@@ -142,7 +147,7 @@ public class PostController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
-
+    @PreAuthorize("isAnonymous()")
     @GetMapping(params = {"user", "public"})
     public ResponseEntity<ResponseDto> getPublicUserPostList(@RequestParam(name = "user") UUID userId,
                                                             @RequestParam(name = "public") Boolean isPublic,
@@ -166,6 +171,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user"})
     public ResponseEntity<ResponseDto> getAllUserPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                           @RequestParam(name = "user") UUID userId,
@@ -193,7 +199,7 @@ public class PostController {
     }
 
 
-
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "latitude", "longitude", "radius"})
     public ResponseEntity<ResponseDto> getUserPostListGroupedByCity(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                     @RequestParam(name = "user") UUID userId,
@@ -222,6 +228,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "country", "state", "city"})
     public ResponseEntity<ResponseDto> getUserCityPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                            @RequestParam(name = "user") UUID userId,
@@ -250,6 +257,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "from", "to"})
     public ResponseEntity<ResponseDto> getUserSkinTimePostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                @RequestParam(name = "user") UUID userId,
@@ -278,6 +286,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(params = {"save-temporary-post"})
     public ResponseEntity<ResponseDto> saveTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                          @RequestParam(name = "save-temporary-post") Boolean saveTemporaryPost,
@@ -313,6 +322,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{postId}")
     public ResponseEntity<ResponseDto> deletePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                   @PathVariable("postId") UUID postId) {

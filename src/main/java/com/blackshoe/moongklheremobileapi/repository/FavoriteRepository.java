@@ -45,4 +45,8 @@ public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
     @Transactional
     @Query("DELETE FROM Favorite f WHERE f.post = :post")
     void deleteAllByPost(Post post);
+
+    //findByUserId, count favorite rows by user id
+    @Query("SELECT COUNT(f) FROM Favorite f WHERE f.user.id = :userId")
+    int countByUserId(UUID userId);
 }

@@ -45,4 +45,9 @@ public interface LikeRepository extends JpaRepository<Like, UUID> {
     @Transactional
     @Query("DELETE FROM Like l WHERE l.post = :post")
     void deleteAllByPost(Post post);
+
+    //findByUserId, count like rows by user id
+    @Query("SELECT COUNT(l) FROM Like l WHERE l.user.id = :userId")
+    int countByUserId(UUID userId);
+
 }

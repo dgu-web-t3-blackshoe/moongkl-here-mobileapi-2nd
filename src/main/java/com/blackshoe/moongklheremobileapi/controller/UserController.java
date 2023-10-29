@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientException;
@@ -78,7 +79,6 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
-
     @PostMapping
     public ResponseEntity<ResponseDto> signUp(@Valid @RequestBody UserDto.
             SignUpRequestDto signUpRequestDto) throws Exception {
@@ -141,9 +141,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
     }
 
-
     @PutMapping("/sign-up/password")
-    public ResponseEntity<ResponseDto> updatePassword(@RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
+    public ResponseEntity<ResponseDto> updatePassword(@Valid @RequestBody UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
         String email = updatePasswordRequestDto.getEmail();
 
         UserDto.UpdatePasswordResponseDto updatePasswordResponseDto = userService.updatePassword(updatePasswordRequestDto);
@@ -156,7 +155,7 @@ public class UserController {
     }
 
     @PostMapping("/sign-up/phone/validation")
-    public ResponseEntity<ResponseDto> validationPhoneNumber(@RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto> validationPhoneNumber(@Valid @RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         String phoneNumber = validationRequestDto.getPhoneNumber();
 
         String verificationCode = verificationService.makeVerificationCode();
@@ -176,7 +175,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
     }
     @PostMapping("/sign-up/phone/verification")
-    public ResponseEntity<ResponseDto> verificationPhoneNumber(@RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto> verificationPhoneNumber(@Valid @RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         String phoneNumber = verificationRequestDto.getPhoneNumber();
 
         if (verificationService.verifyCode(verificationRequestDto.getPhoneNumber(), verificationRequestDto.getVerificationCode())) {
@@ -194,8 +193,9 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/phone/verification")
-    public ResponseEntity<ResponseDto> verificationPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto> verificationPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal, @Valid @RequestBody SmsDto.VerificationRequestDto verificationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         final User user = userPrincipal.getUser();
 
         String phoneNumber = verificationRequestDto.getPhoneNumber();
@@ -214,8 +214,9 @@ public class UserController {
             return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
         }
     }
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/phone/validation")
-    public ResponseEntity<ResponseDto> validationPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public ResponseEntity<ResponseDto> validationPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal, @Valid @RequestBody SmsDto.ValidationRequestDto validationRequestDto) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         final User user = userPrincipal.getUser();
 
         String phoneNumber = validationRequestDto.getPhoneNumber();
@@ -237,6 +238,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping //API-102
     public ResponseEntity<ResponseDto> deleteUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         final User user = userPrincipal.getUser();
@@ -259,6 +261,7 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
+
     @GetMapping("/profile/{userId}/general") //API - 120
     public ResponseEntity<ResponseDto> getUserBasicProfileInfo(@PathVariable UUID userId) throws Exception{
 
@@ -271,6 +274,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/profile") //API - 100
     public ResponseEntity<ResponseDto> getUserMyProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception{
 
@@ -286,13 +290,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping(value = "/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) // API - 142
     public ResponseEntity<ResponseDto> updateProfile(@RequestPart(name = "profile_img") MultipartFile profileImg,
                                                      @RequestPart(name = "background_img") MultipartFile backgroundImg,
                                                      @RequestPart(name = "update_profile_request")UserDto.UpdateProfileRequestDto updateProfileRequestDto,
                                                      @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
+        log.info("updateProfileRequestDto : {}", updateProfileRequestDto);
         final User user = userPrincipal.getUser();
-
+        log.info("user : {}", user);
         UUID userId = user.getId();
 
         final ProfileImgUrlDto profileImgUrlDto = profileService.uploadProfileImg(userId, profileImg);
@@ -316,8 +322,9 @@ public class UserController {
 
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/password") //API-92
-    public ResponseEntity<ResponseDto> updatePasswordInMyHere(@RequestBody UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto,
+    public ResponseEntity<ResponseDto> updatePasswordInMyHere(@Valid @RequestBody UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto,
                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
         final User user = userPrincipal.getUser();
 
@@ -340,9 +347,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
 
+    @PreAuthorize("isAuthenticated()")
     //API-32 전화번호 변경 전화번호 검증되었으면 전화번호 변경
     @PutMapping("/phone-number") //API-32
-    public ResponseEntity<ResponseDto> updatePhoneNumberInMyHere(@RequestBody UserDto.UpdatePhoneNumberRequestDto updatePhoneNumberRequestDto,
+    public ResponseEntity<ResponseDto> updatePhoneNumberInMyHere(@Valid @RequestBody UserDto.UpdatePhoneNumberRequestDto updatePhoneNumberRequestDto,
                                                               @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
         final User user = userPrincipal.getUser();
 
@@ -367,11 +375,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
 
-    @GetMapping("/phone-number")
-    public ResponseEntity<ResponseDto> getPhoneNumberInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
-        final User user = userPrincipal.getUser();
-
-        UUID userId = user.getId();
+    @GetMapping("/{userId}/phone-number")
+    public ResponseEntity<ResponseDto> getPhoneNumberWithUserId(@PathVariable UUID userId) throws Exception {
 
         UserDto.GetPhoneNumberResponseDto getPhoneNumberResponseDto = userService.getPhoneNumber(userId);
 
@@ -382,12 +387,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto); //200
     }
 
-    @GetMapping("/email")
-    public ResponseEntity<ResponseDto> getEmailInMyHere(@AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
-        final User user = userPrincipal.getUser();
-
-        UUID userId = user.getId();
-
+    @GetMapping("/{userId}/email")
+    public ResponseEntity<ResponseDto> getEmailWithUserId(@PathVariable UUID userId) throws Exception {
         UserDto.GetEmailResponseDto getEmailResponseDto = userService.getEmail(userId);
 
         ResponseDto responseDto = ResponseDto.builder()

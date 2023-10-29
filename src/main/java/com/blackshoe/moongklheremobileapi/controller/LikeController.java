@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ public class LikeController {
         this.objectMapper = objectMapper;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{postId}")
     public ResponseEntity<ResponseDto> likePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                 @PathVariable UUID postId) {
@@ -45,6 +47,7 @@ public class LikeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{postId}")
     public ResponseEntity<ResponseDto> dislikePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                    @PathVariable UUID postId) {
@@ -60,6 +63,7 @@ public class LikeController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}")
     public ResponseEntity<ResponseDto> getUserLikedPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                             @PathVariable UUID userId,
@@ -82,6 +86,7 @@ public class LikeController {
 
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}/{postId}")
     public ResponseEntity<ResponseDto> didUserLikedPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                         @PathVariable UUID userId,

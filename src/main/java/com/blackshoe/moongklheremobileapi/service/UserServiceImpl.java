@@ -36,8 +36,19 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final ProfileImgService profileImgService;
     private final BackgroundImgService backgroundImgService;
-
+    @Transactional
     public UserDto.SignUpResponseDto signUp(UserDto.SignUpRequestDto signUpRequestDto) {
+
+        ProfileImgUrl profileImgUrl = ProfileImgUrl.builder()
+                .cloudfrontUrl("")
+                .s3Url("")
+                .build();
+
+        BackgroundImgUrl backgroundImgUrl = BackgroundImgUrl.builder()
+                .cloudfrontUrl("")
+                .s3Url("")
+                .build();
+
         //이미 존재하는 회원
         userRepository.save(User.builder()
                 .email(signUpRequestDto.getEmail())
@@ -45,8 +56,8 @@ public class UserServiceImpl implements UserService {
                 .nickname(signUpRequestDto.getNickname())
                 .phoneNumber(signUpRequestDto.getPhoneNumber())
                 .role(Role.valueOf("USER"))
-                .profileImgUrl(null)
-                .backgroundImgUrl(null)
+                .profileImgUrl(profileImgUrl)
+                .backgroundImgUrl(backgroundImgUrl)
                 .build());
 
         Optional<User> user = userRepository.findByEmail(signUpRequestDto.getEmail());
@@ -59,6 +70,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Transactional
     public UserDto.LoginResponseDto login(UserDto.LoginRequestDto loginRequestDto) {
 
         User user = userRepository.findByEmail(loginRequestDto.getEmail())
@@ -78,11 +90,13 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Transactional
     public boolean userExistsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
     @Override
+    @Transactional
     public UserDto.UpdatePasswordResponseDto updatePassword(UserDto.UpdatePasswordRequestDto updatePasswordRequestDto) {
 
         User user = userRepository.findByEmail(updatePasswordRequestDto.getEmail())
@@ -101,11 +115,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public boolean userExistsByNickname(String nickname) {
         return userRepository.existsByNickname(nickname);
     }
 
     @Override
+    @Transactional
     public boolean userExistsByEmailAndPassword(String email, String password) {
         Optional<User> userOptional = userRepository.findByEmail(email);
 
@@ -137,7 +153,6 @@ public class UserServiceImpl implements UserService {
         profileImgService.deleteProfileImg(profileImgUrl.getS3Url());
 
         BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
-        backgroundImgService.deleteBackgroundImg(backgroundImgUrl.getS3Url());
 
         userRepository.deleteById(userId);
     }
@@ -160,10 +175,13 @@ public class UserServiceImpl implements UserService {
                 .backgroundImgUrl(backgroundImgUrl)
                 .build();
 
-        profileImgService.deleteProfileImg(user.getProfileImgUrl().getS3Url());
-        backgroundImgService.deleteBackgroundImg(user.getBackgroundImgUrl().getS3Url());
+        log.info("updatedUser {}", updatedUser);
+        log.info("user {}", user);
 
         userRepository.save(updatedUser);
+
+        profileImgService.deleteProfileImg(user.getProfileImgUrl().getS3Url());
+        backgroundImgService.deleteBackgroundImg(user.getBackgroundImgUrl().getS3Url());
 
         return UserDto.UpdateProfileResponseDto.builder()
                 .userId(user.getId())
@@ -179,13 +197,6 @@ public class UserServiceImpl implements UserService {
 
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
 
-        if (profileImgUrl == null) {
-            profileImgUrl = ProfileImgUrl.builder()
-                    .cloudfrontUrl(null)
-                    .s3Url(null)
-                    .build();
-        }
-
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
                 .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
                 .s3Url(profileImgUrl.getS3Url())
@@ -193,19 +204,14 @@ public class UserServiceImpl implements UserService {
 
         BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
 
-        if (backgroundImgUrl == null) {
-            backgroundImgUrl = BackgroundImgUrl.builder()
-                    .cloudfrontUrl(null)
-                    .s3Url(null)
-                    .build();
-        }
-
         BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
                 .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
                 .s3Url(backgroundImgUrl.getS3Url())
                 .build();
 
         int postCount = user.getPosts().size();
+        int likeCount = likeRepository.countByUserId(userId);
+        int favoriteCount = favoriteRepository.countByUserId(userId);
 
         return UserDto.UserProfileInfoResponseDto.builder()
                 .userId(user.getId())
@@ -213,8 +219,8 @@ public class UserServiceImpl implements UserService {
                 .statusMessage(user.getStatusMessage())
                 .profileImgUrlDto(profileImgUrlDto)
                 .backgroundImgUrlDto(backgroundImgUrlDto)
-                .likeCount(user.getLikeCount())
-                .favoriteCount(user.getFavoriteCount())
+                .likeCount(likeCount)
+                .favoriteCount(favoriteCount)
                 .postCount(postCount)
                 .build();
     }
@@ -226,13 +232,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
-
-        if (profileImgUrl == null) {
-            profileImgUrl = ProfileImgUrl.builder()
-                    .cloudfrontUrl(null)
-                    .s3Url(null)
-                    .build();
-        }
 
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
                 .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
@@ -258,12 +257,6 @@ public class UserServiceImpl implements UserService {
 
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
 
-        if (profileImgUrl == null) {
-            profileImgUrl = ProfileImgUrl.builder()
-                    .cloudfrontUrl(null)
-                    .s3Url(null)
-                    .build();
-        }
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
                 .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
                 .s3Url(profileImgUrl.getS3Url())
@@ -271,12 +264,6 @@ public class UserServiceImpl implements UserService {
 
         BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
 
-        if (backgroundImgUrl == null) {
-            backgroundImgUrl = BackgroundImgUrl.builder()
-                    .cloudfrontUrl(null)
-                    .s3Url(null)
-                    .build();
-        }
         BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
                 .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
                 .s3Url(backgroundImgUrl.getS3Url())
@@ -292,6 +279,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public boolean userExistsByIdAndPassword(UUID userId, String password) {
         Optional<User> userOptional = userRepository.findById(userId);
 
@@ -307,7 +295,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto.UpdatePasswordResponseDto updatePasswordInMyHere(UUID userId, UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto) {
+    @Transactional
+    public UserDto.UpdatePasswordResponseDto updatePasswordInMyHere(UUID userId, UserDto.UpdatePasswordInMyHereRequestDto updatePasswordInMyHereRequestDto){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
@@ -324,6 +313,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto.UpdatePhoneNumberResponseDto updatePhoneNumber(UUID userId, String phoneNumber) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));

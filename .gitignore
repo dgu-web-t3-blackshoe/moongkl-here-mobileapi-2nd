@@ -39,4 +39,5 @@ out/
 
 my-debug-key.keystore
 .env
+.DS_Store
 docker-compose.yaml

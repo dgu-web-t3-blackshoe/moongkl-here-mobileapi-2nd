@@ -56,8 +56,8 @@ public class LikeController {
 
         final PostDto.DislikePostDto dislikePostDto = likeService.dislikePost(postId, user);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(dislikePostDto, Map.class))
+        final ResponseDto<PostDto.DislikePostDto> responseDto = ResponseDto.<PostDto.DislikePostDto>success()
+                .payload(dislikePostDto)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);

@@ -343,7 +343,7 @@ public class PostController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "with-date"})
-    public ResponseEntity<ResponseDto<PostDto.PostWithDateListReadResponse>> getUserPostWithDateList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<Page<PostDto.PostWithDateListReadResponse>>> getUserPostWithDateList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                @RequestParam("user") UUID userId,
                                                                @RequestParam("with-date") boolean withDate,
                                                                @RequestParam(defaultValue = "10") Integer size,
@@ -361,7 +361,7 @@ public class PostController {
         final Page<PostDto.PostWithDateListReadResponse> postListWithDateReadResponsePage
                 = postService.getUserPostWithDateList(user, size, page);
 
-        final ResponseDto responseDto = ResponseDto.<Page<PostDto.PostWithDateListReadResponse>>success()
+        final ResponseDto<Page<PostDto.PostWithDateListReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostWithDateListReadResponse>>success()
                 .payload(postListWithDateReadResponsePage)
                 .build();
 

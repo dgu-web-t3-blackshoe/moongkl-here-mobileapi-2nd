@@ -34,15 +34,15 @@ public class ViewController {
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{postId}")
-    public ResponseEntity<ResponseDto> increaseViewCount(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<PostDto.IncreaseViewCountDto>> increaseViewCount(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                          @PathVariable UUID postId) {
 
         final User user = userPrincipal.getUser();
 
         final PostDto.IncreaseViewCountDto increaseViewCountDto = viewService.increaseViewCount(postId, user);
 
-        final ResponseDto  responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(increaseViewCountDto, Map.class))
+        final ResponseDto<PostDto.IncreaseViewCountDto> responseDto = ResponseDto.<PostDto.IncreaseViewCountDto>success()
+                .payload(increaseViewCountDto)
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);

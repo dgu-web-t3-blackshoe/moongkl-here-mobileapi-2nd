@@ -146,6 +146,16 @@ public class PostDto {
         private Long likeCount;
         private UUID userId;
         private LocalDateTime createdAt;
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class DislikePostDto {
+        private UUID postId;
+        private Long likeCount;
+        private UUID userId;
         private LocalDateTime deletedAt;
     }
 
@@ -158,6 +168,16 @@ public class PostDto {
         private Long favoriteCount;
         private UUID userId;
         private LocalDateTime createdAt;
+    }
+
+    @Data
+    @Builder
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class DeleteFavoritePostDto {
+        private UUID postId;
+        private Long favoriteCount;
+        private UUID userId;
         private LocalDateTime deletedAt;
     }
 

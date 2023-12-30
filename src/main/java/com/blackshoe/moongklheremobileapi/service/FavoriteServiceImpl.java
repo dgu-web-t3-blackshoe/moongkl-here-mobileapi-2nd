@@ -64,7 +64,7 @@ public class FavoriteServiceImpl implements FavoriteService {
 
     @Override
     @Transactional
-    public PostDto.FavoritePostDto deleteFavoritePost(UUID postId, User user) {
+    public PostDto.DeleteFavoritePostDto deleteFavoritePost(UUID postId, User user) {
 
         final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
 
@@ -74,14 +74,14 @@ public class FavoriteServiceImpl implements FavoriteService {
 
         post.decreaseFavoriteCount();
 
-        final PostDto.FavoritePostDto favoritePostDto = PostDto.FavoritePostDto.builder()
+        final PostDto.DeleteFavoritePostDto deleteFavoritePostDto = PostDto.DeleteFavoritePostDto.builder()
                 .postId(post.getId())
                 .favoriteCount(post.getFavoriteCount())
                 .userId(user.getId())
                 .deletedAt(LocalDateTime.now())
                 .build();
 
-        return favoritePostDto;
+        return deleteFavoritePostDto;
     }
 
     @Override

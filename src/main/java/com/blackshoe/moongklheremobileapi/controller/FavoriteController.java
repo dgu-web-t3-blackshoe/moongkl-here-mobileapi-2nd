@@ -33,15 +33,15 @@ public class FavoriteController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{postId}")
-    public ResponseEntity<ResponseDto> favoritePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<PostDto.FavoritePostDto>> favoritePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                     @PathVariable UUID postId) {
 
         final User user = userPrincipal.getUser();
 
         final PostDto.FavoritePostDto favoritePostDto = favoriteService.favoritePost(postId, user);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(favoritePostDto, Map.class))
+        final ResponseDto<PostDto.FavoritePostDto> responseDto = ResponseDto.<PostDto.FavoritePostDto>success()
+                .payload(favoritePostDto)
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -49,23 +49,23 @@ public class FavoriteController {
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{postId}")
-    public ResponseEntity<ResponseDto> deleteFavoritePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<PostDto.DeleteFavoritePostDto>> deleteFavoritePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                           @PathVariable UUID postId) {
 
         final User user = userPrincipal.getUser();
 
-        final PostDto.FavoritePostDto deleteFavoritePostDto = favoriteService.deleteFavoritePost(postId, user);
+        final PostDto.DeleteFavoritePostDto deleteFavoritePostDto = favoriteService.deleteFavoritePost(postId, user);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(deleteFavoritePostDto, Map.class))
+        final ResponseDto<PostDto.DeleteFavoritePostDto> responseDto = ResponseDto.<PostDto.DeleteFavoritePostDto>success()
+                .payload(deleteFavoritePostDto)
                 .build();
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}")
-    public ResponseEntity<ResponseDto> getUserFavoritePostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getUserFavoritePostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                @PathVariable UUID userId,
                                                                @RequestParam(defaultValue = "10") Integer size,
                                                                @RequestParam(defaultValue = "0") Integer page) {
@@ -79,8 +79,8 @@ public class FavoriteController {
         final Page<PostDto.PostListReadResponse> userFavoritePostList =
                 favoriteService.getUserFavoritePostList(user, size, page);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(userFavoritePostList, Map.class))
+        final ResponseDto<Page<PostDto.PostListReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostListReadResponse>>success()
+                .payload(userFavoritePostList)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -88,7 +88,7 @@ public class FavoriteController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}/{postId}")
-    public ResponseEntity<ResponseDto> didUserFavoritePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<PostDto.DidUserFavoritePostResponse>> didUserFavoritePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                            @PathVariable UUID userId,
                                                            @PathVariable UUID postId) {
 
@@ -101,8 +101,8 @@ public class FavoriteController {
         final PostDto.DidUserFavoritePostResponse didUserFavoritePostResponse =
                 favoriteService.didUserFavoritePost(user, postId);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(didUserFavoritePostResponse, Map.class))
+        final ResponseDto<PostDto.DidUserFavoritePostResponse> responseDto = ResponseDto.<PostDto.DidUserFavoritePostResponse>success()
+                .payload(didUserFavoritePostResponse)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);

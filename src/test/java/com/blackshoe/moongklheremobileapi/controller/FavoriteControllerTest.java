@@ -121,7 +121,7 @@ public class FavoriteControllerTest {
     @Test
     public void deleteFavoritePost_whenSuccess_returns204() throws Exception {
         //given
-        final PostDto.FavoritePostDto deleteFavoritePostDto = PostDto.FavoritePostDto.builder()
+        final PostDto.DeleteFavoritePostDto deleteFavoritePostDto = PostDto.DeleteFavoritePostDto.builder()
                 .postId(UUID.randomUUID())
                 .favoriteCount(1L)
                 .userId(userId)
@@ -129,19 +129,19 @@ public class FavoriteControllerTest {
                 .build();
 
         //when
-        when(favoriteService.favoritePost(any(UUID.class), any(User.class))).thenReturn(deleteFavoritePostDto);
+        when(favoriteService.deleteFavoritePost(any(UUID.class), any(User.class))).thenReturn(deleteFavoritePostDto);
         final MvcResult mvcResult = mockMvc.perform(
                         delete("/favorites/{postId}", UUID.randomUUID())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .with(csrf())
                                 .with(user(userDetailService.loadUserByUsername("test"))))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andReturn();
 
         //then
         MockHttpServletResponse response = mvcResult.getResponse();
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.getContentAsString()).isNotEmpty();
         log.info("response: {}", response.getContentAsString());
     }

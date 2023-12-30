@@ -45,7 +45,7 @@ public class TemporaryPostController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<ResponseDto> createTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<TemporaryPostDto.TemporaryPostCreateResponse>> createTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                            @RequestPart(name = "skin") MultipartFile skin,
                                                            @RequestPart(name = "story") MultipartFile story,
                                                            @RequestPart(name = "temporary_post_create_request") @Valid
@@ -62,12 +62,12 @@ public class TemporaryPostController {
         final TemporaryPostDto temporaryPostDto = temporaryPostService.createTemporaryPost(user, skinUrlDto, storyUrlDto, temporaryPostCreateRequest);
 
         final TemporaryPostDto.TemporaryPostCreateResponse temporaryPostCreateResponse = TemporaryPostDto.TemporaryPostCreateResponse.builder()
-                .temporaryPostId(temporaryPostDto.getTemporaryPostId().toString())
-                .createdAt(temporaryPostDto.getCreatedAt().toString())
+                .temporaryPostId(temporaryPostDto.getTemporaryPostId())
+                .createdAt(temporaryPostDto.getCreatedAt())
                 .build();
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(temporaryPostCreateResponse, Map.class))
+        final ResponseDto<TemporaryPostDto.TemporaryPostCreateResponse> responseDto = ResponseDto.<TemporaryPostDto.TemporaryPostCreateResponse>success()
+                .payload(temporaryPostCreateResponse)
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -75,7 +75,7 @@ public class TemporaryPostController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}")
-    public ResponseEntity<ResponseDto> getUserTemporaryPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<Page<TemporaryPostDto.TemporaryPostListReadResponse>>> getUserTemporaryPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                 @PathVariable UUID userId,
                                                                 @RequestParam Integer size,
                                                                 @RequestParam Integer page) {
@@ -89,8 +89,8 @@ public class TemporaryPostController {
         final Page<TemporaryPostDto.TemporaryPostListReadResponse> temporaryPostListReadResponsePage
                 = temporaryPostService.getUserTemporaryPostList(user, size, page);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(temporaryPostListReadResponsePage, Map.class))
+        final ResponseDto<Page<TemporaryPostDto.TemporaryPostListReadResponse>> responseDto = ResponseDto.<Page<TemporaryPostDto.TemporaryPostListReadResponse>>success()
+                .payload(temporaryPostListReadResponsePage)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -98,15 +98,15 @@ public class TemporaryPostController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}/{temporaryPostId}")
-    public ResponseEntity<ResponseDto> getTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<TemporaryPostDto.TemporaryPostReadResponse>> getTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                         @PathVariable UUID temporaryPostId) {
 
         final User user = userPrincipal.getUser();
 
         final TemporaryPostDto.TemporaryPostReadResponse temporaryPostReadResponse = temporaryPostService.getTemporaryPost(temporaryPostId, user);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(temporaryPostReadResponse, Map.class))
+        final ResponseDto<TemporaryPostDto.TemporaryPostReadResponse> responseDto = ResponseDto.<TemporaryPostDto.TemporaryPostReadResponse>success()
+                .payload(temporaryPostReadResponse)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -114,7 +114,7 @@ public class TemporaryPostController {
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{userId}/{temporaryPostId}")
-    public ResponseEntity<ResponseDto> deleteTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<TemporaryPostDto.DeleteResponse>> deleteTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                            @PathVariable UUID temporaryPostId) {
 
         final User user = userPrincipal.getUser();
@@ -122,14 +122,14 @@ public class TemporaryPostController {
         temporaryPostService.deleteTemporaryPost(temporaryPostId, user);
 
         final TemporaryPostDto.DeleteResponse deleteResponse = TemporaryPostDto.DeleteResponse.builder()
-                .temporaryPostId(temporaryPostId.toString())
-                .deletedAt(LocalDateTime.now().toString())
+                .temporaryPostId(temporaryPostId)
+                .deletedAt(LocalDateTime.now())
                 .build();
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(deleteResponse, Map.class))
+        final ResponseDto<TemporaryPostDto.DeleteResponse> responseDto = ResponseDto.<TemporaryPostDto.DeleteResponse>success()
+                .payload(deleteResponse)
                 .build();
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 }

@@ -51,7 +51,7 @@ public class PostDto {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class PostCreateResponse {
         private String postId;
-        private String createdAt;
+        private LocalDateTime createdAt;
     }
 
     @Data
@@ -59,7 +59,7 @@ public class PostDto {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class PostUpdateResponse {
         private String postId;
-        private String updatedAt;
+        private LocalDateTime updatedAt;
     }
 
     @Data
@@ -88,7 +88,7 @@ public class PostDto {
         private long commentCount;
         private long viewCount;
         private Boolean isPublic;
-        private String createdAt;
+        private LocalDateTime createdAt;
     }
 
     @Data
@@ -197,7 +197,7 @@ public class PostDto {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class DeletePostResponse {
         private UUID postId;
-        private String deletedAt;
+        private LocalDateTime deletedAt;
     }
 
     @Data

@@ -60,7 +60,7 @@ public class LikeController {
                 .payload(objectMapper.convertValue(dislikePostDto, Map.class))
                 .build();
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
     @PreAuthorize("isAuthenticated()")

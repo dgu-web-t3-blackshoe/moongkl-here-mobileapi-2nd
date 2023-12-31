@@ -118,6 +118,20 @@ public class ControllerExceptionAdvice {
         return ResponseEntity.status(errorResult.getHttpStatus()).body(responseDto);
     }
 
+    @ExceptionHandler(ExternalApiException.class)
+    public ResponseEntity<ResponseDto> handleExternalApiException(ExternalApiException e) {
+
+        log.error("ExternalApiException", e);
+
+        final ExternalApiErrorResult errorResult = e.getExternalApiErrorResult();
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .error(errorResult.getMessage())
+                .build();
+
+        return ResponseEntity.status(errorResult.getHttpStatus()).body(responseDto);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseDto> handleException(Exception e) {
 

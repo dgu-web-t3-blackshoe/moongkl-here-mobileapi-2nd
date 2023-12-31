@@ -35,8 +35,8 @@ public class TemporaryPostDto {
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class TemporaryPostCreateResponse {
-        private String temporaryPostId;
-        private String createdAt;
+        private UUID temporaryPostId;
+        private LocalDateTime createdAt;
     }
 
     @Data
@@ -60,8 +60,8 @@ public class TemporaryPostDto {
     @Builder
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class DeleteResponse {
-        private String temporaryPostId;
-        private String deletedAt;
+        private UUID temporaryPostId;
+        private LocalDateTime deletedAt;
     }
 
     @Data

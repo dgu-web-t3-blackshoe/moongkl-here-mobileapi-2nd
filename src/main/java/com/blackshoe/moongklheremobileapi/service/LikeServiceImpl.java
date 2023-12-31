@@ -64,7 +64,7 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     @Transactional
-    public PostDto.LikePostDto dislikePost(UUID postId, User user) {
+    public PostDto.DislikePostDto dislikePost(UUID postId, User user) {
 
         final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
 
@@ -74,14 +74,14 @@ public class LikeServiceImpl implements LikeService {
 
         post.decreaseLikeCount();
 
-        final PostDto.LikePostDto likePostDto = PostDto.LikePostDto.builder()
+        final PostDto.DislikePostDto dislikePostDto = PostDto.DislikePostDto.builder()
                 .postId(post.getId())
                 .likeCount(post.getLikeCount())
                 .userId(user.getId())
                 .deletedAt(LocalDateTime.now())
                 .build();
 
-        return likePostDto;
+        return dislikePostDto;
     }
 
     @Override

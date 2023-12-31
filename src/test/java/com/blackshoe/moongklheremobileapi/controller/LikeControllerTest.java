@@ -123,10 +123,10 @@ public class LikeControllerTest {
     }
 
     @Test
-    public void dislikePost_whenSuccess_returns204() throws Exception {
+    public void dislikePost_whenSuccess_returns200() throws Exception {
         //given
-        final PostDto.LikePostDto increaseViewCountDto
-                = PostDto.LikePostDto.builder()
+        final PostDto.DislikePostDto dislikePostDto
+                = PostDto.DislikePostDto.builder()
                 .postId(UUID.randomUUID())
                 .likeCount(0L)
                 .userId(UUID.randomUUID())
@@ -134,19 +134,19 @@ public class LikeControllerTest {
                 .build();
 
         //when
-        when(likeService.dislikePost(any(UUID.class), any(User.class))).thenReturn(increaseViewCountDto);
+        when(likeService.dislikePost(any(UUID.class), any(User.class))).thenReturn(dislikePostDto);
         final MvcResult mvcResult = mockMvc.perform(
                         delete("/likes/{postId}", UUID.randomUUID())
                                 .contentType("application/json")
                                 .accept("application/json")
                                 .with(csrf())
                                 .with(user(userDetailService.loadUserByUsername("test"))))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andReturn();
 
         //then
         MockHttpServletResponse response = mvcResult.getResponse();
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.getContentAsString()).isNotEmpty();
         log.info("response: {}", response.getContentAsString());
     }

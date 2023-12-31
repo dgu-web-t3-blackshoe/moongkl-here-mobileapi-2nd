@@ -33,15 +33,15 @@ public class LikeController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{postId}")
-    public ResponseEntity<ResponseDto> likePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<PostDto.LikePostDto>> likePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                 @PathVariable UUID postId) {
 
         final User user = userPrincipal.getUser();
 
         final PostDto.LikePostDto likePostDto = likeService.likePost(postId, user);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(likePostDto, Map.class))
+        final ResponseDto<PostDto.LikePostDto> responseDto = ResponseDto.<PostDto.LikePostDto>success()
+                .payload(likePostDto)
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -49,23 +49,23 @@ public class LikeController {
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{postId}")
-    public ResponseEntity<ResponseDto> dislikePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<PostDto.DislikePostDto>> dislikePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                    @PathVariable UUID postId) {
 
         final User user = userPrincipal.getUser();
 
-        final PostDto.LikePostDto dislikePostDto = likeService.dislikePost(postId, user);
+        final PostDto.DislikePostDto dislikePostDto = likeService.dislikePost(postId, user);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(dislikePostDto, Map.class))
+        final ResponseDto<PostDto.DislikePostDto> responseDto = ResponseDto.<PostDto.DislikePostDto>success()
+                .payload(dislikePostDto)
                 .build();
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}")
-    public ResponseEntity<ResponseDto> getUserLikedPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getUserLikedPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                             @PathVariable UUID userId,
                                                             @RequestParam(defaultValue = "10") Integer size,
                                                             @RequestParam(defaultValue = "0") Integer page) {
@@ -78,8 +78,8 @@ public class LikeController {
         final Page<PostDto.PostListReadResponse> userLikedPostList =
                 likeService.getUserLikedPostList(user, size, page);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(userLikedPostList, Map.class))
+        final ResponseDto<Page<PostDto.PostListReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostListReadResponse>>success()
+                .payload(userLikedPostList)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -88,7 +88,7 @@ public class LikeController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{userId}/{postId}")
-    public ResponseEntity<ResponseDto> didUserLikedPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<PostDto.DidUserLikedPostResponse>> didUserLikedPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                         @PathVariable UUID userId,
                                                         @PathVariable UUID postId) {
         final User user = userPrincipal.getUser();
@@ -100,8 +100,8 @@ public class LikeController {
         final PostDto.DidUserLikedPostResponse didUserLikedPostResponse =
                 likeService.didUserLikedPost(user, postId);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(didUserLikedPostResponse, Map.class))
+        final ResponseDto<PostDto.DidUserLikedPostResponse> responseDto = ResponseDto.<PostDto.DidUserLikedPostResponse>success()
+                .payload(didUserLikedPostResponse)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);

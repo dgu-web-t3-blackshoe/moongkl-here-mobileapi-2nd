@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface LikeService {
     PostDto.LikePostDto likePost(UUID postId, User user);
 
-    PostDto.LikePostDto dislikePost(UUID postId, User user);
+    PostDto.DislikePostDto dislikePost(UUID postId, User user);
 
     Page<PostDto.PostListReadResponse> getUserLikedPostList(User user, int size, int page);
 

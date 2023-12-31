@@ -28,7 +28,7 @@ public class SwaggerConfig {
     private static final String API_NAME = "뭉클히어 API 명세서";
     private static final String API_VERSION = "1.0.0";
     private static final String API_DESCRIPTION = "뭉클히어 모바일 명세서입니다.";
-    @Profile({"test || dev"})
+    @Profile({"test || dev || local"})
     @Bean
     public Docket api() {
         Parameter parameterBuilder = new ParameterBuilder()
@@ -83,7 +83,7 @@ public class SwaggerConfig {
         return Arrays.asList(new SecurityReference("Authorization", authorizationScopes));
     }
     @Bean
-    @Profile({"!test && !dev"})
+    @Profile({"!test && !dev && !local"})
     public Docket disable() {
         return new Docket(DocumentationType.OAS_30).enable(false);
     }

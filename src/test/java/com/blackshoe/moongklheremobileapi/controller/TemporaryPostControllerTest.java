@@ -436,7 +436,7 @@ public class TemporaryPostControllerTest {
     }
 
     @Test
-    public void deleteTemporaryPost_whenSuccess_returns204() throws Exception {
+    public void deleteTemporaryPost_whenSuccess_returns200() throws Exception {
         //given
 
         //when
@@ -446,12 +446,12 @@ public class TemporaryPostControllerTest {
                                 .accept(MediaType.APPLICATION_JSON)
                                 .with(csrf())
                                 .with(user(userDetailService.loadUserByUsername("test"))))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andReturn();
 
         //then
         MockHttpServletResponse response = result.getResponse();
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.getContentAsString()).isNotEmpty();
         log.info("response: {}", response.getContentAsString());
     }

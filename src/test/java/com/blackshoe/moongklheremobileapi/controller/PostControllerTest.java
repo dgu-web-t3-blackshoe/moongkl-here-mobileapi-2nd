@@ -329,7 +329,7 @@ public class PostControllerTest {
                 .favoriteCount(0)
                 .viewCount(0)
                 .isPublic(true)
-                .createdAt(LocalDateTime.now().toString())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         //when

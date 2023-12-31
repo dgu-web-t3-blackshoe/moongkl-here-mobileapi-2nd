@@ -152,7 +152,7 @@ public class FavoriteServiceTest {
 
         // when
         final PostDto.FavoritePostDto favoritePostDto = favoriteService.favoritePost(postId, user);
-        final PostDto.FavoritePostDto deleteFavoritePostDto = favoriteService.deleteFavoritePost(postId, user);
+        final PostDto.DeleteFavoritePostDto deleteFavoritePostDto = favoriteService.deleteFavoritePost(postId, user);
 
         // then
         assertThat(favoritePostDto.getFavoriteCount()).isEqualTo(1);

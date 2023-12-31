@@ -53,7 +53,7 @@ public class PostController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<ResponseDto> createPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<PostDto.PostCreateResponse>> createPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                   @RequestPart(name = "skin") MultipartFile skin,
                                                   @RequestPart(name = "story") MultipartFile story,
                                                   @RequestPart(name = "post_create_request") @Valid
@@ -73,11 +73,11 @@ public class PostController {
 
         final PostDto.PostCreateResponse postCreateResponse = PostDto.PostCreateResponse.builder()
                 .postId(postDto.getPostId().toString())
-                .createdAt(postDto.getCreatedAt().toString())
+                .createdAt(postDto.getCreatedAt())
                 .build();
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postCreateResponse, Map.class))
+        final ResponseDto<PostDto.PostCreateResponse> responseDto = ResponseDto.<PostDto.PostCreateResponse>success()
+                .payload(postCreateResponse)
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -85,7 +85,7 @@ public class PostController {
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{postId}/is-public")
-    public ResponseEntity<ResponseDto> changePostIsPublic(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<PostDto.PostUpdateResponse>> changePostIsPublic(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                           @PathVariable("postId") UUID postId,
                                                           @RequestBody @Valid PostDto.PostIsPublicChangeRequest postIsPublicChangeRequest) {
 
@@ -97,29 +97,29 @@ public class PostController {
 
         final PostDto.PostUpdateResponse postUpdateResponse = PostDto.PostUpdateResponse.builder()
                 .postId(postDto.getPostId().toString())
-                .updatedAt(postDto.getUpdatedAt().toString())
+                .updatedAt(postDto.getUpdatedAt())
                 .build();
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postUpdateResponse, Map.class))
+        final ResponseDto<PostDto.PostUpdateResponse> responseDto = ResponseDto.<PostDto.PostUpdateResponse>success()
+                .payload(postUpdateResponse)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<ResponseDto> getPost(@PathVariable("postId") UUID postId) {
+    public ResponseEntity<ResponseDto<PostDto.PostReadResponse>> getPost(@PathVariable("postId") UUID postId) {
         final PostDto.PostReadResponse postReadResponse = postService.getPost(postId);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postReadResponse, Map.class))
+        final ResponseDto<PostDto.PostReadResponse> responseDto = ResponseDto.<PostDto.PostReadResponse>success()
+                .payload(postReadResponse)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
     @GetMapping()
-    public ResponseEntity<ResponseDto> getPostList(@RequestParam(name = "user", required = false, defaultValue = "false") String user,
+    public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getPostList(@RequestParam(name = "user", required = false, defaultValue = "false") String user,
                                                    @RequestParam(name = "from", required = false, defaultValue = "2001-01-01") String from,
                                                    @RequestParam(name = "to", required = false, defaultValue = "2999-12-31") String to,
                                                    @RequestParam(name = "location", required = false, defaultValue = "default") String location,
@@ -139,15 +139,15 @@ public class PostController {
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postService.getPostList(from, to, location, latitude, longitude, radius, sort, size, page);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))
+        final ResponseDto<Page<PostDto.PostListReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostListReadResponse>>success()
+                .payload(postListReadResponsePage)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
     @GetMapping(params = {"user", "public"})
-    public ResponseEntity<ResponseDto> getPublicUserPostList(@RequestParam(name = "user") UUID userId,
+    public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getPublicUserPostList(@RequestParam(name = "user") UUID userId,
                                                              @RequestParam(name = "public") Boolean isPublic,
                                                              @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
                                                              @RequestParam(name = "size", required = false, defaultValue = "10") Integer size) {
@@ -162,8 +162,8 @@ public class PostController {
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postService.getPublicUserPostList(userId, sort, size);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))
+        final ResponseDto<Page<PostDto.PostListReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostListReadResponse>>success()
+                .payload(postListReadResponsePage)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -171,7 +171,7 @@ public class PostController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user"})
-    public ResponseEntity<ResponseDto> getAllUserPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getAllUserPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                           @RequestParam(name = "user") UUID userId,
                                                           @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
                                                           @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
@@ -189,8 +189,8 @@ public class PostController {
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postService.getAllUserPostList(user, sort, size, page);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))
+        final ResponseDto<Page<PostDto.PostListReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostListReadResponse>>success()
+                .payload(postListReadResponsePage)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -199,7 +199,7 @@ public class PostController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "latitude", "longitude", "radius"})
-    public ResponseEntity<ResponseDto> getUserPostListGroupedByCity(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<Page<PostDto.PostGroupByCityReadResponse>>> getUserPostListGroupedByCity(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                     @RequestParam(name = "user") UUID userId,
                                                                     @RequestParam(name = "latitude") Double latitude,
                                                                     @RequestParam(name = "longitude") Double longitude,
@@ -219,8 +219,8 @@ public class PostController {
         final Page<PostDto.PostGroupByCityReadResponse> postGroupByCityReadResponsePage
                 = postService.getUserPostListGroupedByCity(user, latitude, longitude, radius, size, page);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postGroupByCityReadResponsePage, Map.class))
+        final ResponseDto<Page<PostDto.PostGroupByCityReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostGroupByCityReadResponse>>success()
+                .payload(postGroupByCityReadResponsePage)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -228,7 +228,7 @@ public class PostController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "country", "state", "city"})
-    public ResponseEntity<ResponseDto> getUserCityPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getUserCityPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                            @RequestParam(name = "user") UUID userId,
                                                            @RequestParam(name = "country") String country,
                                                            @RequestParam(name = "state") String state,
@@ -248,8 +248,8 @@ public class PostController {
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postService.getUserCityPostList(user, country, state, city, sort, size, page);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))
+        final ResponseDto<Page<PostDto.PostListReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostListReadResponse>>success()
+                .payload(postListReadResponsePage)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -257,7 +257,7 @@ public class PostController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "from", "to"})
-    public ResponseEntity<ResponseDto> getUserSkinTimePostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getUserSkinTimePostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                @RequestParam(name = "user") UUID userId,
                                                                @RequestParam(name = "from") String from,
                                                                @RequestParam(name = "to") String to,
@@ -277,8 +277,8 @@ public class PostController {
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
                 = postService.getUserSkinTimePostList(user, from, to, sort, size, page);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postListReadResponsePage, Map.class))
+        final ResponseDto<Page<PostDto.PostListReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostListReadResponse>>success()
+                .payload(postListReadResponsePage)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -286,7 +286,7 @@ public class PostController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(params = {"save-temporary-post"})
-    public ResponseEntity<ResponseDto> saveTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<PostDto.PostCreateResponse>> saveTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                          @RequestParam(name = "save-temporary-post") Boolean saveTemporaryPost,
                                                          @RequestBody @Valid PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest) throws JsonProcessingException {
 
@@ -310,11 +310,11 @@ public class PostController {
 
         final PostDto.PostCreateResponse postCreateResponse = PostDto.PostCreateResponse.builder()
                 .postId(postDto.getPostId().toString())
-                .createdAt(postDto.getCreatedAt().toString())
+                .createdAt(postDto.getCreatedAt())
                 .build();
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postCreateResponse, Map.class))
+        final ResponseDto<PostDto.PostCreateResponse> responseDto = ResponseDto.<PostDto.PostCreateResponse>success()
+                .payload(postCreateResponse)
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -322,7 +322,7 @@ public class PostController {
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{postId}")
-    public ResponseEntity<ResponseDto> deletePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<PostDto.DeletePostResponse>> deletePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                   @PathVariable("postId") UUID postId) {
 
         final User user = userPrincipal.getUser();
@@ -331,19 +331,19 @@ public class PostController {
 
         final PostDto.DeletePostResponse deletePostResponse = PostDto.DeletePostResponse.builder()
                 .postId(postId)
-                .deletedAt(LocalDateTime.now().toString())
+                .deletedAt(LocalDateTime.now())
                 .build();
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(deletePostResponse, Map.class))
+        final ResponseDto<PostDto.DeletePostResponse> responseDto = ResponseDto.<PostDto.DeletePostResponse>success()
+                .payload(deletePostResponse)
                 .build();
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "with-date"})
-    public ResponseEntity<ResponseDto> getUserPostWithDateList(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<ResponseDto<Page<PostDto.PostWithDateListReadResponse>>> getUserPostWithDateList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                @RequestParam("user") UUID userId,
                                                                @RequestParam("with-date") boolean withDate,
                                                                @RequestParam(defaultValue = "10") Integer size,
@@ -361,8 +361,8 @@ public class PostController {
         final Page<PostDto.PostWithDateListReadResponse> postListWithDateReadResponsePage
                 = postService.getUserPostWithDateList(user, size, page);
 
-        final ResponseDto responseDto = ResponseDto.builder()
-                .payload(objectMapper.convertValue(postListWithDateReadResponsePage, Map.class))
+        final ResponseDto<Page<PostDto.PostWithDateListReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostWithDateListReadResponse>>success()
+                .payload(postListWithDateReadResponsePage)
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);

@@ -148,11 +148,11 @@ public class LikeServiceTest {
 
         // when
         final PostDto.LikePostDto likePostDto = likeService.likePost(postId, user);
-        final PostDto.LikePostDto dilikePostDto = likeService.dislikePost(postId, user);
+        final PostDto.DislikePostDto dislikePostDto = likeService.dislikePost(postId, user);
 
         // then
         assertThat(likePostDto.getLikeCount()).isEqualTo(1);
-        assertThat(dilikePostDto.getLikeCount()).isEqualTo(0);
+        assertThat(dislikePostDto.getLikeCount()).isEqualTo(0);
     }
 
     @Test

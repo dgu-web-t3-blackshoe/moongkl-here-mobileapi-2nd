@@ -40,10 +40,6 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-  profiles:
-    #active: ${SPRING_PROFILES_ACTIVE}
-    active: deployment
-
   security:
     oauth2:
       redirect-uri: ${SUCCESS_REDIRECT_URI}

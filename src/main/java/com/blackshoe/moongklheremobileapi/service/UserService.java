@@ -47,6 +47,4 @@ public interface UserService {
     boolean userExistsByPhoneNumber(String phoneNumber);
 
     boolean userHasPasswordByEmail(String email);
-
-    UserDto.UpdateProfileImgResponseDto updateProfileImg(UUID userId, UserDto.UpdateProfileImgRequestDto updateProfileImgRequestDto);
 }

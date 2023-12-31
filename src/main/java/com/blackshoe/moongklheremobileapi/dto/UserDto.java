@@ -229,6 +229,23 @@ public class UserDto {
         private UUID userId;
         private LocalDateTime createdAt;
     }
+
+    @Getter
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class UpdateProfileImgRequestDto{
+        private UUID userId;
+        private MultipartFile profileImg;
+    }
+
+    @Getter
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class UpdateProfileImgResponseDto{
+        private UUID userId;
+        private LocalDateTime updatedAt;
+        private ProfileImgUrlDto profileImgUrlDto;
+    }
 }
 
 

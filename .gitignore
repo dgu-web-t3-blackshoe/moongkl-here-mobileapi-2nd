@@ -40,3 +40,5 @@ out/
 my-debug-key.keystore
 .env
 docker-compose.yaml
+
+src/docker-compose-deployment.yaml

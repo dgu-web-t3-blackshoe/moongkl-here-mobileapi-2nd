@@ -48,4 +48,5 @@ public interface UserService {
 
     boolean userHasPasswordByEmail(String email);
 
+    UserDto.UpdateProfileImgResponseDto updateProfileImg(UUID userId, UserDto.UpdateProfileImgRequestDto updateProfileImgRequestDto);
 }

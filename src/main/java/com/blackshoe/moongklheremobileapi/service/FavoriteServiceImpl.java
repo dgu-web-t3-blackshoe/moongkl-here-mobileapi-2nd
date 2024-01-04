@@ -10,10 +10,14 @@ import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.FavoriteRepository;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
+import com.blackshoe.moongklheremobileapi.vo.PostAddressFilter;
+import com.blackshoe.moongklheremobileapi.vo.PostPointFilter;
+import com.blackshoe.moongklheremobileapi.vo.SortType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -107,5 +111,67 @@ public class FavoriteServiceImpl implements FavoriteService {
                 .build();
 
         return didUserFavoritePostResponse;
+    }
+
+    @Override
+    public Page<PostDto.PostGroupByCityReadResponse> getUserFavoritePostListGroupedByCity(User user,
+                                                                                          Double latitude,
+                                                                                          Double longitude,
+                                                                                          Double radius,
+                                                                                          Integer size,
+                                                                                          Integer page) {
+
+        final PostPointFilter postPointFilter = PostPointFilter.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .radius(radius)
+                .build();
+
+        final Pageable pageable = PageRequest.of(page, size);
+
+        final Page<PostDto.PostGroupByCityReadResponse> postGroupByCityReadResponsePage
+                = favoriteRepository.findAllUserFavoritePostByLocationAndGroupByCity(user, postPointFilter, pageable);
+
+        return postGroupByCityReadResponsePage;
+    }
+
+    @Override
+    public Page<PostDto.PostListReadResponse> getUserCityFavoritePostList(User user,
+                                                                          String country,
+                                                                          String state,
+                                                                          String city,
+                                                                          String sort,
+                                                                          Integer size,
+                                                                          Integer page) {
+
+        final PostAddressFilter postAddressFilter = PostAddressFilter.builder()
+                .country(country)
+                .state(state)
+                .city(city)
+                .build();
+
+        final SortType sortType = SortType.verifyAndConvertStringToSortType(sort);
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, SortType.getSortField(sortType));
+
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        final Page<PostDto.PostListReadResponse> userCityFavoritePostReadResponsePage
+                = favoriteRepository.findAllUserFavoritePostByCity(user, postAddressFilter, pageable);
+
+        return userCityFavoritePostReadResponsePage;
+    }
+
+    @Override
+    public Page<PostDto.PostWithDateListReadResponse> getUserFavoritePostWithDateList(User user, Integer size, Integer page) {
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+
+        final Pageable pageable = PageRequest.of(0, 10, sortBy);
+
+        final Page<PostDto.PostWithDateListReadResponse> userFavoritePostWithDateListResponsePage
+                = favoriteRepository.findAllUserFavoritePostByUser(user, pageable);
+
+        return userFavoritePostWithDateListResponsePage;
     }
 }

@@ -4,6 +4,8 @@ import com.blackshoe.moongklheremobileapi.dto.PostDto;
 import com.blackshoe.moongklheremobileapi.entity.Favorite;
 import com.blackshoe.moongklheremobileapi.entity.Post;
 import com.blackshoe.moongklheremobileapi.entity.User;
+import com.blackshoe.moongklheremobileapi.vo.PostAddressFilter;
+import com.blackshoe.moongklheremobileapi.vo.PostPointFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -49,4 +51,30 @@ public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
     //findByUserId, count favorite rows by user id
     @Query("SELECT COUNT(f) FROM Favorite f WHERE f.user.id = :userId")
     int countByUserId(UUID userId);
+
+    @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostGroupByCityReadResponse(" +
+            "f.post.skinLocation.country, f.post.skinLocation.state, f.post.skinLocation.city, COUNT(f.post), f.post.skinUrl.cloudfrontUrl) " +
+            "FROM Favorite f " +
+            "WHERE f.user = :user " +
+            "AND f.post.skinLocation.latitude BETWEEN :#{#postPointFilter.latitude} - :#{#postPointFilter.radius} " +
+            "AND :#{#postPointFilter.latitude} + :#{#postPointFilter.radius} " +
+            "GROUP BY f.post.skinLocation.country, f.post.skinLocation.state, f.post.skinLocation.city "+
+            "ORDER BY COUNT(f.post) DESC")
+    Page<PostDto.PostGroupByCityReadResponse> findAllUserFavoritePostByLocationAndGroupByCity(User user, PostPointFilter postPointFilter, Pageable pageable);
+
+    @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +
+            "f.post.id, f.post.id, f.post.skinUrl.cloudfrontUrl, f.post.storyUrl.cloudfrontUrl) " +
+            "FROM Favorite f " +
+            "WHERE f.user = :user " +
+            "AND f.post.skinLocation.country = :#{#postAddressFilter.country} " +
+            "AND f.post.skinLocation.state = :#{#postAddressFilter.state} " +
+            "AND f.post.skinLocation.city = :#{#postAddressFilter.city} " )
+    Page<PostDto.PostListReadResponse> findAllUserFavoritePostByCity(User user, PostAddressFilter postAddressFilter, Pageable pageable);
+
+    @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostWithDateListReadResponse(" +
+            "f.post.id, f.post.id, f.post.skinUrl.cloudfrontUrl, f.post.storyUrl.cloudfrontUrl, f.post.skinTime.year, f.post.skinTime.month, f.post.skinTime.day) " +
+            "FROM Favorite f " +
+            "WHERE f.user = :user " +
+            "ORDER BY f.post.createdAt DESC")
+    Page<PostDto.PostWithDateListReadResponse> findAllUserFavoritePostByUser(User user, Pageable pageable);
 }

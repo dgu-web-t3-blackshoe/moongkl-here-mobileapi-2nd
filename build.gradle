@@ -77,8 +77,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
-jar {
+bootJar {
     enabled = false
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'com.blackshoe.moongklheremobileapi.MoongklHereMobileapiApplication'
+        )
+    }
 }
 
 test {

@@ -4,6 +4,10 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
+springBoot {
+    mainClass = 'com.blackshoe.moongklheremobileapi.MoongklHereMobileapiApplication'
+}
+
 group = 'com.blackshoe'
 version = '0.0.1-SNAPSHOT'
 

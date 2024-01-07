@@ -2,7 +2,7 @@
 
 export $(grep -v '^#' /home/ubuntu/.env | xargs -d ';' -n 1)
 
-BUILD_JAR=$(ls /home/ubuntu/app/build/libs/*.jar)
+BUILD_JAR=$(ls /home/ubuntu/app/build/libs/moongkl-here-mobileapi-0.0.1-SNAPSHOT.jar)
 JAR_NAME=$(basename $BUILD_JAR)
 echo ">>> build 파일명: $JAR_NAME" >> /home/ubuntu/app/deploy.log
 

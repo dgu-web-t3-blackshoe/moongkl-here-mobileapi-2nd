@@ -1,5 +1,8 @@
 #!/bin/bash
 
+CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S %Z')
+echo ">>> 현재 서버 시간: $CURRENT_TIME" >> /home/ubuntu/app/deploy.log
+
 BUILD_JAR=$(ls /home/ubuntu/app/build/libs/moongkl-here-mobileapi-0.0.1-SNAPSHOT.jar)
 JAR_NAME=$(basename $BUILD_JAR)
 echo ">>> build 파일명: $JAR_NAME" >> /home/ubuntu/app/deploy.log

@@ -75,6 +75,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
             "f.post.id, f.post.user.id, f.post.skinUrl.cloudfrontUrl, f.post.storyUrl.cloudfrontUrl, f.post.skinTime.year, f.post.skinTime.month, f.post.skinTime.day) " +
             "FROM Favorite f " +
             "WHERE f.user = :user " +
-            "ORDER BY f.post.createdAt DESC")
+            "ORDER BY  f.post.skinTime.year DESC, f.post.skinTime.month DESC, f.post.skinTime.day DESC")
     Page<PostDto.PostWithDateListReadResponse> findAllUserFavoritePostByUser(User user, Pageable pageable);
 }

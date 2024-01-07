@@ -56,14 +56,14 @@ public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
             "f.post.skinLocation.country, f.post.skinLocation.state, f.post.skinLocation.city, COUNT(f.post), f.post.skinUrl.cloudfrontUrl) " +
             "FROM Favorite f " +
             "WHERE f.user = :user " +
-            "AND f.post.skinLocation.latitude BETWEEN :#{#postPointFilter.latitude} - :#{#postPointFilter.radius} " +
-            "AND :#{#postPointFilter.latitude} + :#{#postPointFilter.radius} " +
+            "AND f.post.skinLocation.latitude BETWEEN :#{#postPointFilter.latitude - #postPointFilter.latitudeDelta} AND :#{#postPointFilter.latitude + #postPointFilter.latitudeDelta} " +
+            "AND f.post.skinLocation.longitude BETWEEN :#{#postPointFilter.longitude - #postPointFilter.longitudeDelta} AND :#{#postPointFilter.longitude + #postPointFilter.longitudeDelta} " +
             "GROUP BY f.post.skinLocation.country, f.post.skinLocation.state, f.post.skinLocation.city "+
             "ORDER BY COUNT(f.post) DESC")
     Page<PostDto.PostGroupByCityReadResponse> findAllUserFavoritePostByLocationAndGroupByCity(User user, PostPointFilter postPointFilter, Pageable pageable);
 
     @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +
-            "f.post.id, f.post.id, f.post.skinUrl.cloudfrontUrl, f.post.storyUrl.cloudfrontUrl) " +
+            "f.post.id, f.post.user.id, f.post.skinUrl.cloudfrontUrl, f.post.storyUrl.cloudfrontUrl) " +
             "FROM Favorite f " +
             "WHERE f.user = :user " +
             "AND f.post.skinLocation.country = :#{#postAddressFilter.country} " +

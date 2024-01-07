@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export $(grep -v '^#' /home/ubuntu/.env | xargs -d ';' -n 1)
-
 BUILD_JAR=$(ls /home/ubuntu/app/build/libs/moongkl-here-mobileapi-0.0.1-SNAPSHOT.jar)
 JAR_NAME=$(basename $BUILD_JAR)
 echo ">>> build 파일명: $JAR_NAME" >> /home/ubuntu/app/deploy.log
@@ -25,5 +23,6 @@ fi
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
 echo ">>> DEPLOY_JAR 배포"    >> /home/ubuntu/app/deploy.log
 
+export $(grep -v '^#' /home/ubuntu/.env | xargs -d ';' -n 1)
 # Java 어플리케이션 실행
 nohup java -jar $DEPLOY_JAR >> /home/ubuntu/deploy.log 2>/home/ubuntu/app/deploy_err.log &

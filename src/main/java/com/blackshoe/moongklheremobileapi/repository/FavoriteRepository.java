@@ -72,7 +72,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
     Page<PostDto.PostListReadResponse> findAllUserFavoritePostByCity(User user, PostAddressFilter postAddressFilter, Pageable pageable);
 
     @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostWithDateListReadResponse(" +
-            "f.post.id, f.post.id, f.post.skinUrl.cloudfrontUrl, f.post.storyUrl.cloudfrontUrl, f.post.skinTime.year, f.post.skinTime.month, f.post.skinTime.day) " +
+            "f.post.id, f.post.user.id, f.post.skinUrl.cloudfrontUrl, f.post.storyUrl.cloudfrontUrl, f.post.skinTime.year, f.post.skinTime.month, f.post.skinTime.day) " +
             "FROM Favorite f " +
             "WHERE f.user = :user " +
             "ORDER BY f.post.createdAt DESC")

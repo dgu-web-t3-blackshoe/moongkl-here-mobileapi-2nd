@@ -1,4 +1,5 @@
 # workflow의 이름
+# testCD
 name: github-action-test
 
 # 해당 workflow가 언제 실행될 것인지에 대한 트리거를 지정

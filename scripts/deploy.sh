@@ -28,4 +28,4 @@ echo ">>> DEPLOY_JAR 배포"    >> /home/ubuntu/app/deploy.log
 
 export $(grep -v '^#' /home/ubuntu/.env | xargs -d ';' -n 1)
 # Java 어플리케이션 실행
-nohup java -jar $DEPLOY_JAR >> /home/ubuntu/deploy.log 2>/home/ubuntu/app/deploy_err.log &
+nohup java -jar $DEPLOY_JAR >> "/home/ubuntu/deploy_$(date '+%Y%m%d%H%M%S').log" 2>>"/home/ubuntu/app/deploy_err_$(date '+%Y%m%d%H%M%S').log" &

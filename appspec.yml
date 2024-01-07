@@ -8,12 +8,12 @@ files:
 permissions:
   - object: /
     pattern: "**"
-    owner: ubuntu
-    group: ubuntu
+    owner: root
+    group: root
     mode: 777
 
 hooks:
   ApplicationStart:
     - location: scripts/deploy.sh
       timeout: 180
-      runas: ubuntu
+      runas: root

@@ -53,7 +53,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
     int countByUserId(UUID userId);
 
     @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostGroupByCityReadResponse(" +
-            "f.post.skinLocation.country, f.post.skinLocation.state, f.post.skinLocation.city, COUNT(f.post), f.post.skinUrl.cloudfrontUrl) " +
+            "f.post.skinLocation.country, f.post.skinLocation.state, f.post.skinLocation.city, COUNT(f.post), f.post.storyUrl.cloudfrontUrl) " +
             "FROM Favorite f " +
             "WHERE f.user = :user " +
             "AND f.post.skinLocation.latitude BETWEEN :#{#postPointFilter.latitude - #postPointFilter.latitudeDelta} AND :#{#postPointFilter.latitude + #postPointFilter.latitudeDelta} " +

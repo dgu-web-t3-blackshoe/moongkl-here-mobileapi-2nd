@@ -37,7 +37,7 @@ public interface PostService {
 
     void deletePost(User user, UUID postId);
 
-    Page<PostDto.PostListReadResponse> getPublicUserPostList(UUID userId, String sort, Integer size);
+    Page<PostDto.PostListReadResponse> getPublicUserPostList(UUID userId, String sort, Integer size, Integer page);
 
     Page<PostDto.PostListReadResponse> getAllUserPostList(User user, String sort, Integer size, Integer page);
 

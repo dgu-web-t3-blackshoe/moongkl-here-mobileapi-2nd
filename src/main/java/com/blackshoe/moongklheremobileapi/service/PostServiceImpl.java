@@ -380,12 +380,12 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostDto.PostListReadResponse> getPublicUserPostList(UUID user, String sort, Integer size) {
+    public Page<PostDto.PostListReadResponse> getPublicUserPostList(UUID user, String sort, Integer size, Integer page) {
 
         final SortType sortType = SortType.verifyAndConvertStringToSortType(sort);
 
         final Sort sortBy = Sort.by(Sort.Direction.DESC, SortType.getSortField(sortType));
-        final Pageable pageable = PageRequest.of(0, size, sortBy);
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
 
         final Page<PostDto.PostListReadResponse> userPostDefaultReadResponsePage
                 = postRepository.findAllPublicUserPost(user, pageable);

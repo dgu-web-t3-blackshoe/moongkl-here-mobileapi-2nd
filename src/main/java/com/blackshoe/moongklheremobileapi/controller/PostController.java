@@ -54,10 +54,10 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseDto<PostDto.PostCreateResponse>> createPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                  @RequestPart(name = "skin") MultipartFile skin,
-                                                  @RequestPart(name = "story") MultipartFile story,
-                                                  @RequestPart(name = "post_create_request") @Valid
-                                                  PostDto.PostCreateRequest postCreateRequest) {
+                                                                              @RequestPart(name = "skin") MultipartFile skin,
+                                                                              @RequestPart(name = "story") MultipartFile story,
+                                                                              @RequestPart(name = "post_create_request") @Valid
+                                                                              PostDto.PostCreateRequest postCreateRequest) {
         //log all
         log.info("create post, postCreateRequest: {}", postCreateRequest);
 
@@ -86,8 +86,8 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{postId}/is-public")
     public ResponseEntity<ResponseDto<PostDto.PostUpdateResponse>> changePostIsPublic(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                          @PathVariable("postId") UUID postId,
-                                                          @RequestBody @Valid PostDto.PostIsPublicChangeRequest postIsPublicChangeRequest) {
+                                                                                      @PathVariable("postId") UUID postId,
+                                                                                      @RequestBody @Valid PostDto.PostIsPublicChangeRequest postIsPublicChangeRequest) {
 
         final Boolean newIsPublic = Boolean.valueOf(postIsPublicChangeRequest.getIsPublic());
 
@@ -120,15 +120,15 @@ public class PostController {
 
     @GetMapping()
     public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getPostList(@RequestParam(name = "user", required = false, defaultValue = "false") String user,
-                                                   @RequestParam(name = "from", required = false, defaultValue = "2001-01-01") String from,
-                                                   @RequestParam(name = "to", required = false, defaultValue = "2999-12-31") String to,
-                                                   @RequestParam(name = "location", required = false, defaultValue = "default") String location,
-                                                   @RequestParam(name = "latitude", required = false, defaultValue = "0") Double latitude,
-                                                   @RequestParam(name = "longitude", required = false, defaultValue = "0") Double longitude,
-                                                   @RequestParam(name = "radius", required = false, defaultValue = "0") Double radius,
-                                                   @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
-                                                   @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
-                                                   @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+                                                                                       @RequestParam(name = "from", required = false, defaultValue = "2001-01-01") String from,
+                                                                                       @RequestParam(name = "to", required = false, defaultValue = "2999-12-31") String to,
+                                                                                       @RequestParam(name = "location", required = false, defaultValue = "default") String location,
+                                                                                       @RequestParam(name = "latitude", required = false, defaultValue = "0") Double latitude,
+                                                                                       @RequestParam(name = "longitude", required = false, defaultValue = "0") Double longitude,
+                                                                                       @RequestParam(name = "radius", required = false, defaultValue = "0") Double radius,
+                                                                                       @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
+                                                                                       @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
+                                                                                       @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
         if (!user.equals("false")) {
             throw new PostException(PostErrorResult.INVALID_PARAMETER_FOR_GET_POST_LIST);
         }
@@ -148,19 +148,21 @@ public class PostController {
 
     @GetMapping(params = {"user", "public"})
     public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getPublicUserPostList(@RequestParam(name = "user") UUID userId,
-                                                             @RequestParam(name = "public") Boolean isPublic,
-                                                             @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
-                                                             @RequestParam(name = "size", required = false, defaultValue = "10") Integer size) {
+                                                                                                 @RequestParam(name = "public") Boolean isPublic,
+                                                                                                 @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
+                                                                                                 @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
+                                                                                                 @RequestParam(name = "page", required = false, defaultValue = "0") Integer page
+    ) {
 
-        log.info("get public user post list, user: {}, public: {}, sort: {}, size: {}",
-                userId, isPublic, sort, size);
+        log.info("get public user post list, user: {}, public: {}, sort: {}, size: {}, page: {}",
+                userId, isPublic, sort, size, page);
 
         if (!isPublic) {
             throw new PostException(PostErrorResult.INVALID_PARAMETER_FOR_GET_PUBLIC_USER_POST_LIST);
         }
 
         final Page<PostDto.PostListReadResponse> postListReadResponsePage
-                = postService.getPublicUserPostList(userId, sort, size);
+                = postService.getPublicUserPostList(userId, sort, size, page);
 
         final ResponseDto<Page<PostDto.PostListReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostListReadResponse>>success()
                 .payload(postListReadResponsePage)
@@ -172,10 +174,10 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user"})
     public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getAllUserPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                          @RequestParam(name = "user") UUID userId,
-                                                          @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
-                                                          @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
-                                                          @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+                                                                                              @RequestParam(name = "user") UUID userId,
+                                                                                              @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
+                                                                                              @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
+                                                                                              @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
 
         log.info("get all user post list, user: {}, sort: {}, size: {}, page: {}",
                 userId, sort, size, page);
@@ -200,12 +202,12 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "latitude", "longitude", "radius"})
     public ResponseEntity<ResponseDto<Page<PostDto.PostGroupByCityReadResponse>>> getUserPostListGroupedByCity(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                    @RequestParam(name = "user") UUID userId,
-                                                                    @RequestParam(name = "latitude") Double latitude,
-                                                                    @RequestParam(name = "longitude") Double longitude,
-                                                                    @RequestParam(name = "radius") Double radius,
-                                                                    @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
-                                                                    @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+                                                                                                               @RequestParam(name = "user") UUID userId,
+                                                                                                               @RequestParam(name = "latitude") Double latitude,
+                                                                                                               @RequestParam(name = "longitude") Double longitude,
+                                                                                                               @RequestParam(name = "radius") Double radius,
+                                                                                                               @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
+                                                                                                               @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
 
         log.info("get user post list grouped by city, user: {}, latitude: {}, longitude: {}, radius: {}, size: {}, page: {}",
                 userId, latitude, longitude, radius, size, page);
@@ -229,13 +231,13 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "country", "state", "city"})
     public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getUserCityPostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                           @RequestParam(name = "user") UUID userId,
-                                                           @RequestParam(name = "country") String country,
-                                                           @RequestParam(name = "state") String state,
-                                                           @RequestParam(name = "city") String city,
-                                                           @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
-                                                           @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
-                                                           @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+                                                                                               @RequestParam(name = "user") UUID userId,
+                                                                                               @RequestParam(name = "country") String country,
+                                                                                               @RequestParam(name = "state") String state,
+                                                                                               @RequestParam(name = "city") String city,
+                                                                                               @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
+                                                                                               @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
+                                                                                               @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
         log.info("get user city post list, user: {}, country: {}, state: {}, city: {}, sort: {}, size: {}, page: {}",
                 userId, country, state, city, sort, size, page);
 
@@ -258,12 +260,12 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "from", "to"})
     public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getUserSkinTimePostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                               @RequestParam(name = "user") UUID userId,
-                                                               @RequestParam(name = "from") String from,
-                                                               @RequestParam(name = "to") String to,
-                                                               @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
-                                                               @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
-                                                               @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
+                                                                                                   @RequestParam(name = "user") UUID userId,
+                                                                                                   @RequestParam(name = "from") String from,
+                                                                                                   @RequestParam(name = "to") String to,
+                                                                                                   @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
+                                                                                                   @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
+                                                                                                   @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
 
         log.info("get user skin time post list, user: {}, from: {}, to: {}, sort: {}, size: {}, page: {}",
                 userId, from, to, sort, size, page);
@@ -287,8 +289,8 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping(params = {"save-temporary-post"})
     public ResponseEntity<ResponseDto<PostDto.PostCreateResponse>> saveTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                         @RequestParam(name = "save-temporary-post") Boolean saveTemporaryPost,
-                                                         @RequestBody @Valid PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest) throws JsonProcessingException {
+                                                                                     @RequestParam(name = "save-temporary-post") Boolean saveTemporaryPost,
+                                                                                     @RequestBody @Valid PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest) throws JsonProcessingException {
 
         log.info("save temporary post, save-temporary-post: {}, saveTemporaryPostRequest: {}", saveTemporaryPost, objectMapper.writeValueAsString(saveTemporaryPostRequest));
 
@@ -323,7 +325,7 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{postId}")
     public ResponseEntity<ResponseDto<PostDto.DeletePostResponse>> deletePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                  @PathVariable("postId") UUID postId) {
+                                                                              @PathVariable("postId") UUID postId) {
 
         final User user = userPrincipal.getUser();
 
@@ -344,10 +346,10 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping(params = {"user", "with-date"})
     public ResponseEntity<ResponseDto<Page<PostDto.PostWithDateListReadResponse>>> getUserPostWithDateList(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                               @RequestParam("user") UUID userId,
-                                                               @RequestParam("with-date") boolean withDate,
-                                                               @RequestParam(defaultValue = "10") Integer size,
-                                                               @RequestParam(defaultValue = "0") Integer page) {
+                                                                                                           @RequestParam("user") UUID userId,
+                                                                                                           @RequestParam("with-date") boolean withDate,
+                                                                                                           @RequestParam(defaultValue = "10") Integer size,
+                                                                                                           @RequestParam(defaultValue = "0") Integer page) {
         if (!withDate) {
             throw new PostException(PostErrorResult.INVALID_PARAMETER_FOR_GET_POST_WITH_DATE_LIST);
         }

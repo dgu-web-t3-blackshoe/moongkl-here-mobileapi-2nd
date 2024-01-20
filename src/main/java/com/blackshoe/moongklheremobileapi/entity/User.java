@@ -41,7 +41,7 @@ public class User {
     @Column(name = "gender", length = 10)
     private String gender;
 
-    @Column(name = "country", length = 10)
+    @Column(name = "country", length = 50)
     private String country;
 
     @Column(name = "nickname", length = 50)
@@ -121,6 +121,8 @@ public class User {
         this.password = password;
         this.nickname = nickname;
         this.phoneNumber = phoneNumber;
+        this.gender = gender;
+        this.country = country;
         this.role = role;
         this.provider = provider;
         this.profileImgUrl = profileImgUrl;

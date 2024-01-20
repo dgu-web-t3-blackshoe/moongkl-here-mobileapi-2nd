@@ -55,6 +55,8 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(signUpRequestDto.getPassword()))
                 .nickname(signUpRequestDto.getNickname())
                 .phoneNumber(signUpRequestDto.getPhoneNumber())
+                .gender(signUpRequestDto.getGender())
+                .country(signUpRequestDto.getCountry())
                 .role(Role.valueOf("USER"))
                 .statusMessage("")
                 .profileImgUrl(profileImgUrl)
@@ -418,6 +420,8 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(socialSignUpRequestDto.getPassword()))
                 .role(Role.valueOf("USER"))
                 .phoneNumber(socialSignUpRequestDto.getPhoneNumber())
+                .gender(socialSignUpRequestDto.getGender())
+                .country(socialSignUpRequestDto.getCountry())
                 .statusMessage("")
                 .profileImgUrl(profileImgUrl)
                 .backgroundImgUrl(backgroundImgUrl)
@@ -426,14 +430,12 @@ public class UserServiceImpl implements UserService {
         //이미 존재하는 회원
         userRepository.save(user);
 
-
         log.info("user: {}", user);
         log.info("소셜 로그인 후 회원가입 성공");
         return UserDto.SocialSignUpResponseDto.builder()
                 .userId(user.getId())
                 .createdAt(user.getCreatedAt())
                 .build();
-
     }
 
     @Override

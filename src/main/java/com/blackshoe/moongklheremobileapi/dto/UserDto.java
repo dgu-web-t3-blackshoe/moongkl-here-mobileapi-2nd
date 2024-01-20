@@ -33,6 +33,12 @@ public class UserDto {
         @NotBlank
         @Pattern(regexp = "^01[016-9]\\d{8}$", message = "유효하지 않은 전화번호입니다. 재시도해주세요.")
         private String phoneNumber;
+
+        @NotBlank
+        private String gender;
+
+        @NotBlank
+        private String country;
     }
 
     @Getter

@@ -38,6 +38,12 @@ public class User {
     @Column(name = "password", length = 100)
     private String password;
 
+    @Column(name = "gender", length = 10)
+    private String gender;
+
+    @Column(name = "country", length = 10)
+    private String country;
+
     @Column(name = "nickname", length = 50)
     private String nickname;
 
@@ -101,6 +107,8 @@ public class User {
                 String password,
                 String nickname,
                 String phoneNumber,
+                String gender,
+                String country,
                 Role role,
                 String provider,
                 ProfileImgUrl profileImgUrl,

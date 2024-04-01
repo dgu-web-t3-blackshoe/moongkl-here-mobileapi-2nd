@@ -76,6 +76,7 @@ public class UserController {
         }
 
         log.info("로그인 성공");
+
         UserDto.LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
 
         ResponseDto responseDto = ResponseDto.builder()

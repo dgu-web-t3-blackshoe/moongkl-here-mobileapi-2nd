@@ -1,3 +1,3 @@
 INSERT INTO users (id, email, password, gender, country, nickname, phone_number, role, provider, created_at, updated_at, status_message, like_count, favorite_count)
 VALUES (UNHEX(REPLACE(UUID(), '-', '')), 'test@user.com', '$2a$12$./wHNApeq/feNKojcfkWouvZJfPrhdbDKWXQZWZy9PaW7pnkt/ZV6', 'Male', 'South Korea', 'TestUser', '01012345678', 'USER', 'provider_example', NOW(), NOW(), 'This is a status message.', 0, 0)
-    ON DUPLICATE KEY UPDATE email = email;
+ON DUPLICATE KEY UPDATE email = email;

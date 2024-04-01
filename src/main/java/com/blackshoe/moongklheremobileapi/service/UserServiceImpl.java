@@ -106,10 +106,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto.LoginResponseDto login(UserDto.LoginRequestDto loginRequestDto) {
 
-        String password = passwordEncoder.encode(loginRequestDto.getPassword());
-
-        User user = userRepository.findByEmailAndPassword(loginRequestDto.getEmail(), password)
-                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+        User user = userRepository.findByEmail(loginRequestDto.getEmail())
 
         JwtDto.JwtRequestDto jwtRequestDto = JwtDto.JwtRequestDto.builder()
                 .email(loginRequestDto.getEmail())

@@ -106,7 +106,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto.LoginResponseDto login(UserDto.LoginRequestDto loginRequestDto) {
 
-        User user = userRepository.findByEmail(loginRequestDto.getEmail());
+        User user = userRepository.findByEmail(loginRequestDto.getEmail())
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
         JwtDto.JwtRequestDto jwtRequestDto = JwtDto.JwtRequestDto.builder()
                 .email(loginRequestDto.getEmail())

@@ -252,6 +252,20 @@ public class UserDto {
         private LocalDateTime updatedAt;
         private ProfileImgUrlDto profileImgUrlDto;
     }
+
+    @Getter
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class GetUserIdRequestDto {
+        private String email;
+    }
+
+    @Getter
+    @Builder @NoArgsConstructor @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class GetUserIdResponseDto {
+        private UUID userId;
+    }
 }
 
 

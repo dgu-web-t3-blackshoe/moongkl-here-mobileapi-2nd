@@ -47,6 +47,7 @@ public class StoryUrl {
         this.cloudfrontUrl = cloudfrontUrl;
         this.isPublic = isPublic;
         this.enterprise = enterprise;
+        this.createdAt = LocalDateTime.now();
     }
 
     public static StoryUrl convertStoryUrlDtoToEntity(StoryUrlDto uploadedStoryUrl) {
@@ -59,5 +60,9 @@ public class StoryUrl {
 
     public void updateEnterprise(Enterprise enterprise) {
         this.enterprise = enterprise;
+    }
+
+    public void updateIsPublic() {
+        this.isPublic = !this.isPublic;
     }
 }

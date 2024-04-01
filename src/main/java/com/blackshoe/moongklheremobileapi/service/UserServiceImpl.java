@@ -9,7 +9,6 @@ import com.blackshoe.moongklheremobileapi.security.JwtTokenProvider;
 import com.blackshoe.moongklheremobileapi.sqs.SqsSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -512,5 +511,13 @@ public class UserServiceImpl implements UserService {
         messageMap.put("createdAt", LocalDateTime.now().toString());
 
         sqsSender.sendToSQS(sqsSender.createMessageDtoFromRequest("create enquiry", messageMap));
+    }
+
+    @Override
+    public UUID getUserIdByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
+
+        return user.getId();
     }
 }

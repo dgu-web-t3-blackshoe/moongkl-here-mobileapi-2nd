@@ -74,6 +74,11 @@ public class SqsReceiver {
                 case "delete user post":
                     deleteUserPost(messageDto);
                     break;
+                case "update story visible":
+                    updateStoryVisible(messageDto);
+                    break;
+                default:
+                    log.info("invalid topic : " + messageDto.getTopic());
             }
 
             return ResponseEntity.ok(ResponseDto.builder().payload("Success " + messageDto.getTopic()).build());
@@ -82,6 +87,15 @@ public class SqsReceiver {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void updateStoryVisible(MessageDto messageDto) {
+        log.info("update story visible");
+        StoryUrl storyUrl = storyUrlRepository.findById(UUID.fromString(messageDto.getMessage().get("id"))).orElseThrow(() -> new RuntimeException("Invalid story id"));
+
+        storyUrl.updateIsPublic();
+
+        storyUrlRepository.save(storyUrl);
     }
 
     private void deleteUserPost(MessageDto messageDto) {

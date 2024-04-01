@@ -2,11 +2,8 @@ package com.blackshoe.moongklheremobileapi.service;
 
 import com.blackshoe.moongklheremobileapi.dto.EnquiryDto;
 import com.blackshoe.moongklheremobileapi.dto.NotificationDto;
-import com.blackshoe.moongklheremobileapi.dto.ResponseDto;
 import com.blackshoe.moongklheremobileapi.dto.UserDto;
-import com.blackshoe.moongklheremobileapi.entity.User;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
@@ -54,4 +51,6 @@ public interface UserService {
     Page<NotificationDto.NotificationReadResponse> getNotification(Integer size, Integer page);
 
     void sendEnquiry(EnquiryDto.SendEnquiryRequest request);
+
+    UUID getUserIdByEmail(String email);
 }

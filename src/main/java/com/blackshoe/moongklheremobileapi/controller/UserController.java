@@ -4,6 +4,7 @@ import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.BackgroundImgUrl;
 import com.blackshoe.moongklheremobileapi.entity.ProfileImgUrl;
 import com.blackshoe.moongklheremobileapi.entity.User;
+import com.blackshoe.moongklheremobileapi.exception.UserBlockException;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.security.UserPrincipal;
 import com.blackshoe.moongklheremobileapi.service.MailService;
@@ -33,6 +34,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequestMapping("/users")
@@ -74,6 +76,8 @@ public class UserController {
 
             return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
         }
+
+        checkAndThrowIfPaused(userService.getUserIdByEmail(loginRequestDto.getEmail()));
 
         log.info("로그인 성공");
 
@@ -537,6 +541,27 @@ public class UserController {
             ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
 
             return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+        }
+    }
+
+    public void checkAndThrowIfPaused(UUID userId) {
+        String key = "pause:user:" + userId.toString();
+        String value = redisTemplate.opsForValue().get(key);
+
+        if (value != null) {
+            // 키의 남은 만료 시간(초 단위) 조회
+            Long expireSeconds = redisTemplate.getExpire(key, TimeUnit.SECONDS);
+            String message;
+            if (expireSeconds == null) {
+                message = "영구정지된 유저입니다.";
+            } else {
+                // 남은 만료 시간을 일수와 시간으로 계산
+                long days = TimeUnit.SECONDS.toDays(expireSeconds);
+                long hours = TimeUnit.SECONDS.toHours(expireSeconds) - TimeUnit.DAYS.toHours(days);
+                message = String.format("정지 기한이 %d일 %d시간 남았습니다.", days, hours);
+            }
+
+            throw new UserBlockException(message);
         }
     }
 }

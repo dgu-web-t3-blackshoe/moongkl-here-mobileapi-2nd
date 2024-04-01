@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,12 +48,12 @@ public class UserController {
 
     private final ProfileImgService profileService;
     private final BackgroundImgService backgroundService;
-    @GetMapping("/test")
-    public String test() {
-        return "test";
-    }
+
+    private final StringRedisTemplate redisTemplate;
+
     @PostMapping("/login")
     public ResponseEntity<ResponseDto> login(@Valid @RequestBody UserDto.LoginRequestDto loginRequestDto) {
+
         if (loginRequestDto.getEmail() == null || loginRequestDto.getPassword() == null) {
             log.info("필수값 누락");
             UserErrorResult userErrorResult = UserErrorResult.REQUIRED_VALUE;
@@ -64,6 +65,7 @@ public class UserController {
             log.info("존재하지 않는 사용자");
             UserErrorResult userErrorResult = UserErrorResult.NOT_FOUND_USER;
             ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+            return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
         }
         if (!userService.userExistsByEmailAndPassword(loginRequestDto.getEmail(), loginRequestDto.getPassword())) {
             log.info("비밀번호 불일치");
@@ -103,7 +105,6 @@ public class UserController {
 
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
-
 
             if (!verificationService.isVerified(signUpRequestDto.getPhoneNumber())){
                 log.info("검증되지 않은 전화번호");

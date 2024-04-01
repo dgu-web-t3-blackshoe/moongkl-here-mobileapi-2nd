@@ -23,7 +23,7 @@ public class UserDto {
         private String email;
 
         @NotBlank
-        @Pattern(regexp = "^(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,20}$", message = "유효하지 않은 비밀번호(8자리 이상 20자리 이하이며 특수 문자 최소 하나 포함)입니다. 재시도해주세요.")
+        @Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\":{}|<>])[\\S]{8,}$", message = "유효하지 않은 비밀번호(8자리 이상, 특수 문자 최소 하나 포함)입니다. 재시도해주세요.")
         private String password;
 
         @NotBlank

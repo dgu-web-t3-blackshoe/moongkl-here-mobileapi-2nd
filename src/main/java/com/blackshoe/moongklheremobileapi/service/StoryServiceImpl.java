@@ -1,12 +1,18 @@
 package com.blackshoe.moongklheremobileapi.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.blackshoe.moongklheremobileapi.dto.PostDto;
 import com.blackshoe.moongklheremobileapi.dto.StoryUrlDto;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
-import com.blackshoe.moongklheremobileapi.vo.ContentType;
+import com.blackshoe.moongklheremobileapi.repository.StoryUrlRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,9 +23,11 @@ import java.util.UUID;
 public class StoryServiceImpl implements StoryService {
 
     private final AmazonS3Client amazonS3Client;
+    private final StoryUrlRepository storyUrlRepository;
 
-    public StoryServiceImpl(AmazonS3Client amazonS3Client) {
+    public StoryServiceImpl(AmazonS3Client amazonS3Client, StoryUrlRepository storyUrlRepository) {
         this.amazonS3Client = amazonS3Client;
+        this.storyUrlRepository = storyUrlRepository;
     }
 
     @Value("${cloud.aws.s3.bucket}")
@@ -87,5 +95,18 @@ public class StoryServiceImpl implements StoryService {
             log.error(e.getMessage());
             throw new PostException(PostErrorResult.STORY_DELETE_FAILED);
         }
+    }
+
+    @Override
+    public Page<PostDto.EnterpriseStoryReadResponse> getEnterpriseStory(Integer size, Integer page) {
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");
+
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        final Page<PostDto.EnterpriseStoryReadResponse> enterpriseStoryReadResponsePage
+                = storyUrlRepository.findAllEnterpriseStory(pageable);
+
+        return enterpriseStoryReadResponsePage;
     }
 }

@@ -42,4 +42,7 @@ public interface PostService {
     Page<PostDto.PostListReadResponse> getAllUserPostList(User user, String sort, Integer size, Integer page);
 
     Page<PostDto.PostWithDateListReadResponse> getUserPostWithDateList(User user, Integer size, Integer page);
+
+    void sharePost(UUID postId);
+
 }

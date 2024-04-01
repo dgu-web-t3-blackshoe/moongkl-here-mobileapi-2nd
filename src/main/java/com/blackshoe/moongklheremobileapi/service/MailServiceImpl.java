@@ -29,7 +29,5 @@ public class MailServiceImpl implements MailService{
         mailMessage.setText(mailSendDto.getContent());
 
         mailSender.send(mailMessage);
-
     }
-
 }

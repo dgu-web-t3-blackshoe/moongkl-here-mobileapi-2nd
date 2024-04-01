@@ -1,25 +1,26 @@
 package com.blackshoe.moongklheremobileapi.service;
 
-import com.blackshoe.moongklheremobileapi.dto.BackgroundImgUrlDto;
-import com.blackshoe.moongklheremobileapi.dto.JwtDto;
-import com.blackshoe.moongklheremobileapi.dto.ProfileImgUrlDto;
-import com.blackshoe.moongklheremobileapi.dto.UserDto;
+import com.blackshoe.moongklheremobileapi.dto.*;
 import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.exception.UserErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.UserException;
-import com.blackshoe.moongklheremobileapi.repository.FavoriteRepository;
-import com.blackshoe.moongklheremobileapi.repository.LikeRepository;
-import com.blackshoe.moongklheremobileapi.repository.ViewRepository;
+import com.blackshoe.moongklheremobileapi.repository.*;
 import com.blackshoe.moongklheremobileapi.security.JwtTokenProvider;
+import com.blackshoe.moongklheremobileapi.sqs.SqsSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.blackshoe.moongklheremobileapi.repository.UserRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,6 +37,8 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final ProfileImgService profileImgService;
     private final BackgroundImgService backgroundImgService;
+    private final SqsSender sqsSender;
+    private final NotificationRepository notificationRepository;
     @Transactional
     public UserDto.SignUpResponseDto signUp(UserDto.SignUpRequestDto signUpRequestDto) {
 
@@ -66,6 +69,33 @@ public class UserServiceImpl implements UserService {
         Optional<User> user = userRepository.findByEmail(signUpRequestDto.getEmail());
 
         log.info("회원가입 성공");
+
+        Map<String, String> messageMap = new LinkedHashMap<>();
+
+        /*
+                User user = User.builder()
+                .id(UUID.fromString(messageDto.getMessage().get("id")))
+                .email(messageDto.getMessage().get("email"))
+                .password(messageDto.getMessage().get("password"))
+                .phoneNumber(messageDto.getMessage().get("phoneNumber"))
+                .gender(messageDto.getMessage().get("gender"))
+                .country(messageDto.getMessage().get("country"))
+                .createdAt(LocalDateTime.parse(messageDto.getMessage().get("createdAt")))
+                .build();
+         */
+
+        messageMap.put("id", user.get().getId().toString());
+        messageMap.put("email", signUpRequestDto.getEmail());
+        messageMap.put("password", signUpRequestDto.getPassword());
+        messageMap.put("phoneNumber", signUpRequestDto.getPhoneNumber());
+        messageMap.put("gender", signUpRequestDto.getGender());
+        messageMap.put("country", signUpRequestDto.getCountry());
+        messageMap.put("createdAt", user.get().getCreatedAt().toString());
+
+        MessageDto messageDto = sqsSender.createMessageDtoFromRequest("create user", messageMap);
+
+        sqsSender.sendToSQS(messageDto);
+
         return UserDto.SignUpResponseDto.builder()
                 .userId(user.get().getId())
                 .createdAt(user.get().getCreatedAt())
@@ -76,7 +106,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto.LoginResponseDto login(UserDto.LoginRequestDto loginRequestDto) {
 
-        User user = userRepository.findByEmail(loginRequestDto.getEmail())
+        String password = passwordEncoder.encode(loginRequestDto.getPassword());
+
+        User user = userRepository.findByEmailAndPassword(loginRequestDto.getEmail(), password)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
         JwtDto.JwtRequestDto jwtRequestDto = JwtDto.JwtRequestDto.builder()
@@ -92,7 +124,6 @@ public class UserServiceImpl implements UserService {
                 .accessToken(jwt)
                 .build();
     }
-
     @Transactional
     public boolean userExistsByEmail(String email) {
         return userRepository.existsByEmail(email);
@@ -157,6 +188,11 @@ public class UserServiceImpl implements UserService {
         backgroundImgService.deleteBackgroundImg(userId);
 
         userRepository.deleteById(userId);
+
+        Map<String, String> messageMap = new LinkedHashMap<>();
+        messageMap.put("userId", userId.toString());
+
+        MessageDto messageDto = sqsSender.createMessageDtoFromRequest("withdraw user", messageMap);
     }
 
     @Override
@@ -456,5 +492,27 @@ public class UserServiceImpl implements UserService {
         }
 
         return false; // 인증 실패
+    }
+
+    @Override
+    public Page<NotificationDto.NotificationReadResponse> getNotification(Integer size, Integer page) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<NotificationDto.NotificationReadResponse> notificationReadResponses = notificationRepository.findAllByOrderByCreatedAtDesc(pageable);
+
+        return notificationReadResponses;
+    }
+
+    @Override
+    public void sendEnquiry(EnquiryDto.SendEnquiryRequest request) {
+
+        Map<String, String> messageMap = new LinkedHashMap<>();
+        messageMap.put("email", request.getEmail());
+        messageMap.put("title", request.getTitle());
+        messageMap.put("content", request.getContent());
+        messageMap.put("createdAt", LocalDateTime.now().toString());
+
+        sqsSender.sendToSQS(sqsSender.createMessageDtoFromRequest("create enquiry", messageMap));
     }
 }

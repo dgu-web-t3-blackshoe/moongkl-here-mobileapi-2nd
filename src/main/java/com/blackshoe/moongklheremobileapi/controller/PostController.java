@@ -369,4 +369,27 @@ public class PostController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/share")
+    public ResponseEntity<ResponseDto> sharePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                                     @RequestParam("post_id") UUID postId) {
+        postService.sharePost(postId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/story")
+    public ResponseEntity<ResponseDto<Page<PostDto.EnterpriseStoryReadResponse>>> getEnterpriseStory(@RequestParam(defaultValue = "10") Integer size,
+                                                                                                      @RequestParam(defaultValue = "0") Integer page) {
+        final Page<PostDto.EnterpriseStoryReadResponse> enterpriseStoryReadResponsePage
+                = storyService.getEnterpriseStory(size, page);
+
+        final ResponseDto<Page<PostDto.EnterpriseStoryReadResponse>> responseDto = ResponseDto.<Page<PostDto.EnterpriseStoryReadResponse>>success()
+                .payload(enterpriseStoryReadResponsePage)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
 }

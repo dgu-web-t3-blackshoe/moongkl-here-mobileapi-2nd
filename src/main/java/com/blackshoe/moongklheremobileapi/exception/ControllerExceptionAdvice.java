@@ -1,6 +1,5 @@
 package com.blackshoe.moongklheremobileapi.exception;
 
-import com.amazonaws.Response;
 import com.blackshoe.moongklheremobileapi.dto.ResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -124,6 +123,20 @@ public class ControllerExceptionAdvice {
         log.error("ExternalApiException", e);
 
         final ExternalApiErrorResult errorResult = e.getExternalApiErrorResult();
+
+        final ResponseDto responseDto = ResponseDto.builder()
+                .error(errorResult.getMessage())
+                .build();
+
+        return ResponseEntity.status(errorResult.getHttpStatus()).body(responseDto);
+    }
+
+    @ExceptionHandler(SqsException.class)
+    public ResponseEntity<ResponseDto> handleSqsException(SqsException e) {
+
+        log.error("SqsException", e);
+
+        final SqsErrorResult errorResult = e.getSqsErrorResult();
 
         final ResponseDto responseDto = ResponseDto.builder()
                 .error(errorResult.getMessage())

@@ -5,6 +5,7 @@ import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.*;
+import com.blackshoe.moongklheremobileapi.sqs.SqsSender;
 import com.blackshoe.moongklheremobileapi.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -39,6 +42,7 @@ public class PostServiceImpl implements PostService {
     private final SkinService skinService;
 
     private final StoryService storyService;
+    private final SqsSender sqsSender;
 
     public PostServiceImpl(PostRepository postRepository,
                            SkinUrlRepository skinUrlRepository,
@@ -49,7 +53,8 @@ public class PostServiceImpl implements PostService {
                            FavoriteRepository favoriteRepository,
                            ViewRepository viewRepository,
                            SkinService skinService,
-                           StoryService storyService) {
+                           StoryService storyService,
+                           SqsSender sqsSender) {
         this.postRepository = postRepository;
         this.skinUrlRepository = skinUrlRepository;
         this.storyUrlRepository = storyUrlRepository;
@@ -60,6 +65,7 @@ public class PostServiceImpl implements PostService {
         this.viewRepository = viewRepository;
         this.skinService = skinService;
         this.storyService = storyService;
+        this.sqsSender = sqsSender;
     }
 
     @Override
@@ -89,6 +95,27 @@ public class PostServiceImpl implements PostService {
                 .build();
 
         final Post savedPost = postRepository.save(post);
+
+        //increase use count for enterprise skin
+        if(savedPost.getStoryUrl().getEnterprise() != null) {
+            Map<String, String> messageMap = new LinkedHashMap<>();
+            messageMap.put("storyId", savedPost.getStoryUrl().getId().toString());
+
+            MessageDto messageDto = sqsSender.createMessageDtoFromRequest("increase use count", messageMap);
+
+            sqsSender.sendToSQS(messageDto);
+        }
+
+        //create user skin
+        Map<String, String> msgMap = new LinkedHashMap<>();
+        msgMap.put("id", savedPost.getId().toString());
+        msgMap.put("storyCloudfrontUrl", savedPost.getStoryUrl().getCloudfrontUrl());
+        msgMap.put("skinCloudfrontUrl", savedPost.getSkinUrl().getCloudfrontUrl());
+        msgMap.put("country", savedPost.getSkinLocation().getCountry());
+        msgMap.put("userId", savedPost.getUser().getId().toString());
+        MessageDto messageDto = sqsSender.createMessageDtoFromRequest("create user skin", msgMap);
+
+        sqsSender.sendToSQS(messageDto);
 
         final PostDto postDto = convertPostEntityToDto(skinUrl, storyUrl, savedPost);
 
@@ -377,6 +404,12 @@ public class PostServiceImpl implements PostService {
 
             postRepository.delete(post);
 
+            Map<String, String> messageMap = new LinkedHashMap<>();
+            messageMap.put("id", postId.toString());
+
+            MessageDto messageDto = sqsSender.createMessageDtoFromRequest("delete user skin", messageMap);
+
+            sqsSender.sendToSQS(messageDto);
     }
 
     @Override
@@ -419,4 +452,21 @@ public class PostServiceImpl implements PostService {
 
             return userPostWithDateListReadResponsePage;
     }
+
+    @Override
+    public void sharePost(UUID postId) {
+        final Post post = postRepository.findById(postId).orElseThrow(() -> {
+            throw new PostException(PostErrorResult.POST_NOT_FOUND);
+        });
+
+        if(post.getStoryUrl().getEnterprise() != null) {
+            Map<String, String> messageMap = new LinkedHashMap<>();
+            messageMap.put("storyId", post.getStoryUrl().getId().toString());
+
+            MessageDto messageDto = sqsSender.createMessageDtoFromRequest("increase share count", messageMap);
+
+            sqsSender.sendToSQS(messageDto);
+        }
+    }
+
 }

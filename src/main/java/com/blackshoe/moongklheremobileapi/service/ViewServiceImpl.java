@@ -1,18 +1,23 @@
 package com.blackshoe.moongklheremobileapi.service;
 
+import com.blackshoe.moongklheremobileapi.dto.MessageDto;
 import com.blackshoe.moongklheremobileapi.dto.PostDto;
 import com.blackshoe.moongklheremobileapi.entity.Post;
+import com.blackshoe.moongklheremobileapi.entity.StoryUrl;
 import com.blackshoe.moongklheremobileapi.entity.User;
 import com.blackshoe.moongklheremobileapi.entity.View;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
 import com.blackshoe.moongklheremobileapi.repository.PostRepository;
 import com.blackshoe.moongklheremobileapi.repository.ViewRepository;
+import com.blackshoe.moongklheremobileapi.sqs.SqsSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,10 +29,12 @@ public class ViewServiceImpl implements ViewService {
 
     private final PostRepository postRepository;
 
+    private final SqsSender sqsSender;
 
-    public ViewServiceImpl(ViewRepository viewRepository, PostRepository postRepository) {
+    public ViewServiceImpl(ViewRepository viewRepository, PostRepository postRepository, SqsSender sqsSender) {
         this.viewRepository = viewRepository;
         this.postRepository = postRepository;
+        this.sqsSender = sqsSender;
     }
 
     @Override
@@ -35,6 +42,17 @@ public class ViewServiceImpl implements ViewService {
     public PostDto.IncreaseViewCountDto increaseViewCount(UUID postId, User user) {
 
         final Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorResult.POST_NOT_FOUND));
+
+        final StoryUrl storyUrl = post.getStoryUrl();
+
+        if (storyUrl.getEnterprise() != null) {
+            Map<String, String> messageMap = new LinkedHashMap<>();
+            messageMap.put("storyId", storyUrl.getId().toString());
+
+            MessageDto messageDto = sqsSender.createMessageDtoFromRequest("increase view count", messageMap);
+
+            sqsSender.sendToSQS(messageDto);
+        }
 
         final Optional<View> optionalView = viewRepository.findByPostAndUser(post, user);
 

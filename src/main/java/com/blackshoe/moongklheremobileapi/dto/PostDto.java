@@ -2,11 +2,9 @@ package com.blackshoe.moongklheremobileapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -31,7 +29,6 @@ public class PostDto {
     private Boolean isPublic;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 
     @Data
     @Builder
@@ -235,5 +232,17 @@ public class PostDto {
             this.month = month;
             this.day = day;
         }
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class EnterpriseStoryReadResponse {
+        private UUID storyId;
+        private UUID enterpriseId;
+        private String cloudfrontUrl;
+        private LocalDateTime createdAt;
     }
 }

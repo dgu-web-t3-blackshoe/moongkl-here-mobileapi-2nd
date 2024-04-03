@@ -171,6 +171,19 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteUser(UUID userId) {
 
+        deleteUserAndRelationships(userId);
+
+        Map<String, String> messageMap = new LinkedHashMap<>();
+        messageMap.put("id", userId.toString());
+
+        MessageDto messageDto = sqsSender.createMessageDtoFromRequest("withdraw user", messageMap);
+
+        sqsSender.sendToSQS(messageDto);
+    }
+
+     @Override
+     @Transactional
+     public void deleteUserAndRelationships(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
@@ -185,11 +198,6 @@ public class UserServiceImpl implements UserService {
         backgroundImgService.deleteBackgroundImg(userId);
 
         userRepository.deleteById(userId);
-
-        Map<String, String> messageMap = new LinkedHashMap<>();
-        messageMap.put("userId", userId.toString());
-
-        MessageDto messageDto = sqsSender.createMessageDtoFromRequest("withdraw user", messageMap);
     }
 
     @Override

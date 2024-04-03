@@ -99,7 +99,7 @@ public class PostServiceImpl implements PostService {
         //increase use count for enterprise skin
         if(savedPost.getStoryUrl().getEnterprise() != null) {
             Map<String, String> messageMap = new LinkedHashMap<>();
-            messageMap.put("storyId", savedPost.getStoryUrl().getId().toString());
+            messageMap.put("id", savedPost.getStoryUrl().getId().toString());
 
             MessageDto messageDto = sqsSender.createMessageDtoFromRequest("increase use count", messageMap);
 
@@ -378,39 +378,45 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Transactional
-    public void deletePost(User user, UUID postId) {
+    public void deletePost(UUID userId, UUID postId) {
 
-            final Post post = postRepository.findById(postId).orElseThrow(() -> {
-                throw new PostException(PostErrorResult.POST_NOT_FOUND);
-            });
+        deletePostRelationships(userId, postId);
 
-            log.info(String.valueOf(post.getUser().getClass()));
-            log.info(String.valueOf(user.getClass()));
-
-            if (!post.getUser().getId().equals(user.getId())) {
-                throw new PostException(PostErrorResult.USER_NOT_MATCH);
-            }
-
-            likeRepository.deleteAllByPost(post);
-
-            favoriteRepository.deleteAllByPost(post);
-
-            viewRepository.deleteAllByPost(post);
-
-            skinService.deleteSkin(post.getSkinUrl().getS3Url());
-
-            storyService.deleteStory(post.getStoryUrl().getS3Url());
-
-            postRepository.delete(post);
-
-            Map<String, String> messageMap = new LinkedHashMap<>();
+        Map<String, String> messageMap = new LinkedHashMap<>();
             messageMap.put("id", postId.toString());
 
             MessageDto messageDto = sqsSender.createMessageDtoFromRequest("delete user skin", messageMap);
 
             sqsSender.sendToSQS(messageDto);
     }
+
+    @Override
+    @Transactional
+    public void deletePostRelationships(UUID userId, UUID postId) {
+        final Post post = postRepository.findById(postId).orElseThrow(() -> {
+            throw new PostException(PostErrorResult.POST_NOT_FOUND);
+        });
+
+        if (!post.getUser().getId().equals(userId)) {
+            throw new PostException(PostErrorResult.USER_NOT_MATCH);
+        }
+
+        log.info(String.valueOf(post.getUser().getClass()));
+        //log.info(String.valueOf(user.getClass()));
+
+        likeRepository.deleteAllByPost(post);
+
+        favoriteRepository.deleteAllByPost(post);
+
+        viewRepository.deleteAllByPost(post);
+
+        skinService.deleteSkin(post.getSkinUrl().getS3Url());
+
+        storyService.deleteStory(post.getStoryUrl().getS3Url());
+
+        postRepository.delete(post);
+    }
+
 
     @Override
     public Page<PostDto.PostListReadResponse> getPublicUserPostList(UUID user, String sort, Integer size, Integer page) {
@@ -461,7 +467,7 @@ public class PostServiceImpl implements PostService {
 
         if(post.getStoryUrl().getEnterprise() != null) {
             Map<String, String> messageMap = new LinkedHashMap<>();
-            messageMap.put("storyId", post.getStoryUrl().getId().toString());
+            messageMap.put("id", post.getStoryUrl().getId().toString());
 
             MessageDto messageDto = sqsSender.createMessageDtoFromRequest("increase share count", messageMap);
 

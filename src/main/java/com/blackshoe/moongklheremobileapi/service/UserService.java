@@ -5,6 +5,7 @@ import com.blackshoe.moongklheremobileapi.dto.NotificationDto;
 import com.blackshoe.moongklheremobileapi.dto.UserDto;
 import org.springframework.data.domain.Page;
 
+import javax.transaction.Transactional;
 import java.util.UUID;
 
 public interface UserService {
@@ -21,6 +22,8 @@ public interface UserService {
     boolean userExistsByEmailAndPassword(String email, String password);
 
     void deleteUser(UUID userId);
+
+    void deleteUserAndRelationships(UUID userId);
 
     UserDto.UpdateProfileResponseDto updateProfile(UserDto.UpdateProfileDto updateProfileDto);
 

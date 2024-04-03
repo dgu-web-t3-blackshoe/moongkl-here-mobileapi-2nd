@@ -2,16 +2,11 @@ package com.blackshoe.moongklheremobileapi.sqs;
 
 import com.blackshoe.moongklheremobileapi.dto.MessageDto;
 import com.blackshoe.moongklheremobileapi.dto.ResponseDto;
-import com.blackshoe.moongklheremobileapi.entity.Enterprise;
-import com.blackshoe.moongklheremobileapi.entity.Notification;
-import com.blackshoe.moongklheremobileapi.entity.StoryUrl;
-import com.blackshoe.moongklheremobileapi.entity.User;
+import com.blackshoe.moongklheremobileapi.entity.*;
 import com.blackshoe.moongklheremobileapi.exception.SqsErrorResult;
-import com.blackshoe.moongklheremobileapi.repository.EnterpriseRepository;
-import com.blackshoe.moongklheremobileapi.repository.NotificationRepository;
-import com.blackshoe.moongklheremobileapi.repository.StoryUrlRepository;
-import com.blackshoe.moongklheremobileapi.repository.UserRepository;
+import com.blackshoe.moongklheremobileapi.repository.*;
 import com.blackshoe.moongklheremobileapi.service.PostService;
+import com.blackshoe.moongklheremobileapi.service.UserService;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
@@ -23,6 +18,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
@@ -39,6 +35,8 @@ public class SqsReceiver {
     private final StoryUrlRepository storyUrlRepository;
     private final NotificationRepository notificationRepository;
     private final PostService postService;
+    private final UserService userService;
+    private final LogoImgUrlRepository logoImgUrlRepository;
     @SqsListener(value = "MhAdminSaying", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
     public ResponseEntity<ResponseDto> receiveMessage(final String message) {
         try {
@@ -71,6 +69,9 @@ public class SqsReceiver {
                 case "unpause user":
                     unpauseUser(messageDto);
                     break;
+                case "delete user":
+                    deleteUser(messageDto);
+                    break;
                 case "delete user post":
                     deleteUserPost(messageDto);
                     break;
@@ -88,8 +89,13 @@ public class SqsReceiver {
             throw new RuntimeException(e);
         }
     }
-
-    private void updateStoryVisible(MessageDto messageDto) {
+    @Transactional
+    public void deleteUser(MessageDto messageDto) {
+        log.info("delete user");
+        userService.deleteUserAndRelationships(UUID.fromString(messageDto.getMessage().get("userId")));
+    }
+    @Transactional
+    public void updateStoryVisible(MessageDto messageDto) {
         log.info("update story visible");
         StoryUrl storyUrl = storyUrlRepository.findById(UUID.fromString(messageDto.getMessage().get("id"))).orElseThrow(() -> new RuntimeException("Invalid story id"));
 
@@ -98,14 +104,14 @@ public class SqsReceiver {
         storyUrlRepository.save(storyUrl);
     }
 
-    private void deleteUserPost(MessageDto messageDto) {
+    @Transactional
+    public void deleteUserPost(MessageDto messageDto) {
         log.info("delete user post");
-        User user = userRepository.findById(UUID.fromString(messageDto.getMessage().get("userId"))).orElseThrow(() -> new RuntimeException("Invalid user id"));
 
-        postService.deletePost(user, UUID.fromString(messageDto.getMessage().get("postId")));
+        postService.deletePostRelationships(UUID.fromString(messageDto.getMessage().get("userId")), UUID.fromString(messageDto.getMessage().get("postId")));
     }
 
-    private void pauseUser(MessageDto messageDto){
+    public void pauseUser(MessageDto messageDto){
         log.info("pause user");
         String key = "pause:user:" + messageDto.getMessage().get("userId");
         String value = String.valueOf(messageDto.getMessage().get("pauseDay"));
@@ -121,13 +127,14 @@ public class SqsReceiver {
         }
     }
 
-    private void unpauseUser(MessageDto messageDto){
+    public void unpauseUser(MessageDto messageDto){
         log.info("unpause user");
         String key = "pause:user:" + messageDto.getMessage().get("userId");
         redisTemplate.delete(key);
     }
 
-    private void updateNotification(MessageDto messageDto) {
+    @Transactional
+    public void updateNotification(MessageDto messageDto) {
         Notification notification = notificationRepository.findById(UUID.fromString(messageDto.getMessage().get("id"))).orElseThrow(() -> new RuntimeException("Invalid notification id"));
 
         notification.updateNotification(messageDto.getMessage().get("title"), messageDto.getMessage().get("content"));
@@ -135,7 +142,8 @@ public class SqsReceiver {
         notificationRepository.save(notification);
     }
 
-    private void createNotification(MessageDto messageDto) {
+    @Transactional
+    public void createNotification(MessageDto messageDto) {
 
         Notification newNotification = Notification.builder()
                 .id(UUID.fromString(messageDto.getMessage().get("id")))
@@ -146,7 +154,8 @@ public class SqsReceiver {
         notificationRepository.save(newNotification);
     }
 
-    private void createEnterprise(MessageDto messageDto) {
+    @Transactional
+    public void createEnterprise(MessageDto messageDto) {
         log.info("create enterprise");
 
         Enterprise enterprise = Enterprise.builder()
@@ -156,10 +165,20 @@ public class SqsReceiver {
                 .managerEmail(messageDto.getMessage().get("managerEmail"))
                 .build();
 
+        LogoImgUrl logoImgUrl = LogoImgUrl.builder()
+                .id(UUID.fromString(messageDto.getMessage().get("logoImgUrlId")))
+                .s3Url(messageDto.getMessage().get("logoImgUrlS3Url"))
+                .cloudfrontUrl(messageDto.getMessage().get("logoImgUrlCloudfrontUrl"))
+                .build();
+
+        enterprise.updateLogoImgUrl(logoImgUrl);
+
+        logoImgUrlRepository.save(logoImgUrl);
         enterpriseRepository.save(enterprise);
     }
 
-    private void createEnterpriseStory(MessageDto messageDto) {
+    @Transactional
+    public void createEnterpriseStory(MessageDto messageDto) {
         log.info("create enterprise story");
 
         Enterprise enterprise = enterpriseRepository.findById(UUID.fromString(messageDto.getMessage().get("enterpriseId"))).orElseThrow(() -> new RuntimeException("Invalid enterprise id"));

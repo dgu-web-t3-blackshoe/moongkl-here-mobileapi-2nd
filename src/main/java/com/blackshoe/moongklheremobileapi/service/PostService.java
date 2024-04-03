@@ -7,6 +7,7 @@ import com.blackshoe.moongklheremobileapi.dto.TemporaryPostDto;
 import com.blackshoe.moongklheremobileapi.entity.*;
 import org.springframework.data.domain.Page;
 
+import javax.transaction.Transactional;
 import java.util.UUID;
 
 public interface PostService {
@@ -35,7 +36,10 @@ public interface PostService {
 
     PostDto saveTemporaryPost(User user, TemporaryPostDto.TemporaryPostToSave temporaryPostToSave, Boolean isPublic);
 
-    void deletePost(User user, UUID postId);
+    void deletePost(UUID userId, UUID postId);
+
+    @Transactional
+    void deletePostRelationships(UUID userId, UUID postId);
 
     Page<PostDto.PostListReadResponse> getPublicUserPostList(UUID userId, String sort, Integer size, Integer page);
 

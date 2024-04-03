@@ -47,7 +47,7 @@ public class ViewServiceImpl implements ViewService {
 
         if (storyUrl.getEnterprise() != null) {
             Map<String, String> messageMap = new LinkedHashMap<>();
-            messageMap.put("storyId", storyUrl.getId().toString());
+            messageMap.put("id", storyUrl.getId().toString());
 
             MessageDto messageDto = sqsSender.createMessageDtoFromRequest("increase view count", messageMap);
 

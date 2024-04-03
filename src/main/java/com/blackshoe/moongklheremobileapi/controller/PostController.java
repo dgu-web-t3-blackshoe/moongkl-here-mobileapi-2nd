@@ -329,7 +329,9 @@ public class PostController {
 
         final User user = userPrincipal.getUser();
 
-        postService.deletePost(user, postId);
+        UUID userId = user.getId();
+
+        postService.deletePost(userId, postId);
 
         final PostDto.DeletePostResponse deletePostResponse = PostDto.DeletePostResponse.builder()
                 .postId(postId)

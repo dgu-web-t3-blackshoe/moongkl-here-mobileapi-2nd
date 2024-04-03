@@ -23,7 +23,6 @@ public class MoongklWorksController {
     private final SqsSender sqsSender;
 
     //get notifications
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/notification")
     public ResponseEntity<ResponseDto<Page<NotificationDto.NotificationReadResponse>>> getNotification(@RequestParam(defaultValue = "10") Integer size,
                                                                                                        @RequestParam(defaultValue = "0") Integer page) {
@@ -37,8 +36,7 @@ public class MoongklWorksController {
     }
 
     //send enquiry
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/enquiry")
+    @PostMapping("/enquiry")
     public ResponseEntity<ResponseDto> sendEnquiry(@RequestBody EnquiryDto.SendEnquiryRequest request) {
         userService.sendEnquiry(request);
 

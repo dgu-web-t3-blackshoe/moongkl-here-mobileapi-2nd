@@ -75,7 +75,7 @@ public class SqsReceiver {
                 case "delete user post":
                     deleteUserPost(messageDto);
                     break;
-                case "update story visible":
+                case "update enterprise story visible":
                     updateStoryVisible(messageDto);
                     break;
                 default:
@@ -96,7 +96,7 @@ public class SqsReceiver {
     }
     @Transactional
     public void updateStoryVisible(MessageDto messageDto) {
-        log.info("update story visible");
+        log.info("update enterprise story visible");
         StoryUrl storyUrl = storyUrlRepository.findById(UUID.fromString(messageDto.getMessage().get("id"))).orElseThrow(() -> new RuntimeException("Invalid story id"));
 
         storyUrl.updateIsPublic();

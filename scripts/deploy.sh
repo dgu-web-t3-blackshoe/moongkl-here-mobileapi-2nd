@@ -28,7 +28,7 @@ then
 else
   echo ">>> kill -15 $CURRENT_PID" >> "${LOG_DIR}/deploy_sh.log"
   kill -15 $CURRENT_PID
-  sleep 30
+  sleep 40
 fi
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME

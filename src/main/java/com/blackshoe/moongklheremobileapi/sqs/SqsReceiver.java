@@ -145,6 +145,11 @@ public class SqsReceiver {
     @Transactional
     public void createNotification(MessageDto messageDto) {
 
+        if(notificationRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
+            log.info("notification already exists");
+            return;
+        }
+
         Notification newNotification = Notification.builder()
                 .id(UUID.fromString(messageDto.getMessage().get("id")))
                 .title(messageDto.getMessage().get("title"))
@@ -157,6 +162,11 @@ public class SqsReceiver {
     @Transactional
     public void createEnterprise(MessageDto messageDto) {
         log.info("create enterprise");
+
+        if(enterpriseRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
+            log.info("enterprise already exists");
+            return;
+        }
 
         Enterprise enterprise = Enterprise.builder()
                 .id(UUID.fromString(messageDto.getMessage().get("id")))
@@ -180,6 +190,11 @@ public class SqsReceiver {
     @Transactional
     public void createEnterpriseStory(MessageDto messageDto) {
         log.info("create enterprise story");
+
+        if(storyUrlRepository.existsById(UUID.fromString(messageDto.getMessage().get("storyId")))){
+            log.info("story already exists");
+            return;
+        }
 
         Enterprise enterprise = enterpriseRepository.findById(UUID.fromString(messageDto.getMessage().get("enterpriseId"))).orElseThrow(() -> new RuntimeException("Invalid enterprise id"));
 

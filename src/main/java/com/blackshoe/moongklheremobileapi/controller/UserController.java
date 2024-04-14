@@ -110,14 +110,14 @@ public class UserController {
 
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
-
-            if (!verificationService.isVerified(signUpRequestDto.getPhoneNumber())){
-                log.info("검증되지 않은 전화번호");
-                UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_PHONE_NUMBER;
-                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
-
-                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
-            }
+//@TODO: 전화번호 검증
+//            if (!verificationService.isVerified(signUpRequestDto.getPhoneNumber())){
+//                log.info("검증되지 않은 전화번호");
+//                UserErrorResult userErrorResult = UserErrorResult.UNVERIFIED_PHONE_NUMBER;
+//                ResponseDto responseDto = ResponseDto.builder().error(userErrorResult.getMessage()).build();
+//
+//                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
+//            }
             boolean userHasProvider = userService.userHasProvider(signUpRequestDto.getEmail());
 
             if (userService.userExistsByEmail(signUpRequestDto.getEmail()) && !userHasProvider) {

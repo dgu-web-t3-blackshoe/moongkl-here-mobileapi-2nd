@@ -287,7 +287,7 @@ public class PostController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping(name = "/by-temporary",params = {"save-temporary-post"})
+    @PostMapping(value = "/by-temporary",params = {"save-temporary-post"})
     public ResponseEntity<ResponseDto<PostDto.PostCreateResponse>> saveTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                                      @RequestParam(name = "save-temporary-post") Boolean saveTemporaryPost,
                                                                                      @RequestBody @Valid PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest) throws JsonProcessingException {

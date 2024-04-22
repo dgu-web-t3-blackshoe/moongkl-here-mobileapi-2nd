@@ -16,7 +16,6 @@ public class EnquiryDto {
     @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class SendEnquiryRequest{
-        private UUID notificationId;
         private String email;
         private String title;
         private String content;

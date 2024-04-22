@@ -113,6 +113,7 @@ public class PostServiceImpl implements PostService {
         msgMap.put("skinCloudfrontUrl", savedPost.getSkinUrl().getCloudfrontUrl());
         msgMap.put("country", savedPost.getSkinLocation().getCountry());
         msgMap.put("userId", savedPost.getUser().getId().toString());
+        msgMap.put("isPublic", String.valueOf(savedPost.isPublic()));
         MessageDto messageDto = sqsSender.createMessageDtoFromRequest("create user skin", msgMap);
 
         sqsSender.sendToSQS(messageDto);

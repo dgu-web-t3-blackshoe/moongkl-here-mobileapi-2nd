@@ -379,6 +379,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void deletePost(UUID userId, UUID postId) {
 
         deletePostRelationships(userId, postId);

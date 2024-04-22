@@ -52,7 +52,7 @@ public class PostController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping(params = {"create-temporary-post"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseDto<PostDto.PostCreateResponse>> createPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                               @RequestPart(name = "skin") MultipartFile skin,
                                                                               @RequestPart(name = "story") MultipartFile story,
@@ -287,7 +287,7 @@ public class PostController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping(value = "/by-temporary",params = {"save-temporary-post"})
+    @PostMapping(value = "/by-temporary")
     public ResponseEntity<ResponseDto<PostDto.PostCreateResponse>> saveTemporaryPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                                      @RequestParam(name = "save-temporary-post") Boolean saveTemporaryPost,
                                                                                      @RequestBody @Valid PostDto.SaveTemporaryPostRequest saveTemporaryPostRequest) throws JsonProcessingException {

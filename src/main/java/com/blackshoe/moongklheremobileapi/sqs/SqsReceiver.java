@@ -43,7 +43,7 @@ public class SqsReceiver {
             MessageDto messageDto = objectMapper.readValue(message, MessageDto.class);
 
             if (!messageDto.getFrom().equals("mh-admin-api")) {
-                log.info("Invalid sender");
+                log.info("Invalid sender" + messageDto.getFrom());
                 SqsErrorResult sqsErrorResult = SqsErrorResult.INVALID_SENDER;
 
                 ResponseDto responseDto = ResponseDto.builder().error(sqsErrorResult.getMessage()).build();

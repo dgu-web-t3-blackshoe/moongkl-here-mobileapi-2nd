@@ -64,8 +64,8 @@ public class Post {
     private long viewCount;
 
     @ColumnDefault("false")
-    @Column(nullable = false)
-    private boolean isPublic;
+    @Column(nullable = false, columnDefinition = "TINYINT(1)")
+    private Boolean isPublic;
 
     @CreatedDate
     private LocalDateTime createdAt;

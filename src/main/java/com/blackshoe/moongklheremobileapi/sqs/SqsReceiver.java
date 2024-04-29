@@ -37,6 +37,8 @@ public class SqsReceiver {
     private final PostService postService;
     private final UserService userService;
     private final LogoImgUrlRepository logoImgUrlRepository;
+
+    @Transactional
     @SqsListener(value = "MhAdminSaying", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
     public ResponseEntity<ResponseDto> receiveMessage(final String message) {
         try {

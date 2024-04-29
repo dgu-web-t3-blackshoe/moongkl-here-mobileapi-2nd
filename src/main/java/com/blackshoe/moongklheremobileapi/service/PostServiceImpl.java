@@ -113,7 +113,8 @@ public class PostServiceImpl implements PostService {
         msgMap.put("skinCloudfrontUrl", savedPost.getSkinUrl().getCloudfrontUrl());
         msgMap.put("country", savedPost.getSkinLocation().getCountry());
         msgMap.put("userId", savedPost.getUser().getId().toString());
-        msgMap.put("isPublic", String.valueOf(savedPost.isPublic()));
+        msgMap.put("isPublic", String.valueOf(savedPost.getIsPublic()));
+
         MessageDto messageDto = sqsSender.createMessageDtoFromRequest("create user skin", msgMap);
 
         sqsSender.sendToSQS(messageDto);
@@ -175,7 +176,7 @@ public class PostServiceImpl implements PostService {
                 .story(storyUrl.getCloudfrontUrl())
                 .location(skinLocationDto)
                 .time(skinTimeDto)
-                .isPublic(savedPost.isPublic())
+                .isPublic(savedPost.getIsPublic())
                 .createdAt(savedPost.getCreatedAt())
                 .updatedAt(savedPost.getUpdatedAt())
                 .build();
@@ -202,7 +203,7 @@ public class PostServiceImpl implements PostService {
         //create user skin
         Map<String, String> msgMap = new LinkedHashMap<>();
         msgMap.put("id", post.getId().toString());
-        msgMap.put("isPublic", String.valueOf(post.isPublic()));
+        msgMap.put("isPublic", String.valueOf(post.getIsPublic()));
         MessageDto messageDto = sqsSender.createMessageDtoFromRequest("change post ispublic", msgMap);
 
         sqsSender.sendToSQS(messageDto);
@@ -247,7 +248,7 @@ public class PostServiceImpl implements PostService {
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
-                .isPublic(post.isPublic())
+                .isPublic(post.getIsPublic())
                 .createdAt(post.getCreatedAt())
                 .build();
 

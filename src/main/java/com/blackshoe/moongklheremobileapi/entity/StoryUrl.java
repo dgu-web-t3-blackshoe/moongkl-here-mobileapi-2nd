@@ -33,7 +33,7 @@ public class StoryUrl {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Enterprise enterprise;
 
-    @Column(name = "is_public", length = 10)
+    @Column(name = "is_public", columnDefinition = "TINYINT(1)")
     private Boolean isPublic;
 
     @CreatedDate

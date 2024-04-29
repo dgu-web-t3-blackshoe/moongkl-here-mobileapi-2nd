@@ -51,8 +51,11 @@ public class UserServiceImpl implements UserService {
                 .s3Url("")
                 .build();
 
+        UUID userId = UUID.randomUUID();
+
         //이미 존재하는 회원
         userRepository.save(User.builder()
+                .id(userId)
                 .email(signUpRequestDto.getEmail())
                 .password(passwordEncoder.encode(signUpRequestDto.getPassword()))
                 .nickname(signUpRequestDto.getNickname())
@@ -83,7 +86,7 @@ public class UserServiceImpl implements UserService {
                 .build();
          */
 
-        messageMap.put("id", user.get().getId().toString());
+        messageMap.put("id", userId.toString());
         messageMap.put("email", signUpRequestDto.getEmail());
         messageMap.put("password", signUpRequestDto.getPassword());
         messageMap.put("phoneNumber", signUpRequestDto.getPhoneNumber());

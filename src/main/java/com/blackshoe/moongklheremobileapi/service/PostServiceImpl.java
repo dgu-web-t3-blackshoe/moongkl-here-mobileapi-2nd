@@ -199,6 +199,14 @@ public class PostServiceImpl implements PostService {
 
         post.changeIsPublic(isPublic);
 
+        //create user skin
+        Map<String, String> msgMap = new LinkedHashMap<>();
+        msgMap.put("id", post.getId().toString());
+        msgMap.put("isPublic", String.valueOf(post.isPublic()));
+        MessageDto messageDto = sqsSender.createMessageDtoFromRequest("change post ispublic", msgMap);
+
+        sqsSender.sendToSQS(messageDto);
+
         final PostDto postDto = convertPostEntityToDto(post.getSkinUrl(), post.getStoryUrl(), post);
 
         return postDto;

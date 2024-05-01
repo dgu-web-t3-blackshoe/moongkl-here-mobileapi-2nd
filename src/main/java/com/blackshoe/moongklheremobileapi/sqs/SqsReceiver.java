@@ -45,22 +45,24 @@ public class SqsReceiver {
     @Transactional
     //@SqsListener(value = "MhAdminSaying", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
     @SqsListener(value = "${cloud.aws.sqs.queue-name}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
-    public ResponseEntity<ResponseDto> receiveMessage(final String message) throws IOException {
+    public void receiveMessage(final String message) throws IOException {
         //MessageDto messageDto = objectMapper.readValue(message, MessageDto.class);
 
         MessageDto messageDto = objectMapper.readValue(message, MessageDto.class);
 
         if (!messageDto.getFrom().equals("mh-admin-api")) {
-            log.info("Invalid sender: " + messageDto.getFrom());
-            SqsErrorResult sqsErrorResult = SqsErrorResult.INVALID_SENDER;
+            log.error("Invalid sender: " + messageDto.getFrom());
+            //SqsErrorResult sqsErrorResult = SqsErrorResult.INVALID_SENDER;
 
-            ResponseDto responseDto = ResponseDto.builder().error(sqsErrorResult.getMessage()).build();
-            return ResponseEntity.status(sqsErrorResult.getHttpStatus()).body(responseDto);
+            return;
         }
 
         switch (messageDto.getTopic()) {
             case "create enterprise":
                 createEnterprise(messageDto);
+                break;
+            case "delete enterprise":
+                deleteEnterprise(messageDto);
                 break;
             case "create enterprise story":
                 createEnterpriseStory(messageDto);
@@ -89,17 +91,41 @@ public class SqsReceiver {
             default:
                 log.info("invalid topic : " + messageDto.getTopic());
         }
-
-        return ResponseEntity.ok(ResponseDto.builder().payload("Success " + messageDto.getTopic()).build());
     }
+
+    private void deleteEnterprise(MessageDto messageDto) {
+        log.info("delete enterprise");
+
+        if(!enterpriseRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
+            log.info("enterprise not exists");
+            return;
+        }
+
+        Enterprise enterprise = enterpriseRepository.findById(UUID.fromString(messageDto.getMessage().get("id"))).orElseThrow(() -> new RuntimeException("Invalid enterprise id"));
+        logoImgUrlRepository.deleteById(enterprise.getLogoImgUrl().getId());
+        enterpriseRepository.deleteById(enterprise.getId());
+    }
+
     @Transactional
     public void deleteUser(MessageDto messageDto) {
         log.info("delete user");
+
+        if(!userRepository.existsById(UUID.fromString(messageDto.getMessage().get("userId")))){
+            log.info("user not exists");
+            return;
+        }
+
         userService.deleteUserAndRelationships(UUID.fromString(messageDto.getMessage().get("userId")));
     }
     @Transactional
     public void updateStoryVisible(MessageDto messageDto) {
         log.info("update enterprise story visible");
+
+        if(!storyUrlRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
+            log.info("story not exists");
+            return;
+        }
+
         StoryUrl storyUrl = storyUrlRepository.findById(UUID.fromString(messageDto.getMessage().get("id"))).orElseThrow(() -> new RuntimeException("Invalid story id"));
 
         storyUrl.updateIsPublic();
@@ -138,6 +164,12 @@ public class SqsReceiver {
 
     @Transactional
     public void updateNotification(MessageDto messageDto) {
+
+        if(notificationRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
+            log.info("notification already exists");
+            return;
+        }
+
         Notification notification = notificationRepository.findById(UUID.fromString(messageDto.getMessage().get("id"))).orElseThrow(() -> new RuntimeException("Invalid notification id"));
 
         notification.updateNotification(messageDto.getMessage().get("title"), messageDto.getMessage().get("content"));
@@ -186,7 +218,6 @@ public class SqsReceiver {
 
         enterprise.updateLogoImgUrl(logoImgUrl);
 
-        logoImgUrlRepository.save(logoImgUrl);
         enterpriseRepository.save(enterprise);
     }
 
@@ -206,10 +237,10 @@ public class SqsReceiver {
                 .id(UUID.fromString(messageDto.getMessage().get("storyId")))
                 .s3Url(messageDto.getMessage().get("s3Url"))
                 .cloudfrontUrl(messageDto.getMessage().get("cloudfrontUrl"))
+                .isPublic(Boolean.parseBoolean(messageDto.getMessage().get("isPublic")))
                 .build();
 
         storyUrl.updateEnterprise(enterprise);
-
         storyUrlRepository.save(storyUrl);
     }
 

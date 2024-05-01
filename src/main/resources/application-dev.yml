@@ -29,6 +29,7 @@ spring:
         format_sql: true
     repositories:
       enabled: true
+    defer-datasource-initialization: true
   mail:
     host: smtp.gmail.com
     port: 587

@@ -7,6 +7,7 @@ import com.blackshoe.moongklheremobileapi.exception.SqsErrorResult;
 import com.blackshoe.moongklheremobileapi.repository.*;
 import com.blackshoe.moongklheremobileapi.service.PostService;
 import com.blackshoe.moongklheremobileapi.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
@@ -28,7 +30,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SqsReceiver {
 
-    private final ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private final EnterpriseRepository enterpriseRepository;
     private final StringRedisTemplate redisTemplate;
     private final UserRepository userRepository;
@@ -39,57 +43,54 @@ public class SqsReceiver {
     private final LogoImgUrlRepository logoImgUrlRepository;
 
     @Transactional
-    @SqsListener(value = "MhAdminSaying", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
-    public ResponseEntity<ResponseDto> receiveMessage(final String message) {
-        try {
-            MessageDto messageDto = objectMapper.readValue(message, MessageDto.class);
+    //@SqsListener(value = "MhAdminSaying", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+    @SqsListener(value = "${cloud.aws.sqs.queue-name}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+    public ResponseEntity<ResponseDto> receiveMessage(final String message) throws IOException {
+        //MessageDto messageDto = objectMapper.readValue(message, MessageDto.class);
 
-            if (!messageDto.getFrom().equals("mh-admin-api")) {
-                log.info("Invalid sender: " + messageDto.getFrom());
-                SqsErrorResult sqsErrorResult = SqsErrorResult.INVALID_SENDER;
+        MessageDto messageDto = objectMapper.readValue(message, MessageDto.class);
 
-                ResponseDto responseDto = ResponseDto.builder().error(sqsErrorResult.getMessage()).build();
-                return ResponseEntity.status(sqsErrorResult.getHttpStatus()).body(responseDto);
-            }
+        if (!messageDto.getFrom().equals("mh-admin-api")) {
+            log.info("Invalid sender: " + messageDto.getFrom());
+            SqsErrorResult sqsErrorResult = SqsErrorResult.INVALID_SENDER;
 
-            switch (messageDto.getTopic()) {
-                case "create enterprise":
-                    createEnterprise(messageDto);
-                    break;
-                case "create enterprise story":
-                    createEnterpriseStory(messageDto);
-                    break;
-                case "create notification":
-                    createNotification(messageDto);
-                    break;
-                case "update notification":
-                    updateNotification(messageDto);
-                    break;
-                case "pause user":
-                    pauseUser(messageDto);
-                    break;
-                case "unpause user":
-                    unpauseUser(messageDto);
-                    break;
-                case "delete user":
-                    deleteUser(messageDto);
-                    break;
-                case "delete user post":
-                    deleteUserPost(messageDto);
-                    break;
-                case "update enterprise story visible":
-                    updateStoryVisible(messageDto);
-                    break;
-                default:
-                    log.info("invalid topic : " + messageDto.getTopic());
-            }
-
-            return ResponseEntity.ok(ResponseDto.builder().payload("Success " + messageDto.getTopic()).build());
-        } catch (JsonMappingException e) {
-            throw new RuntimeException(e);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            ResponseDto responseDto = ResponseDto.builder().error(sqsErrorResult.getMessage()).build();
+            return ResponseEntity.status(sqsErrorResult.getHttpStatus()).body(responseDto);
         }
+
+        switch (messageDto.getTopic()) {
+            case "create enterprise":
+                createEnterprise(messageDto);
+                break;
+            case "create enterprise story":
+                createEnterpriseStory(messageDto);
+                break;
+            case "create notification":
+                createNotification(messageDto);
+                break;
+            case "update notification":
+                updateNotification(messageDto);
+                break;
+            case "pause user":
+                pauseUser(messageDto);
+                break;
+            case "unpause user":
+                unpauseUser(messageDto);
+                break;
+            case "delete user":
+                deleteUser(messageDto);
+                break;
+            case "delete user post":
+                deleteUserPost(messageDto);
+                break;
+            case "update enterprise story visible":
+                updateStoryVisible(messageDto);
+                break;
+            default:
+                log.info("invalid topic : " + messageDto.getTopic());
+        }
+
+        return ResponseEntity.ok(ResponseDto.builder().payload("Success " + messageDto.getTopic()).build());
     }
     @Transactional
     public void deleteUser(MessageDto messageDto) {

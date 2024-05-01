@@ -54,22 +54,26 @@ public class UserServiceImpl implements UserService {
         UUID userId = UUID.randomUUID();
 
         //이미 존재하는 회원
-        userRepository.save(User.builder()
-                .id(userId)
-                .email(signUpRequestDto.getEmail())
-                .password(passwordEncoder.encode(signUpRequestDto.getPassword()))
-                .nickname(signUpRequestDto.getNickname())
-                .phoneNumber(signUpRequestDto.getPhoneNumber())
-                .gender(signUpRequestDto.getGender())
-                .country(signUpRequestDto.getCountry())
-                .role(Role.valueOf("USER"))
-                .statusMessage("")
-                .profileImgUrl(profileImgUrl)
-                .backgroundImgUrl(backgroundImgUrl)
-                .build());
-
-        Optional<User> user = userRepository.findByEmail(signUpRequestDto.getEmail());
-
+        try {
+            User user = User.builder()
+                    .id(userId)
+                    .email(signUpRequestDto.getEmail())
+                    .password(passwordEncoder.encode(signUpRequestDto.getPassword()))
+                    .nickname(signUpRequestDto.getNickname())
+                    .phoneNumber(signUpRequestDto.getPhoneNumber())
+                    .gender(signUpRequestDto.getGender())
+                    .country(signUpRequestDto.getCountry())
+                    .role(Role.valueOf("USER"))
+                    .statusMessage("")
+                    .profileImgUrl(profileImgUrl)
+                    .backgroundImgUrl(backgroundImgUrl)
+                    .createdAt(LocalDateTime.now())  // 예시: 현재 시간으로 초기화
+                    .updatedAt(LocalDateTime.now())  // 예시: 현재 시간으로 초기화
+                    .build();
+            userRepository.save(user);
+        } catch (Exception e) {
+            log.error("Error creating user: ", e);
+        }
         log.info("회원가입 성공");
 
         Map<String, String> messageMap = new LinkedHashMap<>();
@@ -92,17 +96,16 @@ public class UserServiceImpl implements UserService {
         messageMap.put("phoneNumber", signUpRequestDto.getPhoneNumber());
         messageMap.put("gender", signUpRequestDto.getGender());
         messageMap.put("country", signUpRequestDto.getCountry());
-        messageMap.put("createdAt", user.get().getCreatedAt().toString());
+        messageMap.put("createdAt", LocalDateTime.now().toString());
 
         MessageDto messageDto = sqsSender.createMessageDtoFromRequest("create user", messageMap);
 
         sqsSender.sendToSQS(messageDto);
 
         return UserDto.SignUpResponseDto.builder()
-                .userId(user.get().getId())
-                .createdAt(user.get().getCreatedAt())
+                .userId(userId)
+                .createdAt(LocalDateTime.now())
                 .build();
-
     }
 
     @Transactional

@@ -17,8 +17,6 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class LogoImgUrl {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(name = "id", columnDefinition = "BINARY(16)", nullable = false)
     private UUID id;
 
@@ -30,6 +28,12 @@ public class LogoImgUrl {
 
     @OneToOne(mappedBy = "logoImgUrl", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Enterprise enterprise;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null)
+            this.id = UUID.randomUUID();
+    }
 
     @Builder
     public LogoImgUrl(UUID id, String s3Url, String cloudfrontUrl, Enterprise enterprise) {

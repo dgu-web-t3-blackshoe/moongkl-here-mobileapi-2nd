@@ -18,8 +18,6 @@ import java.util.UUID;
 @Getter
 public class StoryUrl {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
@@ -40,6 +38,12 @@ public class StoryUrl {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null)
+            this.id = UUID.randomUUID();
+    }
+
     @Builder
     public StoryUrl(UUID id, String s3Url, String cloudfrontUrl, Boolean isPublic, Enterprise enterprise) {
         this.id = id;
@@ -52,9 +56,11 @@ public class StoryUrl {
 
     public static StoryUrl convertStoryUrlDtoToEntity(StoryUrlDto uploadedStoryUrl) {
         final StoryUrl storyUrl = StoryUrl.builder()
+                .id(UUID.randomUUID())
                 .s3Url(uploadedStoryUrl.getS3Url())
                 .cloudfrontUrl(uploadedStoryUrl.getCloudfrontUrl())
                 .build();
+
         return storyUrl;
     }
 

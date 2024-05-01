@@ -122,6 +122,9 @@ cloud:
       distribution-domain: ${CLOUDFRONT_URL}
     sqs:
       queue-url: ${AWS_SQS_QUEUE_URL}
+      #queue-url: ${LOCAL_SQS_QUEUE_URL}
+      queue-name: ${AWS_SQS_QUEUE_NAME} # listen
+      #queue-name: ${LOCAL_SQS_QUEUE_NAME} # listen
       handler:
         default-deletion-policy: ON_SUCCESS
   gcp:

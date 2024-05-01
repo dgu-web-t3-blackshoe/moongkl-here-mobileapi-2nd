@@ -14,8 +14,6 @@ import java.util.UUID;
 @Getter
 public class Enterprise {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
@@ -31,6 +29,12 @@ public class Enterprise {
 
     @Column(name = "manager_email", nullable = false, length = 50)
     private String managerEmail;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null)
+            this.id = UUID.randomUUID();
+    }
 
     @Builder
     public Enterprise(UUID id, String name, String country, LogoImgUrl logoImgUrl, String managerEmail) {

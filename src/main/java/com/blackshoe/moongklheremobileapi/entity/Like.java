@@ -19,8 +19,6 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class Like {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
@@ -41,7 +39,11 @@ public class Like {
         this.user = user;
         this.createdAt = createdAt;
     }
-
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null)
+            this.id = UUID.randomUUID();
+    }
     public Post getPost() {
         return this.post;
     }

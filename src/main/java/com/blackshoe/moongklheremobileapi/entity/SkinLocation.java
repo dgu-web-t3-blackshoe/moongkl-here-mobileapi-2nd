@@ -14,11 +14,8 @@ import java.util.UUID;
 @Getter
 public class SkinLocation {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
-
 
     @Column(nullable = false)
     private Double latitude;
@@ -34,6 +31,12 @@ public class SkinLocation {
 
     @Column(nullable = false)
     private String city;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null)
+            this.id = UUID.randomUUID();
+    }
 
     @Builder
     public SkinLocation(UUID id, Double latitude, Double longitude, String country, String state, String city) {

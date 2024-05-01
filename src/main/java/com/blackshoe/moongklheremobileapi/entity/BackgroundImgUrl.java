@@ -15,8 +15,6 @@ import java.util.UUID;
 @Getter
 public class BackgroundImgUrl{
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
@@ -25,6 +23,12 @@ public class BackgroundImgUrl{
 
     @Column
     private String cloudfrontUrl;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null)
+            this.id = UUID.randomUUID();
+    }
 
     @Builder
     public BackgroundImgUrl(UUID id, String s3Url, String cloudfrontUrl) {

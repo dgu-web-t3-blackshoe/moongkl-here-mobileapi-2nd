@@ -22,8 +22,6 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class Post {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
@@ -72,6 +70,12 @@ public class Post {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null)
+            this.id = UUID.randomUUID();
+    }
 
     @Builder
     public Post(UUID id,

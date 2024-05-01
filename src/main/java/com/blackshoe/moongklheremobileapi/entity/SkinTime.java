@@ -14,8 +14,6 @@ import java.util.UUID;
 @Getter
 public class SkinTime {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
@@ -33,6 +31,12 @@ public class SkinTime {
 
     @Column(name = "skin_minute", length = 2, nullable = false)
     private int minute;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null)
+            this.id = UUID.randomUUID();
+    }
 
     @Builder
     public SkinTime(UUID id, int year, int month, int day, int hour, int minute) {

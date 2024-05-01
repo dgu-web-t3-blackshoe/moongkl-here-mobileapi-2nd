@@ -15,8 +15,6 @@ import java.util.UUID;
 @Getter
 public class SkinUrl {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
@@ -25,6 +23,12 @@ public class SkinUrl {
 
     @Column(nullable = false)
     private String cloudfrontUrl;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null)
+            this.id = UUID.randomUUID();
+    }
 
     @Builder
     public SkinUrl(UUID id, String s3Url, String cloudfrontUrl) {

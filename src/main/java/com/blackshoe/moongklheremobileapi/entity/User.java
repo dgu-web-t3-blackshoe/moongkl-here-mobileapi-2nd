@@ -27,8 +27,6 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class User {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
@@ -99,6 +97,12 @@ public class User {
 
     public void addTemporaryPost(TemporaryPost temporaryPost) {
         this.temporaryPosts.add(temporaryPost);
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null)
+            this.id = UUID.randomUUID();
     }
 
     @Builder(toBuilder = true)

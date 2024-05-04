@@ -226,7 +226,7 @@ public class UserController {
 
         SmsDto.MessageDto messageDto = SmsDto.MessageDto.builder()
                 .to(phoneNumber)
-                .content("[뭉클히어] 인증번호는 [" + verificationCode + "]입니다.")
+                .content("[뭉클히어]\n가입 인증번호는 " + verificationCode + " 입니다")
                 .build();
 
         log.info(verificationCode);

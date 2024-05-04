@@ -232,8 +232,7 @@ public class UserController {
         log.info(verificationCode);
 
         //SmsDto.SmsResponseDto smsResponseDto = smsService.sendSms(messageDto);
-
-
+        smsService.sendAlimtalk(messageDto);
 
         verificationService.saveVerificationCode(phoneNumber, verificationCode);
         verificationService.saveCompletionCode(phoneNumber, false);

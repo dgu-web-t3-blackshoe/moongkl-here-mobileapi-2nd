@@ -41,6 +41,7 @@ public class SqsReceiver {
     private final PostService postService;
     private final UserService userService;
     private final LogoImgUrlRepository logoImgUrlRepository;
+    private final PostRepository postRepository;
 
     @Transactional
     //@SqsListener(value = "MhAdminSaying", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
@@ -159,7 +160,7 @@ public class SqsReceiver {
             return;
         }
 
-        if(!postService.existsById(UUID.fromString(messageDto.getMessage().get("postId")))){
+        if(!postRepository.existsById(UUID.fromString(messageDto.getMessage().get("postId")))){
             log.info("post not exists");
             return;
         }

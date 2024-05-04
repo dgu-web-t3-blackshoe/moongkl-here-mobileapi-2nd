@@ -118,6 +118,7 @@ public class UserController {
 //
 //                return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
 //            }
+
             boolean userHasProvider = userService.userHasProvider(signUpRequestDto.getEmail());
 
             if (userService.userExistsByEmail(signUpRequestDto.getEmail()) && !userHasProvider) {
@@ -230,7 +231,9 @@ public class UserController {
 
         log.info(verificationCode);
 
-        SmsDto.SmsResponseDto smsResponseDto = smsService.sendSms(messageDto);
+        //SmsDto.SmsResponseDto smsResponseDto = smsService.sendSms(messageDto);
+
+
 
         verificationService.saveVerificationCode(phoneNumber, verificationCode);
         verificationService.saveCompletionCode(phoneNumber, false);
@@ -288,12 +291,12 @@ public class UserController {
 
         SmsDto.MessageDto messageDto = SmsDto.MessageDto.builder()
                 .to(phoneNumber)
-                .content("[뭉클히어] 인증번호는 [" + verificationCode + "]입니다.")
+                .content("[뭉클히어]\n가입 인증번호는 " + verificationCode + " 입니다")
                 .build();
 
         log.info(verificationCode);
 
-        SmsDto.SmsResponseDto smsResponseDto = smsService.sendSms(messageDto);
+        smsService.sendAlimtalk(messageDto);
 
         verificationService.saveVerificationCode(phoneNumber, verificationCode);
         verificationService.saveCompletionCode(phoneNumber, false);

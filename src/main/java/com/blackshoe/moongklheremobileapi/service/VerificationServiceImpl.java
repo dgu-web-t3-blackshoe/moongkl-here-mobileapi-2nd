@@ -24,7 +24,7 @@ public class VerificationServiceImpl implements VerificationService{
         redisTemplate.opsForValue().set(key, verificationCode, 5, TimeUnit.MINUTES);
     }
 
-    //인증 성공 시 reids false -> true 덮어씌우기
+    //인증 성공 시 redis false -> true 덮어씌우기
     public void saveCompletionCode(String key, boolean status) {
         //status to string
         redisTemplate.opsForValue().set("CompletionCode:" + key, String.valueOf(status), 5, TimeUnit.MINUTES);

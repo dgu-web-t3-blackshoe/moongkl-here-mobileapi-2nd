@@ -68,7 +68,10 @@ public class StoryUrl {
         this.enterprise = enterprise;
     }
 
-    public void updateIsPublic() {
+    public void changeIsPublic(){
         this.isPublic = !this.isPublic;
+    }
+    public void updateIsPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
     }
 }

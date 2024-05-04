@@ -49,4 +49,5 @@ public interface PostService {
 
     void sharePost(UUID postId);
 
+    boolean existsById(UUID postId);
 }

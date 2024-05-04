@@ -2,9 +2,11 @@ package com.blackshoe.moongklheremobileapi.service;
 
 import com.blackshoe.moongklheremobileapi.dto.SmsDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import kong.unirest.JsonNode;
+import kong.unirest.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpEntity;
@@ -13,7 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -22,12 +25,9 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -35,18 +35,32 @@ public class SmsServiceImpl implements SmsService{
     private final StringRedisTemplate redisTemplate;
     private final VerificationService verificationService;
 
-    @Value("${SMS_ACCESS_KEY}")
-    private String accessKey;
+//    @Value("${SMS_ACCESS_KEY}")
+//    private String accessKey;
+//
+//    @Value("${SMS_SECRET_KEY}")
+//    private String secretKey;
 
-    @Value("${SMS_SECRET_KEY}")
-    private String secretKey;
+//    @Value("${SMS_SERVICE_ID}")
+//    private String serviceId;
+//
+//    @Value("${SMS_SENDER_NUMBER}")
+//    private String senderPhone;
 
-    @Value("${SMS_SERVICE_ID}")
-    private String serviceId;
+    @Value("${ALIGO_API_KEY}")
+    private String aligoApiKey;
 
-    @Value("${SMS_SENDER_NUMBER}")
-    private String senderPhone;
+    @Value("${ALIGO_USER_ID}")
+    private String aligoUserId;
 
+    @Value("${ALIGO_SENDER_KEY}")
+    private String aligoSenderKey;
+
+    private String tpl_code = "TS_6629";
+
+    @Value("${ALIGO_SENDER_PHONE_NUMBER}")
+    private String senderPhoneNumber;
+/*
     public String makeSignature(Long time) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
         String space = " ";
         String newLine = "\n";
@@ -108,4 +122,40 @@ public class SmsServiceImpl implements SmsService{
         return response;
     }
 
+ */
+
+
+    public void sendAlimtalk(SmsDto.MessageDto messageDto) throws RestClientException{
+
+        String receiverPhoneNumber = messageDto.getTo();
+        String subject_1 = "[뭉클히어]회원가입 인증번호입니다.";
+        String message_1 = messageDto.getContent();
+
+        try{
+            HttpResponse<JsonNode> response = Unirest.post("https://kakaoapi.aligo.in/akv10/alimtalk/send/")
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .field("apikey", aligoApiKey)
+                    .field("userid", aligoUserId)
+                    .field("senderkey", aligoSenderKey)
+                    .field("tpl_code", tpl_code)
+                    .field("receiver_1", receiverPhoneNumber)
+                    .field("sender", senderPhoneNumber)
+                    .field("subject_1", subject_1)
+                    .field("message_1", message_1)
+                    .asJson();
+
+            if(response.isSuccess()) {
+                JSONObject responseBody = response.getBody().getObject();
+                int code = responseBody.getInt("code");
+
+                if(code == 0){
+                    log.info("알림톡 전송 성공: {}", responseBody.toString());
+                } else {
+                    throw new RestClientException("알림톡 전송 실패: " + responseBody.toString());
+                }
+            }
+        } catch (Exception e){
+            log.error("알림톡 전송 실패: {}", e.getMessage());
+        }
+    }
 }

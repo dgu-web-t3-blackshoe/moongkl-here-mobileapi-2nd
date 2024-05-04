@@ -64,6 +64,9 @@ public class SqsReceiver {
             case "delete enterprise":
                 deleteEnterprise(messageDto);
                 break;
+            case "delete enterprise story":
+                deleteEnterpriseStory(messageDto);
+                break;
             case "create enterprise story":
                 createEnterpriseStory(messageDto);
                 break;
@@ -91,6 +94,21 @@ public class SqsReceiver {
             default:
                 log.info("invalid topic : " + messageDto.getTopic());
         }
+    }
+
+    private void deleteEnterpriseStory(MessageDto messageDto){
+        log.info("delete enterprise story");
+
+        if(!storyUrlRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
+            log.info("story not exists");
+            return;
+        }
+
+        StoryUrl storyUrl = storyUrlRepository.findById(UUID.fromString(messageDto.getMessage().get("id"))).orElseThrow(() -> new RuntimeException("Invalid story id"));
+
+        storyUrl.updateIsPublic(false);
+
+        storyUrlRepository.save(storyUrl);
     }
 
     private void deleteEnterprise(MessageDto messageDto) {
@@ -127,8 +145,7 @@ public class SqsReceiver {
         }
 
         StoryUrl storyUrl = storyUrlRepository.findById(UUID.fromString(messageDto.getMessage().get("id"))).orElseThrow(() -> new RuntimeException("Invalid story id"));
-
-        storyUrl.updateIsPublic();
+        storyUrl.changeIsPublic();
 
         storyUrlRepository.save(storyUrl);
     }
@@ -137,11 +154,27 @@ public class SqsReceiver {
     public void deleteUserPost(MessageDto messageDto) {
         log.info("delete user post");
 
+        if(!userRepository.existsById(UUID.fromString(messageDto.getMessage().get("userId")))){
+            log.info("user not exists");
+            return;
+        }
+
+        if(!postService.existsById(UUID.fromString(messageDto.getMessage().get("postId")))){
+            log.info("post not exists");
+            return;
+        }
+
         postService.deletePostRelationships(UUID.fromString(messageDto.getMessage().get("userId")), UUID.fromString(messageDto.getMessage().get("postId")));
     }
 
     public void pauseUser(MessageDto messageDto){
         log.info("pause user");
+
+        if(!userRepository.existsById(UUID.fromString(messageDto.getMessage().get("userId")))){
+            log.info("user not exists");
+            return;
+        }
+
         String key = "pause:user:" + messageDto.getMessage().get("userId");
         String value = String.valueOf(messageDto.getMessage().get("pauseDay"));
 
@@ -158,12 +191,20 @@ public class SqsReceiver {
 
     public void unpauseUser(MessageDto messageDto){
         log.info("unpause user");
+
+        if(!userRepository.existsById(UUID.fromString(messageDto.getMessage().get("userId")))){
+            log.info("user not exists");
+            return;
+        }
+
         String key = "pause:user:" + messageDto.getMessage().get("userId");
         redisTemplate.delete(key);
     }
 
     @Transactional
     public void updateNotification(MessageDto messageDto) {
+
+        log.info("update notification");
 
         if(notificationRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
             log.info("notification already exists");
@@ -179,6 +220,8 @@ public class SqsReceiver {
 
     @Transactional
     public void createNotification(MessageDto messageDto) {
+
+        log.info("create notification");
 
         if(notificationRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
             log.info("notification already exists");
@@ -217,7 +260,6 @@ public class SqsReceiver {
                 .build();
 
         enterprise.updateLogoImgUrl(logoImgUrl);
-
         enterpriseRepository.save(enterprise);
     }
 
@@ -225,8 +267,16 @@ public class SqsReceiver {
     public void createEnterpriseStory(MessageDto messageDto) {
         log.info("create enterprise story");
 
-        if(storyUrlRepository.existsById(UUID.fromString(messageDto.getMessage().get("storyId")))){
+        //story id ,enterprise id
+        log.info("story Id : ", messageDto.getMessage().get("id"), "enterprise Id : ", messageDto.getMessage().get("enterpriseId"));
+
+        if(storyUrlRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
             log.info("story already exists");
+            return;
+        }
+
+        if(!enterpriseRepository.existsById(UUID.fromString(messageDto.getMessage().get("enterpriseId")))){
+            log.info("enterprise not exists");
             return;
         }
 
@@ -234,7 +284,7 @@ public class SqsReceiver {
 
         // create story
         StoryUrl storyUrl = StoryUrl.builder()
-                .id(UUID.fromString(messageDto.getMessage().get("storyId")))
+                .id(UUID.fromString(messageDto.getMessage().get("id")))
                 .s3Url(messageDto.getMessage().get("s3Url"))
                 .cloudfrontUrl(messageDto.getMessage().get("cloudfrontUrl"))
                 .isPublic(Boolean.parseBoolean(messageDto.getMessage().get("isPublic")))

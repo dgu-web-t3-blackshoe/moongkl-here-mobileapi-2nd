@@ -130,8 +130,16 @@ public class SmsServiceImpl implements SmsService{
         String receiverPhoneNumber = messageDto.getTo();
         String subject_1 = "[뭉클히어]회원가입 인증번호입니다.";
         String message_1 = messageDto.getContent();
-
         try{
+            /*
+ button_1: {
+"button": [{
+"name": "채널 추가",
+"linkType": "AC",
+"linkTypeName": "채널 추가"
+}]
+}
+ */
             HttpResponse<JsonNode> response = Unirest.post("https://kakaoapi.aligo.in/akv10/alimtalk/send/")
                     .header("Content-Type", "application/x-www-form-urlencoded")
                     .field("apikey", aligoApiKey)
@@ -142,6 +150,7 @@ public class SmsServiceImpl implements SmsService{
                     .field("sender", senderPhoneNumber)
                     .field("subject_1", subject_1)
                     .field("message_1", message_1)
+                    .field("button_1", "{\"button\":[{\"name\":\"채널 추가\",\"linkType\":\"AC\",\"linkTypeName\":\"채널 추가\"}]}")
                     .asJson();
 
             if(response.isSuccess()) {

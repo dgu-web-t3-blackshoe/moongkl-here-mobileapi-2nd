@@ -28,7 +28,7 @@ public class StoryUrl {
     private String cloudfrontUrl;
 
     @JoinColumn(name = "enterprise_id", foreignKey = @ForeignKey(name = "story_urls_fk_enterprise_id"), nullable = true)
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Enterprise enterprise;
 
     @Column(name = "is_public", columnDefinition = "TINYINT(1)")

@@ -128,7 +128,7 @@ public class UserDto {
     }
 
     @Getter
-    @NoArgsConstructor @AllArgsConstructor
+    @NoArgsConstructor
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class UserProfileInfoResponseDto{
         private UUID userId;
@@ -156,7 +156,7 @@ public class UserDto {
     }
 
     @Getter
-    @NoArgsConstructor @AllArgsConstructor
+    @NoArgsConstructor
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class UserBasicProfileInfoResponseDto{
         private UUID userId;

@@ -102,7 +102,6 @@ public class UserController {
                 return ResponseEntity.status(userErrorResult.getHttpStatus()).body(responseDto);
             }
 
-
             if (userService.userExistsByNickname(signUpRequestDto.getEmail())) {
                 log.info("이미 존재하는 닉네임");
                 UserErrorResult userErrorResult = UserErrorResult.DUPLICATED_NICKNAME;

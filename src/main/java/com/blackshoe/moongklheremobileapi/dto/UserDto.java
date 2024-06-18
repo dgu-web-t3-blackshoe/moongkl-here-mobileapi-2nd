@@ -128,7 +128,7 @@ public class UserDto {
     }
 
     @Getter
-    @Builder @NoArgsConstructor @AllArgsConstructor
+    @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class UserProfileInfoResponseDto{
         private UUID userId;
@@ -140,10 +140,23 @@ public class UserDto {
         private int postCount;
         private ProfileImgUrlDto profileImgUrlDto;
         private BackgroundImgUrlDto backgroundImgUrlDto;
+
+        @Builder
+        public UserProfileInfoResponseDto(UUID userId, String nickname, String statusMessage, int likeCount, int favoriteCount, int postCount, ProfileImgUrlDto profileImgUrlDto, BackgroundImgUrlDto backgroundImgUrlDto) {
+            this.userId = userId;
+            this.nickname = nickname != null ? nickname : "";
+            this.statusMessage = statusMessage != null ? statusMessage : "";
+            this.likeCount = likeCount != 0 ? likeCount : 0;
+            this.favoriteCount = favoriteCount != 0 ? favoriteCount : 0;
+            this.postCount = postCount != 0 ? postCount : 0;
+            this.profileImgUrlDto = profileImgUrlDto != null ? profileImgUrlDto : ProfileImgUrlDto.builder().build();
+            this.backgroundImgUrlDto = backgroundImgUrlDto != null ? backgroundImgUrlDto : BackgroundImgUrlDto.builder().build();
+        }
+
     }
 
     @Getter
-    @Builder @NoArgsConstructor @AllArgsConstructor
+    @NoArgsConstructor @AllArgsConstructor
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     public static class UserBasicProfileInfoResponseDto{
         private UUID userId;
@@ -151,6 +164,15 @@ public class UserDto {
         private String nickname;
         private int postCount;
         private ProfileImgUrlDto profileImgUrlDto;
+
+        @Builder
+        public UserBasicProfileInfoResponseDto(UUID userId, String nickname, int postCount, ProfileImgUrlDto profileImgUrlDto) {
+            this.userId = userId;
+            this.nickname = nickname != null ? nickname : "";
+            this.postCount = postCount != 0 ? postCount : 0;
+            this.profileImgUrlDto = profileImgUrlDto != null ? profileImgUrlDto : ProfileImgUrlDto.builder().build();
+        }
+
     }
     @Getter
     @Builder @NoArgsConstructor @AllArgsConstructor

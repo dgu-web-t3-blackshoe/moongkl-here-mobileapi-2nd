@@ -315,7 +315,7 @@ public class UserController {
 
     @GetMapping("/profile/{userId}/details") //API - 133
     public ResponseEntity<ResponseDto> getUserDetailProfileInfo(@PathVariable UUID userId) throws Exception{
-
+        //@TODO : profile, background 에러남, 패딩 에러남
         UserDto.UserProfileInfoResponseDto userProfileInfoResponseDto = userService.getUserProfileInfo(userId);
 
         ResponseDto responseDto = ResponseDto.builder()

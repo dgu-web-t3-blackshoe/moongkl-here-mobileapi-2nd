@@ -277,15 +277,15 @@ public class UserServiceImpl implements UserService {
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
 
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
-                .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
-                .s3Url(profileImgUrl.getS3Url())
+                .cloudfrontUrl(profileImgUrl.getCloudfrontUrl() != null ? profileImgUrl.getCloudfrontUrl() : "")
+                .s3Url(profileImgUrl.getS3Url() != null ? profileImgUrl.getS3Url() : "")
                 .build();
 
         BackgroundImgUrl backgroundImgUrl = user.getBackgroundImgUrl();
 
         BackgroundImgUrlDto backgroundImgUrlDto = BackgroundImgUrlDto.builder()
-                .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl())
-                .s3Url(backgroundImgUrl.getS3Url())
+                .cloudfrontUrl(backgroundImgUrl.getCloudfrontUrl() != null ? backgroundImgUrl.getCloudfrontUrl() : "")
+                .s3Url(backgroundImgUrl.getS3Url() != null ? backgroundImgUrl.getS3Url() : "")
                 .build();
 
         int postCount = user.getPosts().size();
@@ -313,8 +313,8 @@ public class UserServiceImpl implements UserService {
         ProfileImgUrl profileImgUrl = user.getProfileImgUrl();
 
         ProfileImgUrlDto profileImgUrlDto = ProfileImgUrlDto.builder()
-                .cloudfrontUrl(profileImgUrl.getCloudfrontUrl())
-                .s3Url(profileImgUrl.getS3Url())
+                .cloudfrontUrl(profileImgUrl.getCloudfrontUrl() != null ? profileImgUrl.getCloudfrontUrl() : "")
+                .s3Url(profileImgUrl.getS3Url() != null ? profileImgUrl.getS3Url() : "")
                 .build();
 
         int postCount = user.getPosts().size();

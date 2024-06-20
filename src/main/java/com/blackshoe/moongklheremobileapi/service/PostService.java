@@ -49,4 +49,7 @@ public interface PostService {
 
     void sharePost(UUID postId);
 
+    void usePost(UUID postId);
+
+    void viewPost(UUID postId);
 }

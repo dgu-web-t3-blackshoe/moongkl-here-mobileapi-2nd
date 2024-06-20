@@ -486,4 +486,36 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    @Override
+    public void usePost(UUID postId) {
+        final Post post = postRepository.findById(postId).orElseThrow(() -> {
+            throw new PostException(PostErrorResult.POST_NOT_FOUND);
+        });
+
+        if(post.getStoryUrl().getEnterprise() != null) {
+            Map<String, String> messageMap = new LinkedHashMap<>();
+            messageMap.put("id", post.getStoryUrl().getId().toString());
+
+            MessageDto messageDto = sqsSender.createMessageDtoFromRequest("increase use count", messageMap);
+
+            sqsSender.sendToSQS(messageDto);
+        }
+    }
+
+    @Override
+    public void viewPost(UUID postId) {
+        final Post post = postRepository.findById(postId).orElseThrow(() -> {
+            throw new PostException(PostErrorResult.POST_NOT_FOUND);
+        });
+
+        if(post.getStoryUrl().getEnterprise() != null) {
+            Map<String, String> messageMap = new LinkedHashMap<>();
+            messageMap.put("id", post.getStoryUrl().getId().toString());
+
+            MessageDto messageDto = sqsSender.createMessageDtoFromRequest("increase view count", messageMap);
+
+            sqsSender.sendToSQS(messageDto);
+        }
+    }
+
 }

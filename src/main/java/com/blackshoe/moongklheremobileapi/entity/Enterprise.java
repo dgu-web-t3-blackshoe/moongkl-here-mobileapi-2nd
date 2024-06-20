@@ -44,9 +44,20 @@ public class Enterprise {
         this.logoImgUrl = logoImgUrl;
         this.managerEmail = managerEmail;
     }
-
     public void updateLogoImgUrl(LogoImgUrl logoImgUrl) {
         this.logoImgUrl = logoImgUrl;
         logoImgUrl.setEnterprise(this);
+    }
+
+    public void updateCountry(String country){
+        this.country = country;
+    }
+    public void updateManagerEmail(String managerEmail){
+        this.managerEmail = managerEmail;
+    }
+
+    public void updateEnterprise(String country, String managerEmail) {
+        this.country = country;
+        this.managerEmail = managerEmail;
     }
 }

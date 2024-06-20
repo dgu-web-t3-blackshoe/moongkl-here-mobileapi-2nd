@@ -137,4 +137,12 @@ public class User {
         this.posts = new ArrayList<>();
         this.temporaryPosts = new ArrayList<>();
     }
+
+    public void setProfileImgUrl(ProfileImgUrl profileImgUrl) {
+        this.profileImgUrl = profileImgUrl;
+    }
+
+    public void setBackgroundImgUrl(BackgroundImgUrl backgroundImgUrl) {
+        this.backgroundImgUrl = backgroundImgUrl;
+    }
 }

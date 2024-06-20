@@ -382,6 +382,24 @@ public class PostController {
     }
 
     @PreAuthorize("isAuthenticated()")
+    @PostMapping("/use")
+    public ResponseEntity<ResponseDto> usePost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                 @RequestParam("post_id") UUID postId) {
+        postService.usePost(postId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/view")
+    public ResponseEntity<ResponseDto> viewPost(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                 @RequestParam("post_id") UUID postId) {
+        postService.viewPost(postId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/story")
     public ResponseEntity<ResponseDto<Page<PostDto.EnterpriseStoryReadResponse>>> getEnterpriseStory(@RequestParam(defaultValue = "10") Integer size,
                                                                                                       @RequestParam(defaultValue = "0") Integer page) {

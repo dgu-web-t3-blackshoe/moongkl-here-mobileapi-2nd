@@ -62,6 +62,9 @@ public class SqsReceiver {
             case "create enterprise":
                 createEnterprise(messageDto);
                 break;
+            case "update enterprise":
+                updateEnterprise(messageDto);
+                break;
             case "delete enterprise":
                 deleteEnterprise(messageDto);
                 break;
@@ -95,6 +98,28 @@ public class SqsReceiver {
             default:
                 log.info("invalid topic : " + messageDto.getTopic());
         }
+    }
+
+    private void updateEnterprise(MessageDto messageDto) {
+        log.info("update enterprise");
+
+        if(!enterpriseRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
+            log.info("enterprise not exists");
+            return;
+        }
+
+        Enterprise enterprise = enterpriseRepository.findById(UUID.fromString(messageDto.getMessage().get("id"))).orElseThrow(() -> new RuntimeException("Invalid enterprise id"));
+
+        enterprise.updateEnterprise(messageDto.getMessage().get("country"), messageDto.getMessage().get("managerEmail"));
+
+        LogoImgUrl logoImgUrl = LogoImgUrl.builder()
+                .id(UUID.fromString(messageDto.getMessage().get("logoImgUrlId")))
+                .s3Url(messageDto.getMessage().get("logoImgUrlS3Url"))
+                .cloudfrontUrl(messageDto.getMessage().get("logoImgUrlCloudfrontUrl"))
+                .build();
+
+        enterprise.updateLogoImgUrl(logoImgUrl);
+        enterpriseRepository.save(enterprise);
     }
 
     private void deleteEnterpriseStory(MessageDto messageDto){

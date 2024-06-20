@@ -9,6 +9,7 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +27,7 @@ public class ControllerExceptionAdvice {
 
         log.error("MissingServletRequestPartException", e);
 
-        final ResponseDto responseDto = ResponseDto.builder()
+        final ResponseDto responseDto = ResponseDto.error()
                 .error(e.getMessage())
                 .build();
 
@@ -42,7 +43,7 @@ public class ControllerExceptionAdvice {
 
         log.error("BindException", errors);
 
-        final ResponseDto responseDto = ResponseDto.builder()
+        final ResponseDto responseDto = ResponseDto.error()
                 .error(errors)
                 .build();
 
@@ -54,7 +55,7 @@ public class ControllerExceptionAdvice {
 
         log.error("MethodArgumentTypeMismatchException", e);
 
-        final ResponseDto responseDto = ResponseDto.builder()
+        final ResponseDto responseDto = ResponseDto.error()
                 .error(e.getMessage())
                 .build();
 
@@ -68,7 +69,7 @@ public class ControllerExceptionAdvice {
 
         final PostErrorResult errorResult = e.getPostErrorResult();
 
-        final ResponseDto responseDto = ResponseDto.builder()
+        final ResponseDto responseDto = ResponseDto.error()
                 .error(errorResult.getMessage())
                 .build();
 
@@ -82,7 +83,7 @@ public class ControllerExceptionAdvice {
 
         final InteractionErrorResult errorResult = e.getInteractionErrorResult();
 
-        final ResponseDto responseDto = ResponseDto.builder()
+        final ResponseDto responseDto = ResponseDto.error()
                 .error(errorResult.getMessage())
                 .build();
 
@@ -96,7 +97,7 @@ public class ControllerExceptionAdvice {
 
         final TemporaryPostErrorResult errorResult = e.getTemporaryPostErrorResult();
 
-        final ResponseDto responseDto = ResponseDto.builder()
+        final ResponseDto responseDto = ResponseDto.error()
                 .error(errorResult.getMessage())
                 .build();
 
@@ -110,7 +111,7 @@ public class ControllerExceptionAdvice {
 
         final UserErrorResult errorResult = e.getUserErrorResult();
 
-        final ResponseDto responseDto = ResponseDto.builder()
+        final ResponseDto responseDto = ResponseDto.error()
                 .error(errorResult.getMessage())
                 .build();
 
@@ -124,11 +125,23 @@ public class ControllerExceptionAdvice {
 
         final ExternalApiErrorResult errorResult = e.getExternalApiErrorResult();
 
-        final ResponseDto responseDto = ResponseDto.builder()
+        final ResponseDto responseDto = ResponseDto.error()
                 .error(errorResult.getMessage())
                 .build();
 
         return ResponseEntity.status(errorResult.getHttpStatus()).body(responseDto);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ResponseDto> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+
+        log.error("MaxUploadSizeExceededException", e);
+
+        final ResponseDto responseDto = ResponseDto.error()
+                .error("파일 크기가 50MB보다 큽니다.")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
     }
 
     @ExceptionHandler(SqsException.class)
@@ -138,7 +151,7 @@ public class ControllerExceptionAdvice {
 
         final SqsErrorResult errorResult = e.getSqsErrorResult();
 
-        final ResponseDto responseDto = ResponseDto.builder()
+        final ResponseDto responseDto = ResponseDto.error()
                 .error(errorResult.getMessage())
                 .build();
 
@@ -151,14 +164,14 @@ public class ControllerExceptionAdvice {
         log.error("Exception" + String.valueOf(e));
 
         if(e.getClass().getName().equals("org.springframework.security.access.AccessDeniedException")){
-            final ResponseDto responseDto = ResponseDto.builder()
+            final ResponseDto responseDto = ResponseDto.error()
                     .error(e.getMessage())
                     .build();
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDto);
         }
 
-        final ResponseDto responseDto = ResponseDto.builder()
+        final ResponseDto responseDto = ResponseDto.error()
                 .error(e.getMessage())
                 .build();
 

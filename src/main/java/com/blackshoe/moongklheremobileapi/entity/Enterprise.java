@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -30,6 +32,9 @@ public class Enterprise {
     @Column(name = "manager_email", nullable = false, length = 50)
     private String managerEmail;
 
+    @OneToMany(mappedBy = "enterprise", cascade = CascadeType.ALL)
+    private Set<StoryUrl> storyUrls;
+
     @PrePersist
     public void prePersist() {
         if (this.id == null)
@@ -43,6 +48,7 @@ public class Enterprise {
         this.country = country;
         this.logoImgUrl = logoImgUrl;
         this.managerEmail = managerEmail;
+        this.storyUrls = new HashSet<>();
     }
     public void updateLogoImgUrl(LogoImgUrl logoImgUrl) {
         this.logoImgUrl = logoImgUrl;

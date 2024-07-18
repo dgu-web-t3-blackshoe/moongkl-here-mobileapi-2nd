@@ -412,4 +412,19 @@ public class PostController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/enterprises/search")
+    public ResponseEntity<ResponseDto<Page<PostDto.EnterpriseSearchReadResponse>>> searchEnterprise(@RequestParam(name = "enterprise_name") String enterpriseName,
+                                                                                                    @RequestParam(defaultValue = "10") Integer size,
+                                                                                                    @RequestParam(defaultValue = "0") Integer page) {
+        final Page<PostDto.EnterpriseSearchReadResponse> enterpriseSearchReadResponsePage
+                = storyService.searchEnterprise(enterpriseName, size, page);
+
+        final ResponseDto<Page<PostDto.EnterpriseSearchReadResponse>> responseDto = ResponseDto.<Page<PostDto.EnterpriseSearchReadResponse>>success()
+                .payload(enterpriseSearchReadResponsePage)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
 }

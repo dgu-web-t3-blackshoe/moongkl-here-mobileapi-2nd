@@ -245,4 +245,26 @@ public class PostDto {
         private String cloudfrontUrl;
         private LocalDateTime createdAt;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class EnterpriseSearchReadResponse{
+        private UUID enterpriseId;
+        private String enterpriseName;
+        List<EnterpriseStoryList> enterpriseStoryList;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+    public static class EnterpriseStoryList{
+        private UUID storyId;
+        private String cloudfrontUrl;
+        private LocalDateTime createdAt;
+    }
 }

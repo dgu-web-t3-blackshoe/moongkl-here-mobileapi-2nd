@@ -3,20 +3,23 @@ package com.blackshoe.moongklheremobileapi.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.blackshoe.moongklheremobileapi.dto.PostDto;
 import com.blackshoe.moongklheremobileapi.dto.StoryUrlDto;
+import com.blackshoe.moongklheremobileapi.entity.Enterprise;
+import com.blackshoe.moongklheremobileapi.entity.StoryUrl;
 import com.blackshoe.moongklheremobileapi.exception.PostErrorResult;
 import com.blackshoe.moongklheremobileapi.exception.PostException;
+import com.blackshoe.moongklheremobileapi.repository.EnterpriseRepository;
 import com.blackshoe.moongklheremobileapi.repository.StoryUrlRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,10 +27,12 @@ public class StoryServiceImpl implements StoryService {
 
     private final AmazonS3Client amazonS3Client;
     private final StoryUrlRepository storyUrlRepository;
+    private final EnterpriseRepository enterpriseRepository;
 
-    public StoryServiceImpl(AmazonS3Client amazonS3Client, StoryUrlRepository storyUrlRepository) {
+    public StoryServiceImpl(AmazonS3Client amazonS3Client, StoryUrlRepository storyUrlRepository, EnterpriseRepository enterpriseRepository) {
         this.amazonS3Client = amazonS3Client;
         this.storyUrlRepository = storyUrlRepository;
+        this.enterpriseRepository = enterpriseRepository;
     }
 
     @Value("${cloud.aws.s3.bucket}")
@@ -108,5 +113,35 @@ public class StoryServiceImpl implements StoryService {
                 = storyUrlRepository.findAllEnterpriseStory(pageable);
 
         return enterpriseStoryReadResponsePage;
+    }
+
+    @Override
+    public Page<PostDto.EnterpriseSearchReadResponse> searchEnterprise(String enterpriseName, Integer size, Integer page) {
+        List<Enterprise> enterprises = enterpriseRepository.findByNameContainingOrderByStoryCreatedAtDesc(enterpriseName);
+
+        List<PostDto.EnterpriseSearchReadResponse> responseList = enterprises.stream()
+                .map(enterprise -> {
+                    List<StoryUrl> storyUrlList = storyUrlRepository.findByEnterpriseOrderByCreatedAtDesc(enterprise);
+                    List<PostDto.EnterpriseStoryList> enterpriseStoryList = storyUrlList.stream()
+                            .map(storyUrl -> PostDto.EnterpriseStoryList.builder()
+                                    .storyId(storyUrl.getId())
+                                    .cloudfrontUrl(storyUrl.getCloudfrontUrl())
+                                    .createdAt(storyUrl.getCreatedAt())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    return PostDto.EnterpriseSearchReadResponse.builder()
+                            .enterpriseId(enterprise.getId())
+                            .enterpriseName(enterprise.getName())
+                            .enterpriseStoryList(enterpriseStoryList)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        int start = page * size;
+        int end = Math.min((start + size), responseList.size());
+        List<PostDto.EnterpriseSearchReadResponse> pageContent = responseList.subList(start, end);
+
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), responseList.size());
     }
 }

@@ -15,4 +15,6 @@ public interface StoryService {
     void deleteStory(String storyS3Url);
 
     Page<PostDto.EnterpriseStoryReadResponse> getEnterpriseStory(Integer size, Integer page);
+
+    Page<PostDto.EnterpriseSearchReadResponse> searchEnterprise(String enterpriseName, Integer size, Integer page);
 }

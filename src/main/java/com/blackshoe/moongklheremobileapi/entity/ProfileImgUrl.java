@@ -18,10 +18,10 @@ public class ProfileImgUrl {
     @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column
+    @Column(name = "s3url", length = 300)
     private String s3Url;
 
-    @Column
+    @Column(name = "cloudfront_url", length = 300)
     private String cloudfrontUrl;
 
     @PrePersist

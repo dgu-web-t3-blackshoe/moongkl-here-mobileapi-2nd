@@ -21,6 +21,11 @@ public interface StoryUrlRepository extends JpaRepository<StoryUrl, UUID> {
             "WHERE s.isPublic = TRUE")
     Page<PostDto.EnterpriseStoryReadResponse> findAllEnterpriseStory(Pageable pageable);
 
+    @Query("SELECT s " +
+            "FROM StoryUrl s JOIN s.enterprise e " +
+            //"WHERE s. = :enterprise AND s.isPublic = TRUE")
+            "WHERE e = :enterprise AND s.isPublic = TRUE " +
+            "ORDER BY s.createdAt DESC")
     List<StoryUrl> findByEnterpriseOrderByCreatedAtDesc(Enterprise enterprise);
 
 }

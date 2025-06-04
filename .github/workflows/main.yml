@@ -59,9 +59,4 @@ jobs:
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
 
       - name: Code Deploy
-        run: aws deploy create-deployment \
-          --application-name $CODEDEPLOY_NAME \
-          --deployment-group-name $CODEDEPLOY_GROUP \
-          --deployment-config-name CodeDeployDefault.HalfAtATime \
-          --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip
-        shell: bash
+        run: aws deploy create-deployment --application-name $CODEDEPLOY_NAME --deployment-group-name $CODEDEPLOY_GROUP --deployment-config-name CodeDeployDefault.HalfAtATime --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip

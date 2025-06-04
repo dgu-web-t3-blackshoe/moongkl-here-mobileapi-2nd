@@ -14,11 +14,11 @@ spring:
     username: ${MARIA_USERNAME}
     password: ${MARIA_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
-  sql:
-    init:
-      mode: always
-      data-locations: classpath:data.sql
-      schema-locations:
+#  sql:
+#    init:
+#      mode: always
+#      data-locations: classpath:data.sql
+#      schema-locations:
   redis:
     host: ${REDIS_HOST}
     port: ${REDIS_PORT}
@@ -27,7 +27,8 @@ spring:
     generate-ddl: true
     show-sql: false
     hibernate:
-      ddl-auto: ${SPRING_DATASOURCE_DDL_AUTO}
+      #ddl-auto: ${SPRING_DATASOURCE_DDL_AUTO}
+      ddl-auto: create-drop
     properties:
       hibernate:
         jdbc:
@@ -36,7 +37,7 @@ spring:
         format_sql: true
     repositories:
       enabled: true
-    defer-datasource-initialization: true
+    #defer-datasource-initialization: true
   mail:
     host: smtp.gmail.com
     port: 587

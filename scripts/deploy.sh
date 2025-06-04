@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Define log directories
-LOG_DIR="/home/ubuntu/logs"
 DEPLOY_LOG_DIR="${LOG_DIR}/deploy"
 DEPLOY_ERR_LOG_DIR="${LOG_DIR}/deploy_err"
 

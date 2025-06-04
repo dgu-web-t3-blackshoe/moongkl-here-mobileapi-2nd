@@ -24,7 +24,7 @@ env:
 jobs:
   build:
     # 해당 workflow를 어떤 OS 환경에서 실행할 것인지 지정
-    runs-on: ubuntu-22.04-arm64
+    runs-on: ubuntu-22.04
 
     # step은 작업의 일부로 실행될 일련의 작업을 나타냅니다.
     steps:
@@ -37,10 +37,6 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-        shell: bash
 
       - name: Build with Gradle
         run: |

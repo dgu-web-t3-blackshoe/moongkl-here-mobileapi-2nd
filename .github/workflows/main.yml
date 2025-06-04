@@ -1,6 +1,6 @@
 # workflow의 이름
 # testCD
-name: github-action-test
+name: deploy-to-mobile-api-server
 
 # 해당 workflow가 언제 실행될 것인지에 대한 트리거를 지정
 on:
@@ -14,17 +14,17 @@ on:
   workflow_dispatch:
 
 env:
-  S3_BUCKET_NAME: deploy.mobile-api.moongkl.com
+  S3_BUCKET_NAME: deploy-moongklhere-mobile-api
   #글로벌하게 유일한 버킷 이름이기에 이렇게 사용해줄 수 있다.
   AWS_REGION: ap-northeast-2
-  CODEDEPLOY_NAME: moongkl-here-mobile-api-github-actions
-  CODEDEPLOY_GROUP: mh-mobile-api-v2-deploy-group
+  CODEDEPLOY_NAME: moongklhere-mobile-api-github-actions
+  CODEDEPLOY_GROUP: mobile-api-deployment-group
 
 # workflow는 한개 이상의 job을 가지며, 각 job은 여러 step에 따라 단계를 나눌 수 있습니다.
 jobs:
   build:
     # 해당 workflow를 어떤 OS 환경에서 실행할 것인지 지정
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04-arm64
 
     # step은 작업의 일부로 실행될 일련의 작업을 나타냅니다.
     steps:
@@ -43,7 +43,9 @@ jobs:
         shell: bash
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build
         shell: bash
 
       - name: Make zip file
@@ -51,7 +53,7 @@ jobs:
         shell: bash
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -61,4 +63,8 @@ jobs:
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
 
       - name: Code Deploy
-        run: aws deploy create-deployment --application-name $CODEDEPLOY_NAME --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name $CODEDEPLOY_GROUP --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip
+        run: aws deploy create-deployment \
+          --application-name $CODEDEPLOY_NAME \
+          --deployment-group-name $CODEDEPLOY_GROUP \
+          --deployment-config-name CodeDeployDefault.HalfAtATime \
+          --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip

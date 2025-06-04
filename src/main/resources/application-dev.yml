@@ -116,7 +116,7 @@ cloud:
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}
     s3:
-      bucket: files.mobile-api.moongkl.com
+      bucket: moongklhere-files
       root-directory: ${AWS_S3_ROOT_DIRECTORY}
       skin-directory: skin
       story-directory: story

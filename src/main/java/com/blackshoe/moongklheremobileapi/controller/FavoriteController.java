@@ -142,13 +142,13 @@ public class FavoriteController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping(params = {"user", "country", "state", "city"})
+    @GetMapping(params = {"user", "country"})
     @ApiOperation(value = "도시별 사용자 찜한 게시물 조회")
     public ResponseEntity<ResponseDto<Page<PostDto.PostListReadResponse>>> getUserCityFavoritePostList(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                                                        @RequestParam(name = "user") UUID userId,
                                                                                                        @RequestParam(name = "country") String country,
-                                                                                                       @RequestParam(name = "state") String state,
-                                                                                                       @RequestParam(name = "city") String city,
+                                                                                                       @RequestParam(name = "state", required = false) String state,
+                                                                                                       @RequestParam(name = "city", required = false) String city,
                                                                                                        @RequestParam(name = "sort", required = false, defaultValue = "default") String sort,
                                                                                                        @RequestParam(name = "size", required = false, defaultValue = "50") Integer size,
                                                                                                        @RequestParam(name = "page", required = false, defaultValue = "0") Integer page) {
@@ -161,9 +161,15 @@ public class FavoriteController {
         if (!user.getId().equals(userId)) {
             throw new PostException(PostErrorResult.USER_NOT_MATCH);
         }
+        Page<PostDto.PostListReadResponse> postListReadResponsePage;
 
-        final Page<PostDto.PostListReadResponse> postListReadResponsePage
-                = favoriteService.getUserCityFavoritePostList(user, country, state, city, sort, size, page);
+        if ((state == null || state.isEmpty()) && (city == null || city.isEmpty())) {
+            postListReadResponsePage = favoriteService.getUserCountryFavoritePostList(user, country, sort, size, page);
+        }else if (city == null || city.isEmpty()) {
+            postListReadResponsePage = favoriteService.getUserStateFavoritePostList(user, country, state, sort, size, page);
+        }else{
+            postListReadResponsePage = favoriteService.getUserCityFavoritePostList(user, country, state, city, sort, size, page);
+        }
 
         final ResponseDto<Page<PostDto.PostListReadResponse>> responseDto = ResponseDto.<Page<PostDto.PostListReadResponse>>success()
                 .payload(postListReadResponsePage)

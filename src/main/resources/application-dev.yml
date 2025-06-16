@@ -16,7 +16,7 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
   sql:
     init:
-      mode: always
+      mode: never
       data-locations: classpath:data.sql
       schema-locations:
   redis:
@@ -37,7 +37,8 @@ spring:
         format_sql: true
     repositories:
       enabled: true
-    defer-datasource-initialization: true
+    #defer-datasource-initialization: true
+    defer-datasource-initialization: false
   mail:
     host: smtp.gmail.com
     port: 587

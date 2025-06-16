@@ -62,6 +62,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
             "ORDER BY COUNT(f.post) DESC")
     Page<PostDto.PostGroupByCityReadResponse> findAllUserFavoritePostByLocationAndGroupByCity(User user, PostPointFilter postPointFilter, Pageable pageable);
 
+
     @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +
             "f.post.id, f.post.user.id, f.post.skinUrl.cloudfrontUrl, f.post.storyUrl.cloudfrontUrl) " +
             "FROM Favorite f " +
@@ -71,10 +72,27 @@ public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
             "AND f.post.skinLocation.city = :#{#postAddressFilter.city} " )
     Page<PostDto.PostListReadResponse> findAllUserFavoritePostByCity(User user, PostAddressFilter postAddressFilter, Pageable pageable);
 
+    @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +
+            "f.post.id, f.post.user.id, f.post.skinUrl.cloudfrontUrl, f.post.storyUrl.cloudfrontUrl) " +
+            "FROM Favorite f " +
+            "WHERE f.user = :user " +
+            "AND f.post.skinLocation.country = :#{#postAddressFilter.country} " +
+            "AND f.post.skinLocation.state = :#{#postAddressFilter.state} ")
+    Page<PostDto.PostListReadResponse> findAllUserFavoritePostByState(User user, PostAddressFilter postAddressFilter, Pageable pageable);
+
+    @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostListReadResponse(" +
+            "f.post.id, f.post.user.id, f.post.skinUrl.cloudfrontUrl, f.post.storyUrl.cloudfrontUrl) " +
+            "FROM Favorite f " +
+            "WHERE f.user = :user " +
+            "AND f.post.skinLocation.country = :#{#postAddressFilter.country} ")
+    Page<PostDto.PostListReadResponse> findAllUserFavoritePostByCountry(User user, PostAddressFilter postAddressFilter, Pageable pageable);
+
     @Query("SELECT new com.blackshoe.moongklheremobileapi.dto.PostDto$PostWithDateListReadResponse(" +
             "f.post.id, f.post.user.id, f.post.skinUrl.cloudfrontUrl, f.post.storyUrl.cloudfrontUrl, f.post.skinTime.year, f.post.skinTime.month, f.post.skinTime.day) " +
             "FROM Favorite f " +
             "WHERE f.user = :user " +
             "ORDER BY  f.post.skinTime.year DESC, f.post.skinTime.month DESC, f.post.skinTime.day DESC")
     Page<PostDto.PostWithDateListReadResponse> findAllUserFavoritePostByUser(User user, Pageable pageable);
+
+
 }

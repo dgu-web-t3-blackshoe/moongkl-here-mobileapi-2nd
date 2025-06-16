@@ -163,6 +163,54 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
+    public Page<PostDto.PostListReadResponse> getUserStateFavoritePostList(User user,
+                                                                                   String country,
+                                                                                   String state,
+                                                                                   String sort,
+                                                                                   Integer size,
+                                                                                   Integer page) {
+
+        final PostAddressFilter postAddressFilter = PostAddressFilter.builder()
+                .country(country)
+                .state(state)
+                .build();
+
+        final SortType sortType = SortType.verifyAndConvertStringToSortType(sort);
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, SortType.getSortField(sortType));
+
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        final Page<PostDto.PostListReadResponse> userStateFavoritePostReadResponsePage
+                = favoriteRepository.findAllUserFavoritePostByState(user, postAddressFilter, pageable);
+
+        return userStateFavoritePostReadResponsePage;
+    }
+
+    @Override
+    public Page<PostDto.PostListReadResponse> getUserCountryFavoritePostList(User user,
+                                                                              String country,
+                                                                              String sort,
+                                                                              Integer size,
+                                                                              Integer page) {
+
+        final PostAddressFilter postAddressFilter = PostAddressFilter.builder()
+                .country(country)
+                .build();
+        final SortType sortType = SortType.verifyAndConvertStringToSortType(sort);
+
+        final Sort sortBy = Sort.by(Sort.Direction.DESC, SortType.getSortField(sortType));
+
+        final Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        final Page<PostDto.PostListReadResponse> userCountryFavoritePostReadResponsePage
+                = favoriteRepository.findAllUserFavoritePostByCountry(user, postAddressFilter, pageable);
+
+        return userCountryFavoritePostReadResponsePage;
+    }
+
+
+    @Override
     public Page<PostDto.PostWithDateListReadResponse> getUserFavoritePostWithDateList(User user, Integer size, Integer page) {
 
         final Sort sortBy = Sort.by(Sort.Direction.DESC, "createdAt");

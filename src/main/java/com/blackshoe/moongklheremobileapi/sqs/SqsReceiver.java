@@ -136,16 +136,14 @@ public class SqsReceiver {
     private void deleteEnterpriseStory(MessageDto messageDto){
         log.info("delete enterprise story");
 
-        if(!storyUrlRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
+        UUID storyId = UUID.fromString(messageDto.getMessage().get("id"));
+
+        if(!storyUrlRepository.existsById(storyId)){
             log.info("story not exists");
             return;
         }
 
-        StoryUrl storyUrl = storyUrlRepository.findById(UUID.fromString(messageDto.getMessage().get("id"))).orElseThrow(() -> new RuntimeException("Invalid story id"));
-
-        storyUrl.updateIsPublic(false);
-
-        storyUrlRepository.save(storyUrl);
+        storyUrlRepository.deleteById(storyId);
     }
 
     private void deleteEnterprise(MessageDto messageDto) {

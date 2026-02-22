@@ -42,6 +42,11 @@ public class SqsReceiver {
     private final UserService userService;
     private final LogoImgUrlRepository logoImgUrlRepository;
     private final PostRepository postRepository;
+    private final TermsRepository termsRepository;
+    private final AboutUsRepository aboutUsRepository;
+
+    private static final UUID TERMS_ID = UUID.fromString("4000c0f7-0c97-4bd7-a200-0de1392f1df0");
+    private static final UUID ABOUT_US_ID = UUID.fromString("648c4bf4-3c90-492a-bb23-600dae7a4d70");
 
     @Transactional
     //@SqsListener(value = "MhAdminSaying", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
@@ -94,6 +99,12 @@ public class SqsReceiver {
                 break;
             case "update enterprise story visible":
                 updateStoryVisible(messageDto);
+                break;
+            case "update terms":
+                updateTerms(messageDto);
+                break;
+            case "update about us":
+                updateAboutUs(messageDto);
                 break;
             default:
                 log.info("invalid topic : " + messageDto.getTopic());
@@ -287,6 +298,40 @@ public class SqsReceiver {
 
         enterprise.updateLogoImgUrl(logoImgUrl);
         enterpriseRepository.save(enterprise);
+    }
+
+    @Transactional
+    public void updateTerms(MessageDto messageDto) {
+        log.info("update terms");
+
+        String termsContent = messageDto.getMessage().get("terms");
+        if (termsContent == null) {
+            log.error("terms content is null");
+            return;
+        }
+
+        Terms terms = termsRepository.findById(TERMS_ID)
+                .orElse(Terms.builder().id(TERMS_ID).terms("").build());
+
+        terms.updateTerms(termsContent);
+        termsRepository.save(terms);
+    }
+
+    @Transactional
+    public void updateAboutUs(MessageDto messageDto) {
+        log.info("update about us");
+
+        String aboutUsContent = messageDto.getMessage().get("aboutUs");
+        if (aboutUsContent == null) {
+            log.error("aboutUs content is null");
+            return;
+        }
+
+        AboutUs aboutUs = aboutUsRepository.findById(ABOUT_US_ID)
+                .orElse(AboutUs.builder().id(ABOUT_US_ID).aboutUs("").build());
+
+        aboutUs.updateAboutUs(aboutUsContent);
+        aboutUsRepository.save(aboutUs);
     }
 
     @Transactional

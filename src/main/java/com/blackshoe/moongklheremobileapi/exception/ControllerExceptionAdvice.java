@@ -41,7 +41,7 @@ public class ControllerExceptionAdvice {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining(", "));
 
-        log.error("BindException", errors);
+        log.error("BindException: {}", errors);
 
         final ResponseDto responseDto = ResponseDto.error()
                 .error(errors)

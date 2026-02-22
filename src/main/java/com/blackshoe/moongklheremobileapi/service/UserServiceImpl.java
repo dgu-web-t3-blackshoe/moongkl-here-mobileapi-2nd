@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final LikeRepository likeRepository;
     private final FavoriteRepository favoriteRepository;
     private final ViewRepository viewRepository;
+    private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ProfileImgService profileImgService;
@@ -193,6 +195,15 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_USER));
 
+        // 사용자 포스트에 달린 타인의 like/favorite/view 삭제 (FK constraint 방지)
+        List<Post> userPosts = postRepository.findAllByUser(user);
+        for (Post post : userPosts) {
+            likeRepository.deleteAllByPost(post);
+            favoriteRepository.deleteAllByPost(post);
+            viewRepository.deleteAllByPost(post);
+        }
+
+        // 사용자 본인이 누른 like/favorite/view 삭제
         likeRepository.deleteAllByUser(user);
 
         favoriteRepository.deleteAllByUser(user);

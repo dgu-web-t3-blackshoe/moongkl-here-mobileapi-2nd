@@ -232,8 +232,8 @@ public class SqsReceiver {
 
         log.info("update notification");
 
-        if(notificationRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
-            log.info("notification already exists");
+        if(!notificationRepository.existsById(UUID.fromString(messageDto.getMessage().get("id")))){
+            log.info("notification not exists");
             return;
         }
 
